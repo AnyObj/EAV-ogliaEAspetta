@@ -12,7 +12,8 @@
 //  4. tiene in memoria il risultato per 10 secondi, cosi' EAV non viene martellato
 //
 // Siti autorizzati: variabile ALLOWED_ORIGINS (origini separate da virgola, senza percorso).
-// In produzione sta in wrangler.toml, in locale in .dev.vars.
+// REQUIRE_ORIGIN=1 respinge anche le richieste senza header Origin (curl, script).
+// In produzione stanno in wrangler.toml, in locale in .dev.vars.
 
 import { parseBoard, parseStationPage } from './parse.js';
 import catalogo from '../docs/stazioni.json' with { type: 'json' };
@@ -52,6 +53,12 @@ export default {
     const origin = request.headers.get('Origin');
     if (origin && !allowed.includes(origin)) {
       return new Response('Origine non autorizzata', { status: 403 });
+    }
+    // In produzione (REQUIRE_ORIGIN=1) serve un'origine autorizzata: i browser la mandano sempre nelle richieste
+    // da un altro sito, curl e gli script no. Non e' una sicurezza vera (l'header si falsifica) ma evita che chi
+    // passa di qui consumi la quota gratuita con richieste anonime.
+    if (!origin && String((env && env.REQUIRE_ORIGIN) || '') === '1') {
+      return new Response('Origine mancante', { status: 403 });
     }
     const cors = corsFor(origin, allowed);
     const json = (body, status, cacheState) => jsonResponse(body, status, cacheState, cors);

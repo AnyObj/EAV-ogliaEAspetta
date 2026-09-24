@@ -1,9 +1,9 @@
 // Configurazione del tabellone. I colori veri stanno in style.css (variabili --r-*).
 
-// Indirizzo del Worker Cloudflare. In locale: `npm run dev` in worker/ (porta 8787).
-// TODO: sostituire con l'indirizzo pubblicato dopo `wrangler deploy`.
+// Indirizzo del Worker Cloudflare (pubblicato con `wrangler deploy` in worker/).
+// In locale si usa `npm run dev` in worker/ (porta 8787).
 const isLocal = typeof location !== 'undefined' && ['localhost', '127.0.0.1'].includes(location.hostname);
-export const API = isLocal ? 'http://localhost:8787' : 'https://eav-ogliaeaspetta.example.workers.dev';
+export const API = isLocal ? 'http://localhost:8787' : 'https://eav-ogliaeaspetta.eav-ogliaeaspetta-worker.workers.dev';
 
 // Servizi: nome mostrato e come si disegna. `css` e' il suffisso della variabile --r-<css> in style.css;
 // `strisce` = riga a strisce (per non dipendere solo dal colore). I colori veri (variabili --r-<css>) stanno in style.css.

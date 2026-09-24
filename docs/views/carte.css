@@ -1,0 +1,57 @@
+/* Aspetto "Per direzione": schede morbide in stile app di trasporto. Segue il tema chiaro/scuro. */
+:root[data-ui="carte"] body{background:var(--bg);}
+:root[data-ui="carte"] h1{font-family:var(--body);font-weight:700;letter-spacing:-.01em;}
+:root[data-ui="carte"] .top{border-bottom:0;}
+
+.cd-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(19rem,1fr));gap:1rem;align-items:start;}
+.cd-empty{grid-column:1 / -1;padding:2rem;text-align:center;color:var(--dim);}
+
+.cd{--c:var(--r-neu);position:relative;overflow:hidden;background:var(--panel);border:1px solid var(--line);
+  border-radius:1.1rem;padding:1.1rem 1.1rem 1rem;cursor:pointer;
+  box-shadow:0 .1rem .3rem rgba(0,0,0,.18);transition:transform .12s ease,box-shadow .12s ease;}
+.cd:hover{transform:translateY(-.12rem);box-shadow:0 .5rem 1.2rem rgba(0,0,0,.28);}
+.cd::before{content:"";position:absolute;left:0;right:0;top:0;height:.5rem;background:var(--c);}
+.cd.strisce::before{background:repeating-linear-gradient(135deg,var(--c) 0 .35rem,transparent .35rem .7rem);}
+.cd.arcobaleno::before{background:linear-gradient(to right,var(--r-sor) 0 25%,var(--r-sar) 25% 50%,var(--r-bai) 50% 75%,var(--r-pog) 75% 100%);}
+.s-sor{--c:var(--r-sor);} .s-sar{--c:var(--r-sar);} .s-bai{--c:var(--r-bai);}
+.s-tor{--c:var(--r-tor);} .s-pog{--c:var(--r-pog);} .s-neu,.s-nap{--c:var(--r-neu);}
+.s-lil{--c:var(--r-lil);} .s-pas{--c:var(--r-pas);} .s-pom{--c:var(--r-pom);} .s-ora{--c:var(--r-ora);}
+
+.cd-top{display:flex;justify-content:space-between;align-items:baseline;gap:.6rem;margin-top:.3rem;}
+.cd-top h3{margin:0;font:700 1.55rem/1.1 var(--body);letter-spacing:-.01em;}
+.cd-svc{flex:none;font-size:.8rem;font-weight:600;color:var(--dim);}
+.s-sor .cd-svc,.s-sar .cd-svc,.s-bai .cd-svc,.s-tor .cd-svc,.s-pog .cd-svc{color:var(--c);}
+
+.cd-main{display:flex;align-items:center;gap:1rem;margin:.8rem 0 .5rem;}
+.cd-hero{flex:none;min-width:6.2rem;height:6.2rem;border-radius:50%;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  background:var(--alt);border:.3rem solid var(--c);}
+.cd-hero strong{font:700 2.9rem/1 var(--display);font-variant-numeric:tabular-nums;color:var(--text);}
+.cd-hero span{font-size:.8rem;color:var(--dim);margin-top:-.1rem;}
+.cd-hero.far strong{font-size:1.9rem;} .cd-hero.far{border-style:dashed;}
+.cd-hero.cancel{border-color:var(--bad);} .cd-hero.cancel strong{color:var(--bad);font-size:2.4rem;}
+.cd-info{min-width:0;}
+.cd-time{font:600 1.6rem/1 var(--display);color:var(--led);font-variant-numeric:tabular-nums;}
+.cd-time small{font-size:1rem;color:var(--dim);}
+.cd-info .st{margin-top:.25rem;font-size:1.15rem;}
+.cd-sub{color:var(--dim);font-size:.8rem;margin-top:.15rem;}
+.cd-plat{display:inline-block;background:var(--badge-bg);color:var(--badge-tx);font:600 .9rem var(--body);border-radius:.4rem;padding:.15rem .6rem;}
+.cd-plat.none{background:transparent;border:1.5px dashed var(--line);color:var(--dim);font-weight:500;}
+.cd-arrivo{margin:.6rem 0 0;font-weight:700;color:var(--text);background:var(--alt);border:1.5px solid var(--led);border-radius:.5rem;padding:.25rem .6rem;}
+
+.cd-next{list-style:none;margin:.8rem 0 0;padding:0;display:flex;flex-wrap:wrap;gap:.4rem;}
+.cd-chip{display:inline-flex;align-items:baseline;gap:.3rem;background:var(--alt);border:1px solid var(--line);border-radius:999px;
+  padding:.2rem .7rem;font:600 1.05rem var(--display);font-variant-numeric:tabular-nums;}
+.cd-chip small{color:var(--d2);font:600 .75rem var(--body);}
+.cd-chip em{font:500 .7rem var(--body);color:var(--dim);font-style:normal;}
+.cd-chip .cd-bin{font:600 .75rem var(--body);background:var(--badge-bg);color:var(--badge-tx);border-radius:.25rem;padding:0 .3rem;}
+.cd-chip.cancel{text-decoration:line-through;color:var(--dim);}
+.cd-more{margin:.6rem 0 0;color:var(--dim);font-size:.8rem;}
+.cd-stops{margin:.6rem 0 0;color:var(--dim);font-size:.85rem;line-height:1.4;}
+
+/* "Vai a" */
+.cd.dim{opacity:.32;filter:grayscale(1);}
+.cd.hit{box-shadow:0 0 0 2px var(--led),0 .5rem 1.2rem rgba(0,0,0,.28);}
+.cd-chip.dim{opacity:.35;} .cd-chip.hit{border-color:var(--led);box-shadow:0 0 0 1px var(--led);}
+
+@media (prefers-reduced-motion:reduce){.cd{transition:none;}.cd:hover{transform:none;}}
+@media (max-width:820px){.cd-grid{grid-template-columns:1fr;}}

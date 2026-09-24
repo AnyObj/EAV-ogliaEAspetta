@@ -1,0 +1,10 @@
+{
+  "name": "eav-ogliaeaspetta",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "npm --prefix worker test",
+    "build:stazioni": "node scripts/build-stazioni.mjs",
+    "serve": "python3 -m http.server 8000 --directory docs"
+  }
+}

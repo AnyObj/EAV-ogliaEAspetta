@@ -1,0 +1,11 @@
+name = "eav-ogliaeaspetta"
+main = "index.js"
+compatibility_date = "2026-09-01"
+
+# Siti autorizzati a leggere i dati dal browser (origini separate da virgola, senza percorso).
+# In locale si sovrascrive con worker/.dev.vars (non versionato).
+[vars]
+ALLOWED_ORIGINS = "https://anyobj.github.io"
+# 1 = respinge anche le richieste senza header Origin (curl, script): proteggono la quota gratuita.
+# Per provare il Worker pubblicato con curl: curl -H "Origin: https://anyobj.github.io" <url>
+REQUIRE_ORIGIN = "1"

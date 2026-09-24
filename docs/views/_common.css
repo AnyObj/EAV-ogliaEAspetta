@@ -1,0 +1,11 @@
+/* Comune a tutti gli aspetti tranne il Classico: mappa colori delle linee e "campioni" (quadratini/cerchi). */
+.s-sor{--c:var(--r-sor);} .s-sar{--c:var(--r-sar);} .s-bai{--c:var(--r-bai);}
+.s-tor{--c:var(--r-tor);} .s-pog{--c:var(--r-pog);} .s-neu,.s-nap{--c:var(--r-neu);}
+.s-lil{--c:var(--r-lil);} .s-pas{--c:var(--r-pas);} .s-pom{--c:var(--r-pom);} .s-ora{--c:var(--r-ora);}
+/* .swatch prende il colore della linea; a strisce per il Torre A.ta, a bande per "Verso Napoli" */
+.swatch{background:var(--c,var(--r-neu));}
+.strisce .swatch{background:repeating-linear-gradient(135deg,var(--c) 0 .22em,transparent .22em .44em);}
+.arcobaleno .swatch{background:linear-gradient(to bottom,var(--r-sor) 0 25%,var(--r-sar) 25% 50%,var(--r-bai) 50% 75%,var(--r-pog) 75% 100%);}
+.dim{opacity:.3;filter:grayscale(1);}
+.cancel .strike{text-decoration:line-through;}
+@media (prefers-reduced-motion:reduce){*{animation-duration:0s !important;animation-iteration-count:1 !important;}}

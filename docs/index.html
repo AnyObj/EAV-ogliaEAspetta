@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>EAV ogliaEAspettà</title>
+<meta name="description" content="Teleindicatori EAV (Circumvesuviana, Cumana, Circumflegrea) più leggibili: partenze e arrivi di ogni stazione.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<a class="skip" href="#main">Vai al contenuto</a>
+
+<main id="main" class="board">
+
+  <!-- Elenco stazioni (nessuna stazione scelta) -->
+  <section id="home" hidden>
+    <header class="top">
+      <div>
+        <h1>EAV ogliaEAspettà</h1>
+        <p class="sub">Scegli la stazione · Choose a station</p>
+      </div>
+      <div class="home-tools">
+        <label class="ui-pick"><span class="sr">Aspetto grafico</span>
+          <select data-ui-select aria-label="Aspetto grafico"></select></label>
+        <button class="btn theme" type="button" data-theme-toggle aria-label="Cambia tema">Tema</button>
+      </div>
+    </header>
+    <div class="search">
+      <label for="home-q" class="sr">Cerca una stazione</label>
+      <input id="home-q" type="search" placeholder="Cerca una stazione (es. Pompei, Garibaldi, Sorrento)…" autocomplete="off" spellcheck="false">
+    </div>
+    <p id="home-msg" class="msg" hidden></p>
+    <div id="home-list"></div>
+    <p class="note">Dati dai teleindicatori EAV, tramite un proxy che li rende leggibili dal browser. Progetto non ufficiale.</p>
+  </section>
+
+  <!-- Tabellone -->
+  <section id="board" hidden>
+    <header class="top">
+      <div>
+        <a class="back" href="./" id="back">← Stazioni</a>
+        <h1 id="station-name">…</h1>
+        <p class="sub" id="sub">Partenze / Departures</p>
+      </div>
+      <div class="clock" id="clock" aria-hidden="true">--:--<small>:--</small></div>
+    </header>
+
+    <div class="bar">
+      <div class="seg" role="group" aria-label="Partenze o arrivi">
+        <button type="button" id="tipo-P" aria-pressed="true">Partenze</button>
+        <button type="button" id="tipo-A" aria-pressed="false">Arrivi</button>
+      </div>
+
+      <div class="combo">
+        <label for="vai" class="sr">Evidenzia i treni che vanno a</label>
+        <input id="vai" type="text" role="combobox" aria-expanded="false" aria-controls="vai-list" aria-autocomplete="list"
+               placeholder="Vai a… (evidenzia i treni)" autocomplete="off" spellcheck="false">
+        <button type="button" id="vai-clear" class="clear" aria-label="Togli l'evidenziazione" hidden>✕</button>
+        <ul id="vai-list" role="listbox" hidden></ul>
+      </div>
+
+      <label class="check" id="solo-wrap" hidden><input type="checkbox" id="solo"> Solo questi</label>
+      <label class="ui-pick"><span class="sr">Aspetto grafico</span>
+        <select data-ui-select aria-label="Aspetto grafico"></select></label>
+      <button class="btn theme" type="button" data-theme-toggle aria-label="Cambia tema">Tema</button>
+    </div>
+
+    <nav class="routes" id="routes" aria-label="Filtra per linea"></nav>
+
+    <div id="view"></div>
+    <button type="button" class="btn more" id="more" hidden></button>
+
+    <div class="ticker" id="ticker" hidden></div>
+    <div class="status" id="status" role="status" aria-live="polite"></div>
+    <p class="note">Dati dai teleindicatori EAV, aggiornati in base a quanto sono vicini i treni. I ritardi sono quelli comunicati da EAV. La linea di ogni treno è ricavata dai dati e, dove non è chiara, resta grigia.</p>
+  </section>
+
+</main>
+
+<noscript><p class="msg">Serve JavaScript per mostrare il tabellone.</p></noscript>
+<script type="module" src="app.js"></script>
+</body>
+</html>

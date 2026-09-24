@@ -1,0 +1,234 @@
+// Test della logica pura del frontend (docs/logic.js). Stanno qui per riusare `npm test`.
+import { test } from 'node:test';
+import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
+import * as L from '../../docs/logic.js';
+import { CFG } from '../../docs/config.js';
+
+const catalogo = JSON.parse(readFileSync(new URL('../../docs/stazioni.json', import.meta.url), 'utf8'));
+const idx = L.buildIndex(catalogo);
+const id = (name) => { const r = idx.resolve(name); assert.ok(r, 'stazione non trovata: ' + name); return r; };
+const tr = (o) => ({ num: '1', cat: 'A', dest: 'SORRENTO', time: '22:00', day: 0, platform: null, delay: 0, cancelled: false, stops: [], ...o });
+
+// ---- nomi ----
+
+test('norm: le varianti di San/Santa/Sant\' e A.TA combaciano col catalogo', () => {
+  assert.equal(L.norm('S.PIETRO'), L.norm('SAN PIETRO'));
+  assert.equal(L.norm("SANT'AGNELLO"), L.norm('S. Agnello'));
+  assert.equal(L.norm('TORRE A.TA - OPLONTI'), L.norm('TORRE ANNUNZIATA - OPLONTI'));
+  assert.equal(L.norm('PORTICI VIA LIBERTÀ'), 'PORTICI VIA LIBERTA');
+});
+
+test('i nomi delle fermate reali si abbinano al catalogo (alias compresi)', () => {
+  for (const n of ['NAPOLI P. GARIBALDI', 'POLLENA TROCCHIA', 'SAN VALENTINO TORIO', 'BOSCOTRECASE',
+    'TORRE A.TA - OPLONTI', 'S. Agnello', 'Via S. Antonio', 'S. Maria del Pozzo', 'SAN PIETRO']) id(n);
+});
+
+test('titleCase', () => {
+  assert.equal(L.titleCase('NAPOLI PIAZZA GARIBALDI'), 'Napoli Piazza Garibaldi');
+  assert.equal(L.titleCase('SANTA MARIA DEL POZZO'), 'Santa Maria del Pozzo');
+  assert.equal(L.titleCase("SANT'AGNELLO"), "Sant'Agnello");
+  assert.equal(L.titleCase('TORRE A.TA - OPLONTI'), 'Torre A.ta - Oplonti');
+  assert.equal(L.titleCase('SAN GIOVANNI A TEDUCCIO'), 'San Giovanni a Teduccio');
+  assert.equal(L.titleCase('Villa Regina'), 'Villa Regina'); // gia' con minuscole: invariato
+});
+
+// ---- ricerca ----
+
+test('ricerca fuzzy', () => {
+  const names = (q) => L.searchStations(q, idx).map((s) => s.nome);
+  assert.match(names('pompei')[0], /^POMPEI/);
+  assert.equal(names('garibaldi')[0], 'NAPOLI PIAZZA GARIBALDI');
+  assert.equal(names('sorento')[0], 'SORRENTO');           // una lettera in meno
+  assert.equal(names('sorrnto')[0], 'SORRENTO');          // idem
+  assert.ok(names('san giorgio').includes('SAN GIORGIO A CREMANO'));
+  assert.ok(names('s giorgio cremano').includes('SAN GIORGIO A CREMANO'));
+  assert.ok(names('boscotrecase').length > 0);             // via alias/nome lungo
+  assert.ok(names('pollena trocchia').length > 0);         // solo via alias
+  assert.deepEqual(names('xyzq'), []);
+  assert.deepEqual(names(''), []);
+});
+
+// ---- linea / servizio ----
+
+test('catalogo: ordine delle stazioni per linea = percorso', () => {
+  const sor = idx.lines.get('NAPOLI-SORRENTO');
+  assert.equal(sor.stazioni[0], id('NAPOLI PORTA NOLANA'));
+  assert.equal(sor.stazioni.at(-1), id('SORRENTO'));
+  assert.ok(sor.pos.get(id('TORRE DEL GRECO')) < sor.pos.get(id('POMPEI SCAVI VILLA DEI MISTERI')));
+});
+
+test('inferService: destinazione capolinea', () => {
+  const g = id('NAPOLI PIAZZA GARIBALDI');
+  assert.equal(L.inferService(tr({ dest: 'SORRENTO', num: '1219' }), g, idx, CFG).service, 'sorrento');
+  assert.equal(L.inferService(tr({ dest: 'BAIANO', num: '80001' }), g, idx, CFG).service, 'baiano');
+  assert.equal(L.inferService(tr({ dest: 'SARNO', num: '6195' }), g, idx, CFG).service, 'sarno');
+});
+
+test('inferService: Torre A.ta e sempre il servizio "torre", anche se a meta\' di due linee', () => {
+  const g = id('NAPOLI PIAZZA GARIBALDI');
+  assert.equal(L.inferService(tr({ dest: 'TORRE A.TA - OPLONTI', num: '12021' }), g, idx, CFG).service, 'torre');
+});
+
+test('inferService: Cumana e Circumflegrea da stazione e destinazione', () => {
+  assert.equal(L.inferService(tr({ dest: 'FUORIGROTTA', num: '92200' }), id('MONTESANTO'), idx, CFG).service, 'cumana');
+  assert.equal(L.inferService(tr({ dest: 'LICOLA', num: '50502' }), id('SOCCAVO'), idx, CFG).service, 'circumflegrea');
+});
+
+test('inferService: verso Napoli in un tratto in comune, il numero (4 cifre) sceglie la linea', () => {
+  const s = id('ERCOLANO SCAVI');
+  // il colore e' "verso Napoli", ma la linea ricavata resta disponibile
+  const a = L.inferService(tr({ dest: 'NAPOLI PORTA NOLANA', num: '1214' }), s, idx, CFG);
+  assert.deepEqual([a.service, a.lineService], ['napoli', 'sorrento']);
+  const b = L.inferService(tr({ dest: 'NAPOLI PORTA NOLANA', num: '4192' }), s, idx, CFG);
+  assert.deepEqual([b.service, b.lineService], ['napoli', 'poggiomarino']);
+});
+
+test('inferService: se i dati non bastano la linea resta ignota (non inventata)', () => {
+  const s = id('ERCOLANO SCAVI');
+  const r = L.inferService(tr({ dest: 'NAPOLI PORTA NOLANA', num: '12144' }), s, idx, CFG);
+  assert.equal(r.lineService, null);
+  assert.ok(r.lines.length > 1);
+  // per una destinazione qualunque senza servizio proprio, service null = riga grigia
+  assert.equal(L.inferService(tr({ dest: 'VOLLA', num: '12144' }), id('CASALNUOVO'), idx, CFG).service, null); // Baiano o Pomigliano?
+});
+
+test('inferService: Napoli Porta Nolana = servizio "napoli" (arcobaleno) sempre', () => {
+  for (const st of ['VICO EQUENSE', 'ERCOLANO SCAVI', 'SARNO', 'BAIANO']) {
+    assert.equal(L.inferService(tr({ dest: 'NAPOLI PORTA NOLANA', num: '12144' }), id(st), idx, CFG).service, 'napoli', st);
+  }
+});
+
+test('inferService: una linea in una sola stazione non ambigua non si sbaglia', () => {
+  // Vico Equense e' solo sulla linea di Sorrento
+  assert.equal(L.inferService(tr({ dest: 'NAPOLI PORTA NOLANA', num: '12144' }), id('VICO EQUENSE'), idx, CFG).lineService, 'sorrento');
+});
+
+// ---- "Vai a" ----
+
+test('goesTo: con l\'elenco delle fermate', () => {
+  const g = id('NAPOLI PIAZZA GARIBALDI'), pompei = id('POMPEI SCAVI VILLA DEI MISTERI');
+  const t = tr({ dest: 'SORRENTO', stops: [{ name: 'TORRE A.TA - OPLONTI', time: '22:18' }, { name: 'POMPEI SCAVI VILLA DEI MISTERI', time: '22:24' }, { name: 'SORRENTO', time: '23:05' }] });
+  assert.equal(L.goesTo(t, g, pompei, idx), 'si');
+  assert.equal(L.goesTo(t, g, id('SARNO'), idx), 'no');
+  assert.equal(L.goesTo(t, g, id('SORRENTO'), idx), 'si');       // la destinazione
+  assert.equal(L.goesTo(t, g, g, idx), 'no');                     // la stazione stessa
+});
+
+test('goesTo: senza fermate usa ordine e direzione della linea', () => {
+  const td = id('TORRE DEL GRECO'), pompei = id('POMPEI SCAVI VILLA DEI MISTERI'), portici = id('PORTICI BELLAVISTA');
+  const verso = tr({ dest: 'SORRENTO' }), napoli = tr({ dest: 'NAPOLI PORTA NOLANA' });
+  const lines = ['NAPOLI-SORRENTO'];
+  assert.equal(L.goesTo(verso, td, pompei, idx, lines), 'si');   // avanti verso Sorrento
+  assert.equal(L.goesTo(verso, td, portici, idx, lines), 'no');  // indietro
+  assert.equal(L.goesTo(napoli, td, portici, idx, lines), 'si'); // verso Napoli
+  assert.equal(L.goesTo(napoli, td, pompei, idx, lines), 'no');
+});
+
+test('goesTo: destinazione oltre il bersaglio ma non raggiunto (treno corto)', () => {
+  // Torre A.ta - Oplonti e' prima di Pompei Scavi: un treno che finisce li' non ci arriva
+  const g = id('NAPOLI PIAZZA GARIBALDI');
+  const t = tr({ dest: 'TORRE A.TA - OPLONTI' });
+  assert.equal(L.goesTo(t, g, id('POMPEI SCAVI VILLA DEI MISTERI'), idx, ['NAPOLI-SORRENTO']), 'no');
+  assert.equal(L.goesTo(t, g, id('TORRE DEL GRECO'), idx, ['NAPOLI-SORRENTO']), 'si');
+});
+
+// ---- stato, tempo, aggiornamento ----
+
+const at = (h, m) => h * 60 + m;
+
+test('statusOf', () => {
+  const now = at(22, 30);
+  assert.equal(L.statusOf(tr({ time: '22:50' }), now).main, 'In orario');
+  assert.equal(L.statusOf(tr({ time: '22:30' }), now).cls, 'go');
+  assert.equal(L.statusOf(tr({ time: '22:20', delay: 12 }), now).main, 'Ritardo +12 min'); // previsto 22:32: ancora fuori dalla finestra "in partenza"
+});
+
+test('statusOf: ritardo, ritardo senza minuti, soppresso, domani, superato', () => {
+  const now = at(22, 30);
+  assert.deepEqual(L.statusOf(tr({ time: '23:10', delay: 3 }), now).cls, 'd1');
+  assert.deepEqual(L.statusOf(tr({ time: '23:10', delay: 9 }), now).cls, 'd2');
+  assert.deepEqual(L.statusOf(tr({ time: '23:10', delay: 20 }), now).cls, 'd3');
+  assert.equal(L.statusOf(tr({ time: '23:10', delay: null }), now).main, 'In ritardo');
+  assert.equal(L.statusOf(tr({ time: '23:10', cancelled: true }), now).main, 'SOPPRESSO');
+  assert.equal(L.statusOf(tr({ time: '05:19', day: 1 }), now).main, '');
+  assert.equal(L.statusOf(tr({ time: '05:19', day: 1, delay: null }), now).main, 'In ritardo');
+  assert.equal(L.statusOf(tr({ time: '22:10' }), now).cls, 'gone');
+});
+
+test('etaMin', () => {
+  const now = at(22, 30);
+  assert.equal(L.etaMin(tr({ time: '22:41' }), now), 11);
+  assert.equal(L.etaMin(tr({ time: '22:41', delay: 4 }), now), 15);
+  assert.equal(L.etaMin(tr({ time: '22:20' }), now), 0);
+  assert.equal(L.etaMin(tr({ time: '23:45' }), now), null);          // oltre un'ora
+  assert.equal(L.etaMin(tr({ time: '05:19', day: 1 }), now), null);
+  assert.equal(L.etaMin(tr({ time: '22:41', cancelled: true }), now), null);
+});
+
+test('nextRefreshMs: finestra simmetrica attorno a adesso', () => {
+  const now = at(22, 30);
+  assert.equal(L.nextRefreshMs([tr({ time: '22:33' })], now), 10000);            // tra 3 min
+  assert.equal(L.nextRefreshMs([tr({ time: '22:26' })], now), 10000);            // partito da 4 min: puo' essere ancora li'
+  assert.equal(L.nextRefreshMs([tr({ time: '22:20', delay: 8 })], now), 10000);  // orario 22:20 ma previsto 22:28
+  assert.equal(L.nextRefreshMs([tr({ time: '22:40' })], now), 30000);
+  assert.equal(L.nextRefreshMs([tr({ time: '23:30' })], now), 60000);
+  assert.equal(L.nextRefreshMs([], now), 60000);
+  assert.equal(L.nextRefreshMs([tr({ time: '05:19', day: 1 }), tr({ time: '23:30' })], now), 60000);
+});
+
+test('romeNow', () => {
+  const r = L.romeNow(new Date('2026-09-24T20:30:15Z')); // 22:30:15 a Roma (CEST)
+  assert.deepEqual([r.h, r.m, r.s], [22, 30, 15]);
+  assert.ok(Math.abs(r.min - (22 * 60 + 30 + 15 / 60)) < 1e-9);
+  assert.equal(L.romeNow(new Date('2026-01-15T20:30:15Z')).h, 21); // ora solare
+});
+
+// ---- validazione ----
+
+test('sanitizeBoard scarta il formato sbagliato e ripulisce i dati', () => {
+  assert.equal(L.sanitizeBoard(null), null);
+  assert.equal(L.sanitizeBoard({ error: 'x' }), null);
+  assert.equal(L.sanitizeBoard({ trains: 'no' }), null);
+  const b = L.sanitizeBoard({
+    station: '<img src=x onerror=alert(1)>', notice: 'x'.repeat(1000), stale: 'yes',
+    trains: [
+      { num: '1219', cat: 'DD', dest: 'SORRENTO', time: '22:00', day: 0, platform: '1', delay: 4, cancelled: false,
+        stops: [{ name: 'A', time: '22:10' }, 5, null] },
+      { num: '2', dest: 'X', time: 'non un orario' },   // scartato
+      { num: '3', dest: '', time: '22:00' },            // scartato: senza destinazione
+      { num: '4', dest: 'Y', time: '23:00', day: 99, delay: -5, cancelled: 'true', platform: '' },
+      null, 'str', 42,
+    ],
+  });
+  assert.equal(b.station, '<img src=x onerror=alert(1)>'); // resta testo: e' textContent a renderlo innocuo
+  assert.equal(b.notice.length, 300);
+  assert.equal(b.stale, false);
+  assert.equal(b.trains.length, 2);
+  assert.equal(b.trains[0].stops.length, 1);
+  assert.deepEqual([b.trains[1].day, b.trains[1].delay, b.trains[1].cancelled, b.trains[1].platform], [0, 0, false, null]);
+});
+
+test('sanitizeBoard conserva delay null (ritardo senza minuti) e limita il numero di treni', () => {
+  const t = (n) => ({ num: String(n), dest: 'A', time: '22:00', delay: null });
+  const b = L.sanitizeBoard({ trains: Array.from({ length: 500 }, (_, i) => t(i)) });
+  assert.equal(b.trains.length, 100);
+  assert.equal(b.trains[0].delay, null);
+});
+
+test('goesTo: un diretto (DD/EXP) senza elenco fermate non e mai "si" per una stazione intermedia', () => {
+  const td = id('TORRE DEL GRECO'), pompei = id('POMPEI SCAVI VILLA DEI MISTERI');
+  const lines = ['NAPOLI-SORRENTO'];
+  assert.equal(L.goesTo(tr({ cat: 'A', dest: 'SORRENTO' }), td, pompei, idx, lines), 'si');      // accelerato: ferma ovunque
+  assert.equal(L.goesTo(tr({ cat: 'DD', dest: 'SORRENTO' }), td, pompei, idx, lines), 'forse');  // diretto: puo' saltarla
+  assert.equal(L.goesTo(tr({ cat: 'EXP', dest: 'SORRENTO' }), td, pompei, idx, lines), 'forse');
+  assert.equal(L.goesTo(tr({ cat: 'DD', dest: 'SORRENTO' }), td, id('SORRENTO'), idx, lines), 'si'); // la destinazione e' certa
+  assert.equal(L.goesTo(tr({ cat: 'DD', dest: 'SORRENTO' }), td, id('PORTICI BELLAVISTA'), idx, lines), 'no'); // dietro
+});
+
+test('goesTo: con elenco fermate un DD che salta Barra dice no', () => {
+  const g = id('NAPOLI PIAZZA GARIBALDI');
+  const dd = tr({ cat: 'DD', dest: 'SORRENTO', stops: [{ name: 'S. GIORGIO A CREMANO', time: '22:05' }, { name: 'SORRENTO', time: '23:05' }] });
+  assert.equal(L.goesTo(dd, g, id('BARRA'), idx), 'no');
+  assert.equal(L.goesTo(dd, g, id('SAN GIORGIO A CREMANO'), idx), 'si');
+});

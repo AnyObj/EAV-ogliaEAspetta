@@ -11,6 +11,7 @@
 import { readFileSync, writeFileSync, existsSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { parseBoard } from '../worker/parse.js';
+import { norm } from '../docs/logic.js';
 
 const HOME = 'https://orariotreni.eavsrl.it/';
 const BASE = HOME + 'teleindicatori/';
@@ -26,11 +27,13 @@ if (!m) throw new Error('Elenco stazioni non trovato nella home di EAV');
 const records = JSON.parse(m[1]);
 
 const isVisible = (r) => String(r.visualizzato).toLowerCase() === 'true';
-const linee = new Map(); // nome linea -> {id, nome}
+const linee = new Map(); // nome linea -> {id, nome, stazioni: [id in ordine di percorso]}
 const byId = new Map();
 for (const r of records) {
   if (!isVisible(r) || !r.descrizione) continue;
-  if (!linee.has(r.linea)) linee.set(r.linea, { id: r.idLinea, nome: r.linea });
+  if (!linee.has(r.linea)) linee.set(r.linea, { id: r.idLinea, nome: r.linea, stazioni: [] });
+  // L'ordine dei record nella home segue il percorso della linea (verificato: Porta Nolana ... Sorrento)
+  if (!linee.get(r.linea).stazioni.includes(r.id)) linee.get(r.linea).stazioni.push(r.id);
   const s = byId.get(r.id) || { id: r.id, nome: r.descrizione, linee: [], moova: false, loc: null, tp: null };
   if (!s.linee.includes(r.linea)) s.linee.push(r.linea);
   if (String(r.isMoova).toLowerCase() === 'true') s.moova = true;
@@ -79,9 +82,6 @@ if (errors >= 3) console.error('Giro interrotto dopo 3 errori di fila: i dati de
 
 // Alias: nomi con cui EAV scrive la stessa stazione nei tabelloni (fermate/destinazioni).
 // Un alias conteso da piu' stazioni va a quella con id piu' basso.
-const norm = (s) => s.toUpperCase().normalize('NFD').replace(/[̀-ͯ]/g, '')
-  .replace(/A\.TA\b/g, 'ANNUNZIATA').replace(/\bSANT['’]\s*/g, 'S ')
-  .replace(/\b(SANTA|SANTO|SAN|SANT|S)\b\.?/g, 'S ').replace(/[^A-Z0-9 ]/g, ' ').replace(/\s+/g, ' ').trim();
 const claimed = new Map();
 for (const s of [...stazioni].sort((a, b) => +a.id - +b.id)) {
   s.alias = [];

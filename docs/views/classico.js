@@ -4,7 +4,7 @@ import { el } from '../dom.js';
 import * as L from '../logic.js';
 import { SERVIZI } from '../config.js';
 
-export const meta = { id: 'classico', paginate: true };
+export const meta = { id: 'classico', paginate: true, tabellone: true };
 
 export function render(ctx) {
   const out = [];
@@ -27,7 +27,7 @@ export function after(container) {
   requestAnimationFrame(() => {
     for (const box of container.querySelectorAll('.stops')) {
       const inner = box.firstElementChild;
-      const over = Math.max(box.scrollWidth, inner ? Math.ceil(inner.getBoundingClientRect().width) : 0) - box.clientWidth;
+      const over = Math.max(box.scrollWidth, inner ? inner.offsetWidth : 0) - box.clientWidth;
       box.classList.toggle('scroll', over > 4);
       if (over > 4) {
         box.style.setProperty('--shift', -over + 'px');

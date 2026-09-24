@@ -1,0 +1,47 @@
+/* Aspetto "Aeroporto": sempre blu notte e giallo, qualunque sia il tema del sistema. */
+:root[data-ui="aeroporto"]{
+  --bg:#04122e; --panel:#071a40; --alt:#0a2150; --line:#1a3a7a; --text:#f4f7ff; --dim:#9db4e0; --led:#ffd23f; --ok:#7df0a8;
+  --d1:#ffd23f; --d2:#ffa53d; --d3:#ff6b5d; --bad:#ff5d4d; --badge-bg:#f4f7ff; --badge-tx:#04122e;
+  --r-sor:#5cb0ff; --r-sar:#ff6b5d; --r-bai:#ffd23f; --r-tor:#3ddc97; --r-pog:#3ddc97; --r-neu:#9db4e0;
+  --r-lil:#c9a7ff; --r-pas:#a9e5b8; --r-ora:#ffa53d;
+  color-scheme:dark;
+}
+:root[data-ui="aeroporto"] body{background:var(--bg);}
+:root[data-ui="aeroporto"] h1{font-family:var(--display);text-transform:uppercase;letter-spacing:.06em;color:var(--led);}
+:root[data-ui="aeroporto"] .clock{color:var(--led);}
+:root[data-ui="aeroporto"] .top{border-bottom:3px solid var(--led);}
+
+.ap-head,.ap-row{display:grid;grid-template-columns:6.4rem minmax(0,1fr) 13rem 5.2rem 10.5rem;column-gap:1.2rem;align-items:center;}
+.ap-head{background:var(--led);color:var(--bg);padding:.4rem 1.1rem;font:700 .95rem var(--display);letter-spacing:.14em;}
+.ap-head i{margin-left:.5rem;font:500 .75rem var(--body);font-style:normal;letter-spacing:.06em;opacity:.75;}
+.ap-list{list-style:none;margin:0;padding:0;}
+.ap-row{padding:.5rem 1.1rem;min-height:3.6rem;background:var(--panel);border-bottom:1px solid var(--line);}
+.ap-row:nth-child(even){background:var(--alt);}
+.ap-row[tabindex]{cursor:pointer;}
+.ap-time{font:700 2.1rem/1 var(--display);color:var(--led);font-variant-numeric:tabular-nums;letter-spacing:.02em;}
+.ap-dest{font:600 2rem/1.05 var(--display);letter-spacing:.03em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.ap-dest small{display:block;font:600 .8rem var(--body);letter-spacing:.02em;color:var(--led);margin-top:.15rem;}
+.ap-line{display:flex;align-items:center;gap:.6rem;font:600 1rem var(--body);min-width:0;}
+.ap-line .swatch{flex:none;width:1.2rem;height:1.2rem;border-radius:.2rem;}
+.ap-line span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.ap-plat{justify-self:center;width:3rem;height:3rem;display:flex;align-items:center;justify-content:center;background:var(--badge-bg);color:var(--badge-tx);font:700 1.8rem/1 var(--display);border-radius:.3rem;}
+.ap-plat.none{background:transparent;border:2px dashed var(--line);}
+.ap-st{font:700 1.15rem/1.1 var(--display);letter-spacing:.06em;}
+.st.ok{color:var(--ok);} .st.d1{color:var(--d1);} .st.d2{color:var(--d2);} .st.d3{color:var(--d3);} .st.cancel{color:var(--bad);} .st.go{color:var(--led);} .st.gone{color:var(--dim);}
+.ap-row.cancel{opacity:.8;} .ap-row.cancel .ap-time,.ap-row.cancel .ap-dest{color:var(--dim);}
+.ap-row.hit{box-shadow:inset .35rem 0 0 var(--led);background:#10306b;}
+.ap-stops{grid-column:2 / -1;margin:.3rem 0 0;color:var(--dim);font-size:.9rem;line-height:1.35;}
+.ap-sep{padding:.5rem 1.1rem;background:var(--line);color:var(--led);font:700 1.1rem var(--display);letter-spacing:.14em;text-align:center;}
+.ap-empty{padding:2rem;text-align:center;color:var(--dim);}
+.s-sor{--c:var(--r-sor);} .s-sar{--c:var(--r-sar);} .s-bai{--c:var(--r-bai);}
+.s-tor{--c:var(--r-tor);} .s-pog{--c:var(--r-pog);} .s-neu,.s-nap{--c:var(--r-neu);}
+.s-lil{--c:var(--r-lil);} .s-pas{--c:var(--r-pas);} .s-pom{--c:var(--r-pom);} .s-ora{--c:var(--r-ora);}
+
+@media (max-width:820px){
+  .ap-head{display:none;}
+  .ap-row{grid-template-columns:4.4rem minmax(0,1fr) 2.6rem;column-gap:.7rem;row-gap:.15rem;padding:.5rem .7rem;}
+  .ap-time{font-size:1.7rem;} .ap-dest{font-size:1.45rem;}
+  .ap-line{grid-column:2;font-size:.85rem;} .ap-plat{grid-column:3;grid-row:1 / span 2;width:2.4rem;height:2.4rem;font-size:1.5rem;}
+  .ap-st{grid-column:1;grid-row:2;font-size:.85rem;}
+  .ap-stops{grid-column:1 / -1;}
+}

@@ -1,7 +1,7 @@
 // Tabellone EAV: interfaccia. La logica pura sta in logic.js, la configurazione in config.js.
 // Regola di sicurezza: i dati del Worker entrano nella pagina SOLO come testo (textContent), mai come HTML.
 
-import { API, SERVIZI, LINEA_SERVIZIO, CFG, RIGHE_INIZIALI, INATTIVITA_MS, UI_LISTA } from './config.js';
+import { API, SERVIZI, LINEA_SERVIZIO, CFG, RIGHE_INIZIALI, INATTIVITA_MS, UI_LISTA, TAB_RIGHE } from './config.js';
 import * as L from './logic.js';
 import { $, el, safeStore } from './dom.js';
 
@@ -10,7 +10,8 @@ const state = {
   station: null, tipo: 'P', vai: null, solo: false,
   filtro: null, showAll: false,
   board: null, rows: [], version: 0, fetchedAt: null, error: null, backoff: 0,
-  paused: false, lastActivity: Date.now(), kiosk: false,
+  paused: false, lastActivity: Date.now(), kiosk: false, kioskUrl: false,
+  tab: false, righe: TAB_RIGHE.predefinite, // modalita' tabellone e numero di righe
   timer: null, ctrl: null, renderedKey: '', open: new Set(), intervalMs: null,
   ui: 'classico', view: null, // aspetto grafico attivo e suo modulo (views/<id>.js)
 };
@@ -43,9 +44,11 @@ async function init() {
   }
   document.addEventListener('visibilitychange', onVisibility);
   addEventListener('popstate', route);
-  let rz; addEventListener('resize', () => { clearTimeout(rz); rz = setTimeout(() => state.view && state.view.after && state.view.after($('#view')), 150); });
+  let rz; addEventListener('resize', () => { clearTimeout(rz); rz = setTimeout(() => { fit(); if (state.view && state.view.after) state.view.after($('#view')); }, 120); });
+  let idleT; const wake = () => { document.documentElement.classList.remove('idle'); clearTimeout(idleT); idleT = setTimeout(() => state.tab && document.documentElement.classList.add('idle'), 4000); };
+  for (const ev of ['pointermove', 'pointerdown', 'keydown']) addEventListener(ev, wake, { passive: true });
   setInterval(tickClock, 1000);
-  if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => state.view && state.view.after && state.view.after($('#view')));
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => { fit(); if (state.view && state.view.after) state.view.after($('#view')); });
   route();
 }
 
@@ -73,7 +76,11 @@ function navigate(search) {
 function route() {
   const p = new URLSearchParams(location.search);
   const id = p.get('stazione');
-  state.kiosk = p.get('kiosk') === '1';
+  state.kioskUrl = p.get('kiosk') === '1';
+  state.tab = p.get('tabellone') === '1';
+  const rg = parseInt(p.get('righe'), 10);
+  state.righe = Number.isFinite(rg) ? Math.min(Math.max(rg, 6), 40) : TAB_RIGHE.predefinite;
+  state.kiosk = state.kioskUrl || state.tab; // il tabellone non si mette mai in pausa per inattivita'
   const u = p.get('ui');
   if (u && u !== state.ui && UI_LISTA.some((x) => x.id === u)) loadUi(u);
   if (id && state.idx.byId.has(id)) {
@@ -91,7 +98,8 @@ function syncUrl() {
   p.set('tipo', state.tipo);
   if (state.vai) p.set('vai', state.vai);
   if (state.ui !== 'classico') p.set('ui', state.ui);
-  if (state.kiosk) p.set('kiosk', '1');
+  if (state.tab) { p.set('tabellone', '1'); if (state.righe !== TAB_RIGHE.predefinite) p.set('righe', state.righe); }
+  if (state.kioskUrl) p.set('kiosk', '1');
   history.replaceState(null, '', '?' + p);
 }
 
@@ -117,6 +125,7 @@ function showHome(msg) {
   $('#board').hidden = true;
   $('#home').hidden = false;
   document.title = 'EAV ogliaEAspettà';
+  applyMode();
   const m = $('#home-msg');
   m.hidden = !msg; m.textContent = msg || '';
   renderHome();
@@ -154,6 +163,18 @@ function setupBoardControls() {
   $('#solo').addEventListener('change', (e) => { state.solo = e.target.checked; renderRows(true); });
   $('#more').addEventListener('click', () => { state.showAll = true; renderRows(true); });
   $('#vai-clear').addEventListener('click', () => { setVai(null); $('#vai').focus(); });
+  $('#btn-tab').addEventListener('click', () => setTab(true));
+  $('#tab-exit').addEventListener('click', () => setTab(false));
+  $('#tab-gear').addEventListener('click', () => {
+    const open = $('#tab-panel').hidden;
+    $('#tab-panel').hidden = !open;
+    $('#tab-gear').setAttribute('aria-expanded', String(open));
+  });
+  $('#tab-ui').addEventListener('change', (e) => { safeStore.set('ui', e.target.value); loadUi(e.target.value); });
+  $('#tab-righe').addEventListener('change', (e) => { state.righe = +e.target.value; syncUrl(); renderRows(true); });
+  $('#tab-full').addEventListener('click', () => {
+    if (document.fullscreenElement) document.exitFullscreen(); else if (document.documentElement.requestFullscreen) document.documentElement.requestFullscreen().catch(() => {});
+  });
 
   const input = $('#vai'), list = $('#vai-list');
   let items = [], active = -1;
@@ -207,7 +228,7 @@ function showBoard(id, tipo, vai) {
   $('#vai').value = state.vai ? L.titleCase(state.idx.byId.get(state.vai).nome) : '';
   $('#home').hidden = true;
   $('#board').hidden = false;
-  syncUrl(); renderHeader(); renderRows(true); tickClock();
+  syncUrl(); applyMode(); renderHeader(); renderRows(true); tickClock();
   refresh();
 }
 
@@ -275,6 +296,7 @@ function resume() { if (!state.paused) return; state.paused = false; state.lastA
 function onVisibility() {
   if (!state.station || $('#board').hidden) return;
   if (document.hidden) { clearTimeout(state.timer); return; }
+  keepAwake();
   if (!state.paused) {
     const age = Date.now() - (state.fetchedAt || 0);
     if (age >= 10000) refresh(); else schedule();
@@ -308,9 +330,10 @@ function renderHeader() {
 
 function renderRows(force) {
   if (!state.view) return; // la vista si sta ancora caricando: loadUi() ridisegna appena pronta
+  if (state.tab && !$('#board').hidden && !state.view.meta.tabellone) { loadUi('classico'); return; } // in tabellone solo gli aspetti a righe
   const now = L.romeNow();
   const key = [state.ui, state.version, state.tipo, state.filtro, state.vai, state.solo, state.showAll, state.error ? 1 : 0,
-    state.open.size, Math.floor(now.min)].join('|');
+    state.open.size, Math.floor(now.min), state.tab ? state.righe : 0].join('|');
   if (!force && key === state.renderedKey) return;
   state.renderedKey = key;
 
@@ -329,11 +352,14 @@ function renderRows(force) {
   let rows = state.rows.filter((r) => !state.filtro || r.inf.service === state.filtro);
   if (state.vai && state.solo) rows = rows.filter((r) => r.match !== 'no');
   // le viste a righe usano il limite; quelle che raggruppano (meta.paginate === false) ricevono tutto
-  const shown = state.view.meta.paginate === false || state.showAll || state.vai ? rows : rows.slice(0, RIGHE_INIZIALI);
+  // tabellone: sempre i primi N treni, senza pagine; altrimenti il limite normale con "Mostra altri"
+  const shown = state.tab ? rows.slice(0, state.righe)
+    : (state.view.meta.paginate === false || state.showAll || state.vai ? rows : rows.slice(0, RIGHE_INIZIALI));
 
   // contesto per la vista: solo dati e azioni, nessuno stato interno dell'app
   const ctx = {
     rows: shown, all: rows, now, idx: state.idx, station: state.station, tipo: state.tipo, vai: state.vai,
+    tabellone: state.tab, righe: state.righe,
     open: state.open, empty: emptyMessage(),
     toggle: (k) => { if (state.open.has(k)) state.open.delete(k); else state.open.add(k); renderRows(true); },
   };
@@ -341,7 +367,7 @@ function renderRows(force) {
 
   const hidden = rows.length - shown.length;
   const more = $('#more');
-  more.hidden = hidden <= 0;
+  more.hidden = hidden <= 0 || state.tab;
   more.textContent = 'Mostra altri ' + hidden + ' treni';
 
   // avviso: treni soppressi, altrimenti il messaggio di EAV
@@ -352,6 +378,7 @@ function renderRows(force) {
     : (state.board && state.board.notice) || '';
   tk.hidden = !msg; tk.textContent = msg; tk.classList.toggle('alert', cancelled.length > 0);
 
+  fit();
   if (state.view.after) state.view.after(view);
 
   if (focusedNum) {
@@ -359,6 +386,61 @@ function renderRows(force) {
     if (again) again.focus({ preventScroll: true });
   }
 }
+
+// ---------- modalita' tabellone ----------
+
+function setTab(on) {
+  state.tab = on;
+  state.kiosk = state.kioskUrl || on;
+  syncUrl(); applyMode(); renderRows(true);
+}
+
+// Classe sull'<html>, menu flottante, schermo che non si spegne.
+function applyMode() {
+  const on = state.tab && !$('#board').hidden;
+  document.documentElement.classList.toggle('tabellone', on);
+  $('#tab-menu').hidden = !on;
+  if (on) {
+    $('#tab-ui').replaceChildren(...UI_LISTA.filter((u) => u.tabellone).map((u) => el('option', { value: u.id, text: u.nome })));
+    $('#tab-ui').value = UI_LISTA.some((u) => u.id === state.ui && u.tabellone) ? state.ui : 'classico';
+    const opz = TAB_RIGHE.opzioni.includes(state.righe) ? TAB_RIGHE.opzioni : [...TAB_RIGHE.opzioni, state.righe].sort((a, b) => a - b);
+    $('#tab-righe').replaceChildren(...opz.map((n) => el('option', { value: String(n), text: n + ' righe' })));
+    $('#tab-righe').value = String(state.righe);
+    keepAwake();
+  } else {
+    releaseAwake();
+    $('#tab-panel').hidden = true;
+    fit();
+  }
+}
+
+// Scala il contenuto (.stage) per farlo stare nello schermo: nessuno scorrimento, a qualunque dimensione o proporzione.
+// I calcoli sono in logic.js (planFit); qui si misura solo il DOM.
+function fit() {
+  const stage = $('#stage');
+  if (!stage) return;
+  if (!(state.tab && !$('#board').hidden) || !state.view) { stage.style.width = ''; stage.style.transform = ''; return; }
+  const measure = (W) => {
+    stage.style.transform = 'none';
+    stage.style.width = W + 'px';
+    return { h: stage.offsetHeight, rows: stage.querySelectorAll('#view [data-num]').length };
+  };
+  const p = L.planFit({ vw: document.documentElement.clientWidth, vh: window.innerHeight, measure,
+    minRows: TAB_RIGHE.minime, aspect: !!state.view.meta.aspect });
+  stage.style.width = p.width + 'px';
+  stage.style.transform = 'translate(' + p.x + 'px,' + p.y + 'px) scale(' + p.scale + ')';
+}
+
+let wakeLock = null;
+async function keepAwake() {
+  try {
+    if (state.tab && !document.hidden && navigator.wakeLock && !wakeLock) {
+      wakeLock = await navigator.wakeLock.request('screen');
+      wakeLock.addEventListener('release', () => { wakeLock = null; });
+    }
+  } catch { /* non concesso: pazienza */ }
+}
+function releaseAwake() { try { if (wakeLock) wakeLock.release(); } catch { /* gia' rilasciato */ } wakeLock = null; }
 
 // ---------- aspetto grafico ----------
 

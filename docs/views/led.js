@@ -3,7 +3,7 @@
 import { el } from '../dom.js';
 import { model } from './_lib.js';
 
-export const meta = { id: 'led', paginate: false };
+export const meta = { id: 'led', paginate: false, tabellone: true };
 
 const FISSE = 4;
 const up = (s) => String(s || '').toUpperCase();
@@ -20,8 +20,10 @@ export function render(ctx) {
   if (!ctx.rows.length) return el('div', { class: 'ld' }, el('div', { class: 'ld-panel' }, el('p', { class: 'ld-empty', text: up(ctx.empty) })));
   // con "Vai a" si mostrano prima i treni che ci arrivano
   const ordered = ctx.vai ? [...ctx.rows.filter((r) => r.match !== 'no'), ...ctx.rows.filter((r) => r.match === 'no')] : ctx.rows;
-  const fixed = ordered.slice(0, FISSE).map((r) => model(r, ctx));
-  const rest = ordered.slice(FISSE).map((r) => model(r, ctx));
+  // in modalita' tabellone tutte le righe sono fisse (nessun nastro che scorre)
+  const nFisse = ctx.tabellone ? ordered.length : FISSE;
+  const fixed = ordered.slice(0, nFisse).map((r) => model(r, ctx));
+  const rest = ordered.slice(nFisse).map((r) => model(r, ctx));
 
   const rows = fixed.map((m) => el('li', { class: 'ld-row ' + m.cls, 'data-num': m.t.num },
     el('i', { class: 'ld-line swatch', 'aria-hidden': 'true' }),

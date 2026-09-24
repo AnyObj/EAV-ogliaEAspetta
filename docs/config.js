@@ -62,14 +62,21 @@ export const INATTIVITA_MS = 5 * 60 * 1000; // dopo tanto senza interazione l'ag
 // Aspetti grafici selezionabili: `id` e' anche il nome del modulo in views/<id>.js (e del suo .css, tranne "classico").
 // `gruppo` serve solo a raggrupparli nel menu.
 export const UI_LISTA = [
-  { id: 'classico',  gruppo: 'Tabellone',  nome: 'Classico',        desc: 'Tabellone da stazione' },
-  { id: 'metro',     gruppo: 'Tabellone',  nome: 'Metropolitana',   desc: 'Segnaletica da metro: cerchi di linea, minuti in grande' },
-  { id: 'svizzero',  gruppo: 'Tabellone',  nome: 'Svizzero',        desc: 'Tipografia da manifesto: orari enormi, filetti, poco colore' },
-  { id: 'carta',     gruppo: 'Tabellone',  nome: 'Carta',           desc: 'L\'orario ferroviario stampato, con i puntini di riempimento' },
-  { id: 'solari',    gruppo: 'Tabellone',  nome: 'Solari',          desc: 'Palette meccaniche, come nelle vecchie stazioni' },
+  { id: 'classico',  gruppo: 'Tabellone',  nome: 'Classico',        desc: 'Tabellone da stazione', tabellone: true },
+  { id: 'golfo',     gruppo: 'Tabellone',  nome: 'Golfo',           desc: 'Il tabellone che parla: una frase semplice, il disco giallo con i minuti, biglietti perforati', tabellone: true },
+  { id: 'aeroporto', gruppo: 'Tabellone',  nome: 'Aeroporto',       desc: 'Blu notte e giallo, come i tabelloni degli aeroporti', tabellone: true },
+  { id: 'banchina',  gruppo: 'Tabellone',  nome: 'Banchina',        desc: 'Insegna da banchina: il prossimo treno in grande, poi l\'elenco', tabellone: true },
+  { id: 'metro',     gruppo: 'Tabellone',  nome: 'Metropolitana',   desc: 'Segnaletica da metro: cerchi di linea, minuti in grande', tabellone: true },
+  { id: 'svizzero',  gruppo: 'Tabellone',  nome: 'Svizzero',        desc: 'Tipografia da manifesto: orari enormi, filetti, poco colore', tabellone: true },
+  { id: 'carta',     gruppo: 'Tabellone',  nome: 'Carta',           desc: 'L\'orario ferroviario stampato, con i puntini di riempimento', tabellone: true },
+  { id: 'solari',    gruppo: 'Tabellone',  nome: 'Solari',          desc: 'Palette meccaniche, come nelle vecchie stazioni', tabellone: true },
   { id: 'carte',     gruppo: 'Altri formati', nome: 'Per direzione', desc: 'Una scheda per destinazione con il conto alla rovescia' },
   { id: 'percorso',  gruppo: 'Altri formati', nome: 'Percorso',      desc: 'Ogni treno con la linea e le stazioni dove ferma o salta' },
   { id: 'radiale',   gruppo: 'Altri formati', nome: 'Orologio',      desc: 'Quadrante di 60 minuti: i treni si avvicinano al centro' },
-  { id: 'terminale', gruppo: 'Altri formati', nome: 'Terminale',     desc: 'Monitor a fosfori verdi, solo testo' },
-  { id: 'led',       gruppo: 'Altri formati', nome: 'LED',           desc: 'Insegna a matrice di punti con i treni che scorrono' },
+  { id: 'terminale', gruppo: 'Altri formati', nome: 'Terminale',     desc: 'Monitor a fosfori verdi, solo testo', tabellone: true },
+  { id: 'led',       gruppo: 'Altri formati', nome: 'LED',           desc: 'Insegna a matrice di punti con i treni che scorrono', tabellone: true },
 ];
+
+// Modalita' tabellone (?tabellone=1): schermo intero, i primi N treni, tutto scalato per stare nello schermo, senza scorrere
+// e senza cambio pagina automatico. `minime` = con meno righe si scala come se ce ne fossero tante.
+export const TAB_RIGHE = { predefinite: 18, opzioni: [15, 18, 20, 25], minime: 12 };

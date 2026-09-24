@@ -74,3 +74,7 @@
   .sl-dest{grid-area:dest;} .sl-time{grid-area:time;} .sl-cat{grid-area:cat;} .sl-plat{grid-area:plat;} .sl-st{grid-area:st;}
   .sl-note{grid-column:1 / -1;}
 }
+
+/* modalita' tabellone: le tessere hanno larghezza fissa, quindi il carattere si ricava dalla larghezza del contenitore */
+html.tabellone .sl{font-size:calc(100cqw / 51);}
+@media (max-width:820px){html.tabellone .sl{font-size:calc(100cqw / 27.5);}}

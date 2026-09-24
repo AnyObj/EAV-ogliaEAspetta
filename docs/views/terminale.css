@@ -37,3 +37,6 @@
 .tm-cur{animation:tm-blink 1s steps(2,jump-none) infinite;}
 @keyframes tm-blink{50%{opacity:0}}
 @media (max-width:820px){.tm-screen{padding:.7rem .6rem;border-radius:.3rem;}}
+
+/* modalita' tabellone: 50 colonne di testo che riempiono la larghezza */
+html.tabellone .tm-screen{max-width:none;width:100%;font-size:calc(100cqw / 33);}

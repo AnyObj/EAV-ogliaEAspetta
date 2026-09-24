@@ -338,3 +338,127 @@ test('ogni linea del catalogo ha un servizio, e ogni servizio un colore in tutti
   assert.equal(SERVIZI.pomigliano.strisce, true);
   assert.equal(SERVIZI.torre.strisce, true);
 });
+
+// ---- modalita' tabellone: planFit ----
+
+test('planFit: contenuto flessibile riempie larghezza e altezza a qualunque proporzione', () => {
+  const flex = () => ({ h: 1000, rows: 18 });                 // l'altezza non dipende dalla larghezza
+  for (const [vw, vh] of [[1920, 1080], [390, 800], [800, 390], [3840, 2160], [2160, 3840]]) {
+    const p = L.planFit({ vw, vh, measure: flex });
+    assert.ok(Math.abs(p.width * p.scale - vw) < 1.5, `larghezza ${vw}x${vh}`);
+    assert.ok(Math.abs(1000 * p.scale - vh) < 1.5, `altezza ${vw}x${vh}`);
+    assert.ok(Math.abs(p.x) < 1);
+  }
+});
+
+test('planFit: contenuto a proporzioni fisse entra intero e viene centrato', () => {
+  const fixed = (W) => ({ h: W * 0.5, rows: 18 });            // alto la meta' della larghezza
+  const wide = L.planFit({ vw: 1920, vh: 1080, measure: fixed, aspect: true });
+  assert.ok(wide.width * wide.scale <= 1920 + 1 && 640 * wide.scale <= 1080 + 1);
+  assert.ok(Math.abs(wide.x) < 1);                             // 16:9 con contenuto 2:1: riempie la larghezza
+  assert.ok(wide.y > 0);                                       // e resta spazio sopra/sotto: centrato in verticale
+  const tall = L.planFit({ vw: 800, vh: 1600, measure: (W) => ({ h: W * 3, rows: 18 }), aspect: true });
+  assert.ok(tall.x >= 0 && 1280 * 3 * tall.scale <= 1600 + 1);
+  assert.ok(tall.x > 0);                                       // contenuto molto alto: spazio ai lati
+});
+
+test('planFit: con poche righe non ingrandisce a dismisura', () => {
+  const few = L.planFit({ vw: 1920, vh: 1080, measure: () => ({ h: 300, rows: 3 }), minRows: 12 });
+  const full = L.planFit({ vw: 1920, vh: 1080, measure: () => ({ h: 1200, rows: 12 }), minRows: 12 });
+  assert.ok(Math.abs(few.scale - full.scale) < 0.01, 'stessa scala di 12 righe piene');
+});
+
+test('planFit: limiti di larghezza', () => {
+  const p = L.planFit({ vw: 100, vh: 5000, measure: () => ({ h: 100, rows: 20 }), minW: 320 });
+  assert.ok(p.width >= 320);
+});
+
+test('planFit: contenuto non misurabile -> nessuna scala', () => {
+  const p = L.planFit({ vw: 1000, vh: 800, measure: () => ({ h: 0, rows: 0 }) });
+  assert.deepEqual([p.width, p.scale, p.x, p.y], [1000, 1, 0, 0]);
+});
+
+// ---- ogni aspetto dell'elenco ha il suo modulo e i suoi flag coerenti ----
+import { UI_LISTA } from '../../docs/config.js';
+
+test('UI_LISTA: ogni aspetto ha modulo e CSS, e il flag "tabellone" coincide con quello della vista', async () => {
+  const ids = UI_LISTA.map((u) => u.id);
+  assert.equal(new Set(ids).size, ids.length, 'id duplicati');
+  for (const u of UI_LISTA) {
+    const mod = await import('../../docs/views/' + u.id + '.js');
+    assert.equal(mod.meta.id, u.id);
+    assert.equal(typeof mod.render, 'function');
+    assert.equal(!!mod.meta.tabellone, !!u.tabellone, u.id + ': flag tabellone diverso tra config e vista');
+    if (u.id !== 'classico') readFileSync(new URL('../../docs/views/' + u.id + '.css', import.meta.url), 'utf8');
+  }
+  // i file delle viste non elencati sono solo quelli di supporto
+  const stray = readdirSync(new URL('../../docs/views/', import.meta.url)).filter((f) => f.endsWith('.js') && !f.startsWith('_') && !ids.includes(f.slice(0, -3)));
+  assert.deepEqual(stray, [], 'viste non elencate in UI_LISTA');
+  assert.ok(UI_LISTA.filter((u) => u.tabellone).length >= 6);
+});
+
+// ---- aspetto "Golfo": la frase in cima ----
+import { frase, statoParole } from '../../docs/views/golfo.js';
+
+const gCtx = (trains, vai = null, nowMin = 22 * 60) => {
+  const st0 = id('NAPOLI PIAZZA GARIBALDI');
+  const rows = trains.map((t) => { const inf = L.inferService(t, st0, idx, CFG); return { t, inf, match: vai ? L.goesTo(t, st0, vai, idx, inf.lines) : null }; });
+  return { rows, all: rows, now: { min: nowMin, h: 22, m: 0, s: 0 }, idx, station: st0, tipo: 'P', vai, open: new Set(), empty: 'Nessun treno in elenco.' };
+};
+const testo = (f) => f.segments.map((s) => s.t).join('');
+
+test('golfo: prossimo treno tra N minuti, con binario', () => {
+  const f = frase(gCtx([tr({ dest: 'SORRENTO', time: '22:03', platform: '4' })]));
+  assert.equal(testo(f), 'Il prossimo treno per Sorrento parte tra 3 minuti, dal binario 4.');
+  assert.deepEqual(f.big, { main: '3', unit: 'min' });
+  assert.equal(f.tone, 'ok');
+});
+
+test('golfo: singolare, binario da assegnare, in partenza', () => {
+  assert.match(testo(frase(gCtx([tr({ time: '22:01', platform: null })]))), /Il treno per Sorrento sta partendo\./);
+  assert.match(testo(frase(gCtx([tr({ time: '22:02', platform: null })]))), /tra 2 minuti\. Il binario non è ancora stato assegnato\./);
+  const uno = frase(gCtx([tr({ time: '22:00', platform: '2' })], null, 22 * 60 - 0.2));
+  assert.match(testo(uno), /sta partendo, dal binario 2/);
+  assert.equal(uno.big.main, 'Ora');
+});
+
+test('golfo: ritardo con minuti, senza minuti, soppresso', () => {
+  const late = frase(gCtx([tr({ time: '22:10', delay: 1, platform: '3' })]));
+  assert.match(testo(late), /parte tra 11 minuti, dal binario 3\. È in ritardo di 1 minuto\./);
+  assert.equal(late.tone, 'late');
+  assert.match(testo(frase(gCtx([tr({ time: '22:10', delay: null })]))), /È in ritardo, ma EAV non dice di quanto\./);
+  const c = frase(gCtx([tr({ time: '22:10', cancelled: true, dest: 'SORRENTO' }), tr({ time: '22:40', dest: 'SORRENTO' })]));
+  assert.equal(testo(c), 'Il treno delle 22:10 per Sorrento è soppresso. Il successivo parte alle 22:40 per Sorrento.');
+  assert.equal(c.tone, 'cancel');
+});
+
+test('golfo: treno lontano e treno di domani', () => {
+  const far = frase(gCtx([tr({ time: '23:40', platform: '1' })]));
+  assert.match(testo(far), /parte alle 23:40, dal binario 1\./);
+  assert.deepEqual(far.big, { main: '23:40', unit: 'più tardi' });
+  const dom = frase(gCtx([tr({ time: '05:19', day: 1 })]));
+  assert.match(testo(dom), /Per ora non ci sono altri treni: il prossimo è domani alle 05:19 per Sorrento\./);
+  assert.equal(dom.big.unit, 'domani');
+});
+
+test('golfo: "Vai a" dice stazione e orario di arrivo, senza ripetizioni', () => {
+  const pompei = id('POMPEI SCAVI VILLA DEI MISTERI');
+  const f = frase(gCtx([
+    tr({ time: '22:10', dest: 'NAPOLI PORTA NOLANA', num: '1214' }),
+    tr({ time: '22:20', dest: 'SORRENTO', platform: '2', stops: [{ name: 'POMPEI SCAVI VILLA DEI MISTERI', time: '22:44' }, { name: 'SORRENTO', time: '23:20' }] }),
+    tr({ time: '22:50', dest: 'SORRENTO', stops: [{ name: 'POMPEI SCAVI VILLA DEI MISTERI', time: '23:14' }] })], pompei));
+  assert.equal(testo(f), 'Per Pompei Scavi Villa dei Misteri il prossimo treno parte alle 22:20 e ci arrivi alle 22:44, dal binario 2.');
+  const nessuno = frase(gCtx([tr({ time: '22:10', dest: 'NAPOLI PORTA NOLANA' })], pompei));
+  assert.match(testo(nessuno), /^Nessuno dei prossimi treni arriva a Pompei Scavi Villa dei Misteri\.$/);
+  assert.equal(frase(gCtx([])).tone, 'none');
+});
+
+test('golfo: stato in parole', () => {
+  const m = (o, now = 22 * 60) => { const r = { t: tr(o), inf: L.inferService(tr(o), id('NAPOLI PIAZZA GARIBALDI'), idx, CFG), match: null };
+    return { t: r.t, st: L.statusOf(r.t, now) }; };
+  assert.equal(statoParole(m({ time: '22:30' })), 'In orario');
+  assert.equal(statoParole(m({ time: '22:30', delay: 7 })), 'In ritardo di 7 min');
+  assert.equal(statoParole(m({ time: '22:30', delay: null })), 'In ritardo');
+  assert.equal(statoParole(m({ time: '22:30', cancelled: true })), 'Soppresso');
+  assert.equal(statoParole(m({ time: '22:00' })), 'Sta partendo');
+});

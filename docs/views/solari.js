@@ -5,7 +5,8 @@ import { el } from '../dom.js';
 import * as L from '../logic.js';
 import { SERVIZI } from '../config.js';
 
-export const meta = { id: 'solari', paginate: true };
+// aspect: testo a colonne fisse, si scala per farlo entrare intero (non si allarga)
+export const meta = { id: 'solari', paginate: true, tabellone: true, aspect: true };
 
 let ns = '';              // stazione+tipo: se cambia si riparte da zero e girano tutte le tessere
 const shown = new Map();  // campo -> testo mostrato l'ultima volta (per far girare solo cio' che cambia)

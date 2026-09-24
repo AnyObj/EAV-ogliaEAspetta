@@ -4,7 +4,7 @@ import { el } from '../dom.js';
 import * as L from '../logic.js';
 import { model, wire } from './_lib.js';
 
-export const meta = { id: 'terminale', paginate: true };
+export const meta = { id: 'terminale', paginate: true, tabellone: true, aspect: true };
 
 const CODICE = { sorrento: 'SOR', torre: 'TOR', poggiomarino: 'POG', sarno: 'SAR', baiano: 'BAI', pomigliano: 'POM',
   cumana: 'CUM', circumflegrea: 'CIR', l7: 'L7', napoli: 'NAP' };

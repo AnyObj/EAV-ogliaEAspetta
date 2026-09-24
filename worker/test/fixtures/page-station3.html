@@ -1,0 +1,124 @@
+<html lang="it">
+<head>
+<title>Lista Treni</title>
+<link rel="icon" type="image/x-icon" href="/favicon.ico?1036">
+<style>#dataOra{display:none;}</style>
+
+
+<link rel="stylesheet" href="css/mobile.css?1657"><script src="script/jquery-3.2.1.min.js"></script>
+
+<script>
+	var visualizzazione = 'mobile';
+</script>
+
+<script type="text/javascript">
+
+	function isElementOverflowing(element) {
+		if(!element)return;
+		var overflowX = element.offsetWidth < element.scrollWidth,
+			overflowY = element.offsetHeight < element.scrollHeight;
+
+		return (overflowX || overflowY);
+	}
+
+	function wrapContentsInMarquee(element) {
+		
+		if(!element)return;
+		var marquee = document.createElement('marquee'),
+		contents = element.innerText;
+		
+		marquee.innerHTML = "<p>"+contents+"</p>";
+		element.innerHTML = '';
+		element.appendChild(marquee);
+	}
+	var datiVisualizzati="";
+	function mostraDati(){
+
+		GetOrario();
+
+		var device		=  $('[name="nomeDevice"]').val();		//da commentare
+		var tipoLista	=  $('[name="tipoLista"]').val();
+		var codLoc		=  $('[name="codLoc"]').val();
+		var touchpoint		=  $('[name="touchpoint"]').val();
+
+		var x=new Date();
+		h=x.getHours();
+		m=x.getMinutes();
+		s=x.getSeconds();
+		if(s<=9) s="0"+s;
+		if(m<=9) m="0"+m;
+		if(h<=9) h="0"+h;
+		time=h+":"+m+":"+s;
+
+		//if(device)
+		//	console.log(codLoc , tipoLista)
+		if(codLoc && tipoLista)
+		{
+			//	console.log('reload dati');
+				$.ajax({
+				type: "POST",
+				url: "ws_getData_moova.php",
+				data: {device:device, tipoLista:tipoLista, codLoc:codLoc,touchpoint:touchpoint, visualizzazione:visualizzazione}, // definisco il formato della risposta
+				//data: {tipoLista:tipoLista, codLoc:codLoc}, // definisco il formato della risposta
+				dataType: "html",
+				success: function(response){
+					if(response!=datiVisualizzati){
+						console.log('---> AGGIORNO MONITOR! [' + time +'] <---');
+						document.getElementById("indicatore").innerHTML = response; 
+						datiVisualizzati = response;
+
+						/** Imposto infosupp con marquee in caso di overflow*/
+						var InfoSupplementare = document.getElementsByClassName('InfoSupplementare')[0];
+						if (isElementOverflowing(InfoSupplementare)) {
+							wrapContentsInMarquee(InfoSupplementare);
+						}
+						else
+						{
+							if(InfoSupplementare){
+								InfoSupplementare.innerHTML = "<p>"+InfoSupplementare.innerText+"</p>";
+							}
+						}
+					}
+				}
+			});
+			setTimeout("mostraDati()",10000); 
+			//startTime();
+
+		}else{
+			document.getElementById("indicatore").innerHTML = '<p align="center" class="intestazioni" style="color:white;">ERRORE RICHIESTA</p>'; 
+		}
+	}
+	
+	function GetOrario(){
+		var d = new Date(),
+		
+		h=d.getHours();
+		m=d.getMinutes();
+		s=d.getSeconds();
+			
+		if(m<=9) m="0"+m;
+		if(h<=9) h="0"+h;
+
+		/*var point=".";
+		if(s % 2) point=":";*/
+		
+		//time=h+":"+m+":"+s;
+		time=h+":"+m;
+		$("#dataOra").html(time);
+		
+		setTimeout("GetOrario()",1000); 
+}
+
+</script>
+</head>
+	<body onLoad="mostraDati()">
+
+		<div id="indicatore"></div>
+
+		<input type="hidden" name="nomeDevice" 	id="nomeDevice" value="M01T3M">
+		<input type="hidden" name="tipoLista" 	id="tipoLista" value="P">
+		<input type="hidden" name="codLoc" 		id="codLoc" value="TNPNTS00000000000040">
+		<input type="hidden" name="touchpoint" 		id="touchpoint" value="TPOINT00000000000080">
+
+	</body>
+</html>

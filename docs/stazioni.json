@@ -1,0 +1,1464 @@
+{
+ "generato": "2026-09-24T20:39:46.978Z",
+ "fonte": "https://orariotreni.eavsrl.it/",
+ "sondato": "2026-09-24T20:27:15+00:00",
+ "linee": [
+  {
+   "id": "L1",
+   "nome": "NAPOLI-SORRENTO"
+  },
+  {
+   "id": "L1",
+   "nome": "NAPOLI-S.GIORGIO-TORRE"
+  },
+  {
+   "id": "L4",
+   "nome": "NAPOLI-SCAFATI-POGGIOMARINO"
+  },
+  {
+   "id": "L6",
+   "nome": "NAPOLI-OTTAVIANO-SARNO"
+  },
+  {
+   "id": "L8",
+   "nome": "NAPOLI-NOLA-BAIANO"
+  },
+  {
+   "id": "L8Dir",
+   "nome": "NAPOLI-POMIGLIANO"
+  },
+  {
+   "id": "L9",
+   "nome": "CUMANA"
+  },
+  {
+   "id": "L5",
+   "nome": "CIRCUMFLEGREA"
+  },
+  {
+   "id": "L7",
+   "nome": "SOCCAVO-MONTE S.ANGELO"
+  }
+ ],
+ "stazioni": [
+  {
+   "id": "1",
+   "nome": "NAPOLI PORTA NOLANA",
+   "linee": [
+    "NAPOLI-SORRENTO",
+    "NAPOLI-S.GIORGIO-TORRE",
+    "NAPOLI-SCAFATI-POGGIOMARINO",
+    "NAPOLI-OTTAVIANO-SARNO",
+    "NAPOLI-NOLA-BAIANO",
+    "NAPOLI-POMIGLIANO"
+   ],
+   "moova": true,
+   "dati": true,
+   "nomeEav": "NAPOLI PORTA NOLANA",
+   "alias": []
+  },
+  {
+   "id": "3",
+   "nome": "NAPOLI PIAZZA GARIBALDI",
+   "linee": [
+    "NAPOLI-SORRENTO",
+    "NAPOLI-S.GIORGIO-TORRE",
+    "NAPOLI-SCAFATI-POGGIOMARINO",
+    "NAPOLI-OTTAVIANO-SARNO",
+    "NAPOLI-NOLA-BAIANO",
+    "NAPOLI-POMIGLIANO"
+   ],
+   "moova": true,
+   "dati": true,
+   "nomeEav": "NAPOLI P. GARIBALDI",
+   "alias": [
+    "NAPOLI P. GARIBALDI"
+   ]
+  },
+  {
+   "id": "4",
+   "nome": "VIA GIANTURCO",
+   "linee": [
+    "NAPOLI-SORRENTO",
+    "NAPOLI-SCAFATI-POGGIOMARINO",
+    "NAPOLI-OTTAVIANO-SARNO"
+   ],
+   "moova": true,
+   "dati": true,
+   "nomeEav": "Via Gianturco",
+   "alias": []
+  },
+  {
+   "id": "5",
+   "nome": "SAN GIOVANNI A TEDUCCIO",
+   "linee": [
+    "NAPOLI-SORRENTO",
+    "NAPOLI-SCAFATI-POGGIOMARINO",
+    "NAPOLI-OTTAVIANO-SARNO"
+   ],
+   "moova": true,
+   "dati": true,
+   "nomeEav": "S. GIOVANNI A TEDUCCIO",
+   "alias": []
+  },
+  {
+   "id": "6",
+   "nome": "BARRA",
+   "linee": [
+    "NAPOLI-SORRENTO",
+    "NAPOLI-SCAFATI-POGGIOMARINO",
+    "NAPOLI-OTTAVIANO-SARNO"
+   ],
+   "moova": true,
+   "dati": true,
+   "nomeEav": "BARRA",
+   "alias": []
+  },
+  {
+   "id": "26",
+   "nome": "SANTA MARIA DEL POZZO",
+   "linee": [
+    "NAPOLI-SORRENTO",
+    "NAPOLI-SCAFATI-POGGIOMARINO"
+   ],
+   "moova": true,
+   "dati": true,
+   "nomeEav": "S. Maria del Pozzo",
+   "alias": []
+  },
+  {
+   "id": "27",
+   "nome": "SAN GIORGIO A CREMANO",
+   "linee": [
+    "NAPOLI-SORRENTO",
+    "NAPOLI-S.GIORGIO-TORRE",
+    "NAPOLI-SCAFATI-POGGIOMARINO"
+   ],
+   "moova": true,
+   "dati": true,
+   "nomeEav": "S. GIORGIO A CREMANO",
+   "alias": []
+  },
+  {
+   "id": "28",
+   "nome": "CAVALLI DI BRONZO",
+   "linee": [
+    "NAPOLI-SORRENTO",
+    "NAPOLI-S.GIORGIO-TORRE",
+    "NAPOLI-SCAFATI-POGGIOMARINO"
+   ],
+   "moova": true,
+   "dati": false,
+   "nomeEav": null,
+   "alias": []
+  },
+  {
+   "id": "29",
+   "nome": "PORTICI BELLAVISTA",
+   "linee": [
+    "NAPOLI-SORRENTO",
+    "NAPOLI-S.GIORGIO-TORRE",
+    "NAPOLI-SCAFATI-POGGIOMARINO"
+   ],
+   "moova": true,
+   "dati": true,
+   "nomeEav": "Portici Bellavista",
+   "alias": []
+  },
+  {
+   "id": "30",
+   "nome": "PORTICI VIA LIBERTÀ",
+   "linee": [
+    "NAPOLI-SORRENTO",
+    "NAPOLI-S.GIORGIO-TORRE",
+    "NAPOLI-SCAFATI-POGGIOMARINO"
+   ],
+   "moova": true,
+   "dati": true,
+   "nomeEav": "Portici Via Libertà",
+   "alias": []
+  },
+  {
+   "id": "31",
+   "nome": "ERCOLANO SCAVI",
+   "linee": [
+    "NAPOLI-SORRENTO",
+    "NAPOLI-S.GIORGIO-TORRE",
+    "NAPOLI-SCAFATI-POGGIOMARINO"
+   ],
+   "moova": true,
+   "dati": true,
+   "nomeEav": "ERCOLANO SCAVI",
+   "alias": []
+  },
+  {
+   "id": "32",
+   "nome": "ERCOLANO MIGLIO D'ORO",
+   "linee": [
+    "NAPOLI-SORRENTO",
+    "NAPOLI-S.GIORGIO-TORRE",
+    "NAPOLI-SCAFATI-POGGIOMARINO"
+   ],
+   "moova": true,
+   "dati": true,
+   "nomeEav": "Ercolano Miglio d'Oro",
+   "alias": []
+  },
+  {
+   "id": "33",
+   "nome": "TORRE DEL GRECO",
+   "linee": [
+    "NAPOLI-SORRENTO",
+    "NAPOLI-S.GIORGIO-TORRE",
+    "NAPOLI-SCAFATI-POGGIOMARINO"
+   ],
+   "moova": true,
+   "dati": true,
+   "nomeEav": "TORRE DEL GRECO",
+   "alias": []
+  },
+  {
+   "id": "34",
+   "nome": "VIA SANT'ANTONIO",
+   "linee": [
+    "NAPOLI-SORRENTO",
+    "NAPOLI-SCAFATI-POGGIOMARINO"
+   ],
+   "moova": true,
+   "dati": true,
+   "nomeEav": "Via S. Antonio",
+   "alias": []
+  },
+  {
+   "id": "35",
+   "nome": "VIA DEL MONTE",
+   "linee": [
+    "NAPOLI-SORRENTO",
+    "NAPOLI-SCAFATI-POGGIOMARINO"
+   ],
+   "moova": true,
+   "dati": true,
+   "nomeEav": "Via del Monte",
+   "alias": []
+  },
+  {
+   "id": "36",
+   "nome": "VIA DEI MONACI",
+   "linee": [
+    "NAPOLI-SORRENTO",
+    "NAPOLI-SCAFATI-POGGIOMARINO"
+   ],
+   "moova": true,
+   "dati": false,
+   "nomeEav": null,
+   "alias": []
+  },
+  {
+   "id": "37",
+   "nome": "VILLA DELLE GINESTRE",
+   "linee": [
+    "NAPOLI-SORRENTO",
+    "NAPOLI-SCAFATI-POGGIOMARINO"
+   ],
+   "moova": true,
+   "dati": true,
+   "nomeEav": "Villa delle Ginestre",
+   "alias": []
+  },
+  {
+   "id": "38",
+   "nome": "LEOPARDI",
+   "linee": [
+    "NAPOLI-SORRENTO",
+    "NAPOLI-SCAFATI-POGGIOMARINO"
+   ],
+   "moova": true,
+   "dati": true,
+   "nomeEav": "LEOPARDI",
+   "alias": []
+  },
+  {
+   "id": "39",
+   "nome": "VIA VIULI",
+   "linee": [
+    "NAPOLI-SORRENTO",
+    "NAPOLI-SCAFATI-POGGIOMARINO"
+   ],
+   "moova": true,
+   "dati": false,
+   "nomeEav": null,
+   "alias": []
+  },
+  {
+   "id": "40",
+   "nome": "TRECASE",
+   "linee": [
+    "NAPOLI-SORRENTO",
+    "NAPOLI-SCAFATI-POGGIOMARINO"
+   ],
+   "moova": true,
+   "dati": true,
+   "nomeEav": "Trecase",
+   "alias": []
+  },
+  {
+   "id": "41",
+   "nome": "TORRE ANNUNZIATA - OPLONTI",
+   "linee": [
+    "NAPOLI-SORRENTO",
+    "NAPOLI-SCAFATI-POGGIOMARINO"
+   ],
+   "moova": true,
+   "dati": true,
+   "nomeEav": "TORRE A.TA - OPLONTI",
+   "alias": []
+  },
+  {
+   "id": "44",
+   "nome": "VILLA REGINA",
+   "linee": [
+    "NAPOLI-SORRENTO"
+   ],
+   "moova": true,
+   "dati": true,
+   "nomeEav": "Villa Regina",
+   "alias": []
+  },
+  {
+   "id": "49",
+   "nome": "POMPEI SCAVI VILLA DEI MISTERI",
+   "linee": [
+    "NAPOLI-SORRENTO"
+   ],
+   "moova": true,
+   "dati": true,
+   "nomeEav": "POMPEI SCAVI VILLA DEI MISTERI",
+   "alias": []
+  },
+  {
+   "id": "99",
+   "nome": "MOREGINE",
+   "linee": [
+    "NAPOLI-SORRENTO"
+   ],
+   "moova": true,
+   "dati": false,
+   "nomeEav": null,
+   "alias": []
+  },
+  {
+   "id": "51",
+   "nome": "PIOPPAINO",
+   "linee": [
+    "NAPOLI-SORRENTO"
+   ],
+   "moova": true,
+   "dati": true,
+   "nomeEav": "PIOPPAINO",
+   "alias": []
+  },
+  {
+   "id": "52",
+   "nome": "STABIA SCAVI",
+   "linee": [
+    "NAPOLI-SORRENTO"
+   ],
+   "moova": true,
+   "dati": true,
+   "nomeEav": "STABIA SCAVI",
+   "alias": []
+  },
+  {
+   "id": "520",
+   "nome": "VIA NOCERA",
+   "linee": [
+    "NAPOLI-SORRENTO"
+   ],
+   "moova": true,
+   "dati": false,
+   "nomeEav": "VIA NOCERA",
+   "alias": []
+  },
+  {
+   "id": "53",
+   "nome": "CASTELLAMMARE DI STABIA",
+   "linee": [
+    "NAPOLI-SORRENTO"
+   ],
+   "moova": true,
+   "dati": true,
+   "nomeEav": "CASTELLAMMARE DI STABIA",
+   "alias": []
+  },
+  {
+   "id": "54",
+   "nome": "CASTELLAMMARE TERME",
+   "linee": [
+    "NAPOLI-SORRENTO"
+   ],
+   "moova": true,
+   "dati": false,
+   "nomeEav": null,
+   "alias": []
+  },
+  {
+   "id": "55",
+   "nome": "POZZANO",
+   "linee": [
+    "NAPOLI-SORRENTO"
+   ],
+   "moova": true,
+   "dati": false,
+   "nomeEav": null,
+   "alias": []
+  },
+  {
+   "id": "56",
+   "nome": "SCRAJO",
+   "linee": [
+    "NAPOLI-SORRENTO"
+   ],
+   "moova": true,
+   "dati": false,
+   "nomeEav": null,
+   "alias": []
+  },
+  {
+   "id": "57",
+   "nome": "VICO EQUENSE",
+   "linee": [
+    "NAPOLI-SORRENTO"
+   ],
+   "moova": true,
+   "dati": true,
+   "nomeEav": "VICO EQUENSE",
+   "alias": []
+  },
+  {
+   "id": "58",
+   "nome": "SEIANO",
+   "linee": [
+    "NAPOLI-SORRENTO"
+   ],
+   "moova": true,
+   "dati": true,
+   "nomeEav": "Seiano",
+   "alias": []
+  },
+  {
+   "id": "59",
+   "nome": "META",
+   "linee": [
+    "NAPOLI-SORRENTO"
+   ],
+   "moova": true,
+   "dati": true,
+   "nomeEav": "META",
+   "alias": []
+  },
+  {
+   "id": "60",
+   "nome": "PIANO",
+   "linee": [
+    "NAPOLI-SORRENTO"
+   ],
+   "moova": true,
+   "dati": true,
+   "nomeEav": "PIANO",
+   "alias": []
+  },
+  {
+   "id": "61",
+   "nome": "SANT'AGNELLO",
+   "linee": [
+    "NAPOLI-SORRENTO"
+   ],
+   "moova": true,
+   "dati": true,
+   "nomeEav": "S. Agnello",
+   "alias": []
+  },
+  {
+   "id": "62",
+   "nome": "SORRENTO",
+   "linee": [
+    "NAPOLI-SORRENTO"
+   ],
+   "moova": true,
+   "dati": true,
+   "nomeEav": "SORRENTO",
+   "alias": []
+  },
+  {
+   "id": "90",
+   "nome": "CENTRO DIREZIONALE",
+   "linee": [
+    "NAPOLI-S.GIORGIO-TORRE",
+    "NAPOLI-NOLA-BAIANO",
+    "NAPOLI-POMIGLIANO"
+   ],
+   "moova": true,
+   "dati": false,
+   "nomeEav": null,
+   "alias": []
+  },
+  {
+   "id": "63",
+   "nome": "POGGIOREALE",
+   "linee": [
+    "NAPOLI-S.GIORGIO-TORRE",
+    "NAPOLI-NOLA-BAIANO",
+    "NAPOLI-POMIGLIANO"
+   ],
+   "moova": true,
+   "dati": false,
+   "nomeEav": null,
+   "alias": []
+  },
+  {
+   "id": "64",
+   "nome": "BOTTEGHELLE",
+   "linee": [
+    "NAPOLI-S.GIORGIO-TORRE",
+    "NAPOLI-NOLA-BAIANO",
+    "NAPOLI-POMIGLIANO"
+   ],
+   "moova": true,
+   "dati": false,
+   "nomeEav": null,
+   "alias": []
+  },
+  {
+   "id": "101",
+   "nome": "BIVIO BOTTEGHELLE",
+   "linee": [
+    "NAPOLI-S.GIORGIO-TORRE",
+    "NAPOLI-NOLA-BAIANO",
+    "NAPOLI-POMIGLIANO"
+   ],
+   "moova": true,
+   "dati": false,
+   "nomeEav": null,
+   "alias": []
+  },
+  {
+   "id": "102",
+   "nome": "BIVIO MADONNELLE",
+   "linee": [
+    "NAPOLI-S.GIORGIO-TORRE"
+   ],
+   "moova": true,
+   "dati": false,
+   "nomeEav": null,
+   "alias": []
+  },
+  {
+   "id": "96",
+   "nome": "MADONNELLE",
+   "linee": [
+    "NAPOLI-S.GIORGIO-TORRE"
+   ],
+   "moova": true,
+   "dati": false,
+   "nomeEav": null,
+   "alias": []
+  },
+  {
+   "id": "94",
+   "nome": "ARGINE-PALASPORT",
+   "linee": [
+    "NAPOLI-S.GIORGIO-TORRE"
+   ],
+   "moova": true,
+   "dati": false,
+   "nomeEav": null,
+   "alias": []
+  },
+  {
+   "id": "93",
+   "nome": "VILLA VISCONTI",
+   "linee": [
+    "NAPOLI-S.GIORGIO-TORRE"
+   ],
+   "moova": true,
+   "dati": false,
+   "nomeEav": null,
+   "alias": []
+  },
+  {
+   "id": "92",
+   "nome": "VESUVIO DE MEIS (SGV)",
+   "linee": [
+    "NAPOLI-S.GIORGIO-TORRE"
+   ],
+   "moova": true,
+   "dati": false,
+   "nomeEav": null,
+   "alias": []
+  },
+  {
+   "id": "91",
+   "nome": "BARTOLO LONGO",
+   "linee": [
+    "NAPOLI-S.GIORGIO-TORRE"
+   ],
+   "moova": true,
+   "dati": false,
+   "nomeEav": null,
+   "alias": []
+  },
+  {
+   "id": "42",
+   "nome": "BOSCOTRECASE - PORTA DI ACCESSO AL CRATERE DEL VESUVIO",
+   "linee": [
+    "NAPOLI-SCAFATI-POGGIOMARINO"
+   ],
+   "moova": true,
+   "dati": true,
+   "nomeEav": "BOSCOTRECASE",
+   "alias": [
+    "BOSCOTRECASE"
+   ]
+  },
+  {
+   "id": "43",
+   "nome": "BOSCOREALE",
+   "linee": [
+    "NAPOLI-SCAFATI-POGGIOMARINO"
+   ],
+   "moova": true,
+   "dati": true,
+   "nomeEav": "BOSCOREALE",
+   "alias": []
+  },
+  {
+   "id": "45",
+   "nome": "POMPEI SANTUARIO",
+   "linee": [
+    "NAPOLI-SCAFATI-POGGIOMARINO"
+   ],
+   "moova": true,
+   "dati": true,
+   "nomeEav": "POMPEI SANTUARIO",
+   "alias": []
+  },
+  {
+   "id": "46",
+   "nome": "SCAFATI",
+   "linee": [
+    "NAPOLI-SCAFATI-POGGIOMARINO"
+   ],
+   "moova": true,
+   "dati": true,
+   "nomeEav": "SCAFATI",
+   "alias": []
+  },
+  {
+   "id": "47",
+   "nome": "S.PIETRO",
+   "linee": [
+    "NAPOLI-SCAFATI-POGGIOMARINO"
+   ],
+   "moova": true,
+   "dati": true,
+   "nomeEav": "SAN PIETRO",
+   "alias": []
+  },
+  {
+   "id": "48",
+   "nome": "VIA CANGIANI",
+   "linee": [
+    "NAPOLI-SCAFATI-POGGIOMARINO"
+   ],
+   "moova": true,
+   "dati": true,
+   "nomeEav": "VIA CANGIANI",
+   "alias": []
+  },
+  {
+   "id": "22",
+   "nome": "POGGIOMARINO",
+   "linee": [
+    "NAPOLI-SCAFATI-POGGIOMARINO",
+    "NAPOLI-OTTAVIANO-SARNO"
+   ],
+   "moova": true,
+   "dati": true,
+   "nomeEav": "POGGIOMARINO",
+   "alias": []
+  },
+  {
+   "id": "7",
+   "nome": "PONTICELLI",
+   "linee": [
+    "NAPOLI-OTTAVIANO-SARNO"
+   ],
+   "moova": true,
+   "dati": true,
+   "nomeEav": "PONTICELLI",
+   "alias": []
+  },
+  {
+   "id": "95",
+   "nome": "VESUVIO DE MEIS (SA)",
+   "linee": [
+    "NAPOLI-OTTAVIANO-SARNO"
+   ],
+   "moova": true,
+   "dati": true,
+   "nomeEav": "POLLENA TROCCHIA",
+   "alias": []
+  },
+  {
+   "id": "8",
+   "nome": "CERCOLA",
+   "linee": [
+    "NAPOLI-OTTAVIANO-SARNO"
+   ],
+   "moova": true,
+   "dati": true,
+   "nomeEav": "CERCOLA",
+   "alias": []
+  },
+  {
+   "id": "9",
+   "nome": "POLLENA",
+   "linee": [
+    "NAPOLI-OTTAVIANO-SARNO"
+   ],
+   "moova": true,
+   "dati": true,
+   "nomeEav": "POLLENA TROCCHIA",
+   "alias": [
+    "POLLENA TROCCHIA"
+   ]
+  },
+  {
+   "id": "10",
+   "nome": "GUINDAZZI",
+   "linee": [
+    "NAPOLI-OTTAVIANO-SARNO"
+   ],
+   "moova": true,
+   "dati": true,
+   "nomeEav": "GUINDAZZI",
+   "alias": []
+  },
+  {
+   "id": "11",
+   "nome": "MADONNA DELL'ARCO",
+   "linee": [
+    "NAPOLI-OTTAVIANO-SARNO"
+   ],
+   "moova": true,
+   "dati": true,
+   "nomeEav": "MADONNA DELL ARCO",
+   "alias": []
+  },
+  {
+   "id": "12",
+   "nome": "SANT'ANASTASIA",
+   "linee": [
+    "NAPOLI-OTTAVIANO-SARNO"
+   ],
+   "moova": true,
+   "dati": true,
+   "nomeEav": "SANT ANASTASIA",
+   "alias": []
+  },
+  {
+   "id": "13",
+   "nome": "VILLA AUGUSTEA",
+   "linee": [
+    "NAPOLI-OTTAVIANO-SARNO"
+   ],
+   "moova": true,
+   "dati": true,
+   "nomeEav": "VILLA AUGUSTEA",
+   "alias": []
+  },
+  {
+   "id": "14",
+   "nome": "SOMMA VESUVIANA",
+   "linee": [
+    "NAPOLI-OTTAVIANO-SARNO"
+   ],
+   "moova": true,
+   "dati": true,
+   "nomeEav": "SOMMA VESUVIANA",
+   "alias": []
+  },
+  {
+   "id": "15",
+   "nome": "RIONE TRIESTE",
+   "linee": [
+    "NAPOLI-OTTAVIANO-SARNO"
+   ],
+   "moova": true,
+   "dati": true,
+   "nomeEav": "RIONE TRIESTE",
+   "alias": []
+  },
+  {
+   "id": "16",
+   "nome": "OTTAVIANO",
+   "linee": [
+    "NAPOLI-OTTAVIANO-SARNO"
+   ],
+   "moova": true,
+   "dati": true,
+   "nomeEav": "OTTAVIANO",
+   "alias": []
+  },
+  {
+   "id": "17",
+   "nome": "S.LEONARDO",
+   "linee": [
+    "NAPOLI-OTTAVIANO-SARNO"
+   ],
+   "moova": true,
+   "dati": true,
+   "nomeEav": "SAN LEONARDO",
+   "alias": []
+  },
+  {
+   "id": "18",
+   "nome": "SAN GIUSEPPE",
+   "linee": [
+    "NAPOLI-OTTAVIANO-SARNO"
+   ],
+   "moova": true,
+   "dati": true,
+   "nomeEav": "SAN GIUSEPPE",
+   "alias": []
+  },
+  {
+   "id": "19",
+   "nome": "CASILLI",
+   "linee": [
+    "NAPOLI-OTTAVIANO-SARNO"
+   ],
+   "moova": true,
+   "dati": true,
+   "nomeEav": "CASILLI",
+   "alias": []
+  },
+  {
+   "id": "20",
+   "nome": "TERZIGNO",
+   "linee": [
+    "NAPOLI-OTTAVIANO-SARNO"
+   ],
+   "moova": true,
+   "dati": true,
+   "nomeEav": "TERZIGNO",
+   "alias": []
+  },
+  {
+   "id": "21",
+   "nome": "FLOCCO",
+   "linee": [
+    "NAPOLI-OTTAVIANO-SARNO"
+   ],
+   "moova": true,
+   "dati": true,
+   "nomeEav": "FLOCCO",
+   "alias": []
+  },
+  {
+   "id": "23",
+   "nome": "STRIANO",
+   "linee": [
+    "NAPOLI-OTTAVIANO-SARNO"
+   ],
+   "moova": true,
+   "dati": true,
+   "nomeEav": "STRIANO",
+   "alias": []
+  },
+  {
+   "id": "24",
+   "nome": "SAN VALENTINO",
+   "linee": [
+    "NAPOLI-OTTAVIANO-SARNO"
+   ],
+   "moova": true,
+   "dati": true,
+   "nomeEav": "SAN VALENTINO TORIO",
+   "alias": [
+    "SAN VALENTINO TORIO"
+   ]
+  },
+  {
+   "id": "25",
+   "nome": "SARNO",
+   "linee": [
+    "NAPOLI-OTTAVIANO-SARNO"
+   ],
+   "moova": true,
+   "dati": true,
+   "nomeEav": "SARNO",
+   "alias": []
+  },
+  {
+   "id": "70",
+   "nome": "VOLLA",
+   "linee": [
+    "NAPOLI-NOLA-BAIANO",
+    "NAPOLI-POMIGLIANO"
+   ],
+   "moova": true,
+   "dati": true,
+   "nomeEav": "VOLLA",
+   "alias": []
+  },
+  {
+   "id": "97",
+   "nome": "SALICE",
+   "linee": [
+    "NAPOLI-NOLA-BAIANO",
+    "NAPOLI-POMIGLIANO"
+   ],
+   "moova": true,
+   "dati": true,
+   "nomeEav": "SALICE",
+   "alias": []
+  },
+  {
+   "id": "66",
+   "nome": "CASALNUOVO",
+   "linee": [
+    "NAPOLI-NOLA-BAIANO",
+    "NAPOLI-POMIGLIANO"
+   ],
+   "moova": true,
+   "dati": true,
+   "nomeEav": "CASALNUOVO",
+   "alias": []
+  },
+  {
+   "id": "87",
+   "nome": "LA PIGNA",
+   "linee": [
+    "NAPOLI-NOLA-BAIANO",
+    "NAPOLI-POMIGLIANO"
+   ],
+   "moova": true,
+   "dati": true,
+   "nomeEav": "LA PIGNA",
+   "alias": []
+  },
+  {
+   "id": "67",
+   "nome": "TALONA",
+   "linee": [
+    "NAPOLI-NOLA-BAIANO",
+    "NAPOLI-POMIGLIANO"
+   ],
+   "moova": true,
+   "dati": true,
+   "nomeEav": "TALONA",
+   "alias": []
+  },
+  {
+   "id": "88",
+   "nome": "PARCO PIEMONTE",
+   "linee": [
+    "NAPOLI-NOLA-BAIANO",
+    "NAPOLI-POMIGLIANO"
+   ],
+   "moova": true,
+   "dati": false,
+   "nomeEav": null,
+   "alias": []
+  },
+  {
+   "id": "68",
+   "nome": "PRATOLA PONTE",
+   "linee": [
+    "NAPOLI-NOLA-BAIANO",
+    "NAPOLI-POMIGLIANO"
+   ],
+   "moova": true,
+   "dati": true,
+   "nomeEav": "PRATOLA PONTE",
+   "alias": []
+  },
+  {
+   "id": "69",
+   "nome": "POMIGLIANO D'ARCO",
+   "linee": [
+    "NAPOLI-NOLA-BAIANO",
+    "NAPOLI-POMIGLIANO"
+   ],
+   "moova": true,
+   "dati": true,
+   "nomeEav": "POMIGLIANO D ARCO",
+   "alias": []
+  },
+  {
+   "id": "71",
+   "nome": "CASTELCISTERNA",
+   "linee": [
+    "NAPOLI-NOLA-BAIANO"
+   ],
+   "moova": true,
+   "dati": true,
+   "nomeEav": "CASTELCISTERNA",
+   "alias": []
+  },
+  {
+   "id": "72",
+   "nome": "BRUSCIANO",
+   "linee": [
+    "NAPOLI-NOLA-BAIANO"
+   ],
+   "moova": true,
+   "dati": true,
+   "nomeEav": "BRUSCIANO",
+   "alias": []
+  },
+  {
+   "id": "89",
+   "nome": "DE RUGGIERO",
+   "linee": [
+    "NAPOLI-NOLA-BAIANO"
+   ],
+   "moova": true,
+   "dati": true,
+   "nomeEav": "DE RUGGIERO",
+   "alias": []
+  },
+  {
+   "id": "73",
+   "nome": "VIA VITTORIO VENETO",
+   "linee": [
+    "NAPOLI-NOLA-BAIANO"
+   ],
+   "moova": true,
+   "dati": true,
+   "nomeEav": "VIA VITTORIO VENETO",
+   "alias": []
+  },
+  {
+   "id": "74",
+   "nome": "MARIGLIANO",
+   "linee": [
+    "NAPOLI-NOLA-BAIANO"
+   ],
+   "moova": true,
+   "dati": true,
+   "nomeEav": "MARIGLIANO",
+   "alias": []
+  },
+  {
+   "id": "75",
+   "nome": "S.VITALIANO",
+   "linee": [
+    "NAPOLI-NOLA-BAIANO"
+   ],
+   "moova": true,
+   "dati": true,
+   "nomeEav": "SAN VITALIANO",
+   "alias": []
+  },
+  {
+   "id": "76",
+   "nome": "SCISCIANO",
+   "linee": [
+    "NAPOLI-NOLA-BAIANO"
+   ],
+   "moova": true,
+   "dati": true,
+   "nomeEav": "SCISCIANO",
+   "alias": []
+  },
+  {
+   "id": "77",
+   "nome": "SAVIANO",
+   "linee": [
+    "NAPOLI-NOLA-BAIANO"
+   ],
+   "moova": true,
+   "dati": true,
+   "nomeEav": "SAVIANO",
+   "alias": []
+  },
+  {
+   "id": "78",
+   "nome": "NOLA",
+   "linee": [
+    "NAPOLI-NOLA-BAIANO"
+   ],
+   "moova": true,
+   "dati": true,
+   "nomeEav": "NOLA",
+   "alias": []
+  },
+  {
+   "id": "79",
+   "nome": "CIMITILE",
+   "linee": [
+    "NAPOLI-NOLA-BAIANO"
+   ],
+   "moova": true,
+   "dati": true,
+   "nomeEav": "CIMITILE",
+   "alias": []
+  },
+  {
+   "id": "80",
+   "nome": "CAMPOSANO",
+   "linee": [
+    "NAPOLI-NOLA-BAIANO"
+   ],
+   "moova": true,
+   "dati": true,
+   "nomeEav": "CAMPOSANO",
+   "alias": []
+  },
+  {
+   "id": "81",
+   "nome": "CICCIANO",
+   "linee": [
+    "NAPOLI-NOLA-BAIANO"
+   ],
+   "moova": true,
+   "dati": true,
+   "nomeEav": "CICCIANO",
+   "alias": []
+  },
+  {
+   "id": "82",
+   "nome": "ROCCARAINOLA",
+   "linee": [
+    "NAPOLI-NOLA-BAIANO"
+   ],
+   "moova": true,
+   "dati": true,
+   "nomeEav": "ROCCARAINOLA",
+   "alias": []
+  },
+  {
+   "id": "83",
+   "nome": "AVELLA",
+   "linee": [
+    "NAPOLI-NOLA-BAIANO"
+   ],
+   "moova": true,
+   "dati": true,
+   "nomeEav": "AVELLA",
+   "alias": []
+  },
+  {
+   "id": "84",
+   "nome": "BAIANO",
+   "linee": [
+    "NAPOLI-NOLA-BAIANO"
+   ],
+   "moova": true,
+   "dati": true,
+   "nomeEav": "BAIANO",
+   "alias": []
+  },
+  {
+   "id": "801",
+   "nome": "MONTESANTO",
+   "linee": [
+    "CUMANA",
+    "CIRCUMFLEGREA"
+   ],
+   "moova": false,
+   "dati": true,
+   "nomeEav": "MONTESANTO",
+   "alias": []
+  },
+  {
+   "id": "802",
+   "nome": "CORSO V. EMANUELE",
+   "linee": [
+    "CUMANA"
+   ],
+   "moova": false,
+   "dati": true,
+   "nomeEav": "CORSO V. EMANUELE",
+   "alias": []
+  },
+  {
+   "id": "803",
+   "nome": "FUORIGROTTA",
+   "linee": [
+    "CUMANA"
+   ],
+   "moova": false,
+   "dati": true,
+   "nomeEav": "FUORIGROTTA",
+   "alias": []
+  },
+  {
+   "id": "804",
+   "nome": "MOSTRA",
+   "linee": [
+    "CUMANA"
+   ],
+   "moova": false,
+   "dati": true,
+   "nomeEav": "MOSTRA",
+   "alias": []
+  },
+  {
+   "id": "805",
+   "nome": "EDENLANDIA",
+   "linee": [
+    "CUMANA"
+   ],
+   "moova": false,
+   "dati": true,
+   "nomeEav": "EDENLANDIA",
+   "alias": []
+  },
+  {
+   "id": "806",
+   "nome": "AGNANO",
+   "linee": [
+    "CUMANA"
+   ],
+   "moova": false,
+   "dati": true,
+   "nomeEav": "AGNANO",
+   "alias": []
+  },
+  {
+   "id": "808",
+   "nome": "BAGNOLI",
+   "linee": [
+    "CUMANA"
+   ],
+   "moova": false,
+   "dati": true,
+   "nomeEav": "BAGNOLI",
+   "alias": []
+  },
+  {
+   "id": "810",
+   "nome": "DAZIO",
+   "linee": [
+    "CUMANA"
+   ],
+   "moova": false,
+   "dati": true,
+   "nomeEav": "DAZIO",
+   "alias": []
+  },
+  {
+   "id": "811",
+   "nome": "GEROLOMINI",
+   "linee": [
+    "CUMANA"
+   ],
+   "moova": false,
+   "dati": true,
+   "nomeEav": "GEROLOMINI",
+   "alias": []
+  },
+  {
+   "id": "107",
+   "nome": "POZZUOLI",
+   "linee": [
+    "CUMANA"
+   ],
+   "moova": false,
+   "dati": true,
+   "nomeEav": "POZZUOLI",
+   "alias": []
+  },
+  {
+   "id": "815",
+   "nome": "ARCO FELICE",
+   "linee": [
+    "CUMANA"
+   ],
+   "moova": false,
+   "dati": true,
+   "nomeEav": "ARCO FELICE",
+   "alias": []
+  },
+  {
+   "id": "816",
+   "nome": "LUCRINO",
+   "linee": [
+    "CUMANA"
+   ],
+   "moova": false,
+   "dati": true,
+   "nomeEav": "LUCRINO",
+   "alias": []
+  },
+  {
+   "id": "817",
+   "nome": "BAIA",
+   "linee": [
+    "CUMANA"
+   ],
+   "moova": false,
+   "dati": true,
+   "nomeEav": "BAIA",
+   "alias": []
+  },
+  {
+   "id": "818",
+   "nome": "FUSARO",
+   "linee": [
+    "CUMANA"
+   ],
+   "moova": false,
+   "dati": true,
+   "nomeEav": "FUSARO",
+   "alias": []
+  },
+  {
+   "id": "819",
+   "nome": "TORREGAVETA",
+   "linee": [
+    "CUMANA"
+   ],
+   "moova": false,
+   "dati": true,
+   "nomeEav": "TORREGAVETA",
+   "alias": []
+  },
+  {
+   "id": "820",
+   "nome": "PIAVE",
+   "linee": [
+    "CIRCUMFLEGREA"
+   ],
+   "moova": false,
+   "dati": true,
+   "nomeEav": "PIAVE",
+   "alias": []
+  },
+  {
+   "id": "821",
+   "nome": "SOCCAVO",
+   "linee": [
+    "CIRCUMFLEGREA",
+    "SOCCAVO-MONTE S.ANGELO"
+   ],
+   "moova": false,
+   "dati": true,
+   "nomeEav": "SOCCAVO",
+   "alias": []
+  },
+  {
+   "id": "822",
+   "nome": "RIONE TRAIANO",
+   "linee": [
+    "CIRCUMFLEGREA"
+   ],
+   "moova": false,
+   "dati": true,
+   "nomeEav": "RIONE TRAIANO",
+   "alias": []
+  },
+  {
+   "id": "823",
+   "nome": "LA TRENCIA",
+   "linee": [
+    "CIRCUMFLEGREA"
+   ],
+   "moova": false,
+   "dati": true,
+   "nomeEav": "LA TRENCIA",
+   "alias": []
+  },
+  {
+   "id": "824",
+   "nome": "PIANURA",
+   "linee": [
+    "CIRCUMFLEGREA"
+   ],
+   "moova": false,
+   "dati": true,
+   "nomeEav": "PIANURA",
+   "alias": []
+  },
+  {
+   "id": "825",
+   "nome": "PISANI",
+   "linee": [
+    "CIRCUMFLEGREA"
+   ],
+   "moova": false,
+   "dati": true,
+   "nomeEav": "PISANI",
+   "alias": []
+  },
+  {
+   "id": "827",
+   "nome": "QUARTO CENTRO",
+   "linee": [
+    "CIRCUMFLEGREA"
+   ],
+   "moova": false,
+   "dati": true,
+   "nomeEav": "QUARTO CENTRO",
+   "alias": []
+  },
+  {
+   "id": "109",
+   "nome": "QUARTO",
+   "linee": [
+    "CIRCUMFLEGREA"
+   ],
+   "moova": false,
+   "dati": true,
+   "nomeEav": "QUARTO",
+   "alias": []
+  },
+  {
+   "id": "828",
+   "nome": "QUARTO OFFICINA",
+   "linee": [
+    "CIRCUMFLEGREA"
+   ],
+   "moova": false,
+   "dati": true,
+   "nomeEav": "QUARTO OFFICINA",
+   "alias": []
+  },
+  {
+   "id": "829",
+   "nome": "GROTTA DEL SOLE",
+   "linee": [
+    "CIRCUMFLEGREA"
+   ],
+   "moova": false,
+   "dati": true,
+   "nomeEav": "GROTTA DEL SOLE",
+   "alias": []
+  },
+  {
+   "id": "830",
+   "nome": "LICOLA",
+   "linee": [
+    "CIRCUMFLEGREA"
+   ],
+   "moova": false,
+   "dati": true,
+   "nomeEav": "LICOLA",
+   "alias": []
+  },
+  {
+   "id": "834",
+   "nome": "MONTE SANT'ANGELO",
+   "linee": [
+    "SOCCAVO-MONTE S.ANGELO"
+   ],
+   "moova": false,
+   "dati": true,
+   "nomeEav": "MONTE SANT'ANGELO",
+   "alias": []
+  }
+ ]
+}

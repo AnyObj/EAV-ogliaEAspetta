@@ -1,0 +1,8 @@
+name = "eav-ogliaeaspetta"
+main = "index.js"
+compatibility_date = "2026-09-01"
+
+# Siti autorizzati a leggere i dati dal browser (origini separate da virgola, senza percorso).
+# In locale si sovrascrive con worker/.dev.vars (non versionato).
+[vars]
+ALLOWED_ORIGINS = "https://anyobj.github.io"

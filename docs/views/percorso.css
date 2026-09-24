@@ -1,0 +1,57 @@
+/* Aspetto "Percorso": diagramma di linea per ogni treno. Segue il tema chiaro/scuro. */
+.pc-legend{margin:.2rem 0 .6rem;color:var(--dim);font-size:.85rem;display:flex;align-items:center;gap:.3rem;flex-wrap:wrap;}
+.lg{display:inline-block;vertical-align:middle;}
+.lg.stop,.pc-node.stop i,.pc-all .stop i{width:.75rem;height:.75rem;border-radius:50%;background:var(--c,var(--text));}
+.lg.skip,.pc-node.skip i,.pc-all .skip i{width:.75rem;height:.75rem;border-radius:50%;background:var(--panel);border:2px solid var(--c,var(--text));}
+.lg.unknown,.pc-node.unknown i,.pc-all .unknown i{width:.75rem;height:.75rem;border-radius:50%;background:var(--panel);border:2px dashed var(--dim);}
+.lg{--c:var(--dim);margin-left:.6rem;}
+
+.pc-list{list-style:none;margin:0;padding:0;display:grid;gap:.7rem;}
+.pc-row{--c:var(--r-neu);display:grid;grid-template-columns:6rem minmax(0,1fr) 3.6rem;column-gap:1rem;align-items:center;
+  background:var(--panel);border:1px solid var(--line);border-radius:.8rem;padding:.8rem 1rem;cursor:pointer;}
+.s-sor{--c:var(--r-sor);} .s-sar{--c:var(--r-sar);} .s-bai{--c:var(--r-bai);}
+.s-tor{--c:var(--r-tor);} .s-pog{--c:var(--r-pog);} .s-neu,.s-nap{--c:var(--r-neu);}
+.s-lil{--c:var(--r-lil);} .s-pas{--c:var(--r-pas);} .s-pom{--c:var(--r-pom);} .s-ora{--c:var(--r-ora);}
+.pc-time{font:600 2.3rem/1 var(--display);color:var(--led);font-variant-numeric:tabular-nums;}
+.pc-time small{display:block;font:400 .75rem var(--body);color:var(--dim);margin-top:.2rem;}
+.pc-head{display:flex;flex-wrap:wrap;align-items:baseline;gap:.2rem .7rem;}
+.pc-dest{font:600 1.7rem/1.1 var(--display);}
+.pc-num,.pc-cap{color:var(--dim);font-size:.85rem;}
+.pc-svc{font-size:.85rem;font-weight:600;color:var(--dim);}
+.s-sor .pc-svc,.s-sar .pc-svc,.s-bai .pc-svc,.s-tor .pc-svc,.s-pog .pc-svc{color:var(--c);}
+.pc-st{font-size:1.05rem;margin-left:auto;}
+.pc-cap{margin-top:.15rem;}
+
+/* la linea: una barra colorata attraversa i punti */
+.pc-strip{position:relative;display:flex;align-items:center;height:2.6rem;margin:.35rem 0 0;}
+.pc-strip::before{content:"";position:absolute;left:.5rem;right:.5rem;top:calc(50% - .18rem);height:.36rem;border-radius:.2rem;background:var(--c);}
+.strisce .pc-strip::before{background:repeating-linear-gradient(135deg,var(--c) 0 .3rem,transparent .3rem .6rem);}
+.arcobaleno .pc-strip::before{background:linear-gradient(to right,var(--r-sor) 0 25%,var(--r-sar) 25% 50%,var(--r-bai) 50% 75%,var(--r-pog) 75% 100%);}
+.pc-node{position:relative;flex:1 1 0;display:flex;justify-content:center;align-items:center;min-width:0;}
+.pc-node i{position:relative;z-index:1;display:block;}
+.pc-node.origin{flex:0 0 1rem;} .pc-node.dest{flex:0 0 1rem;}
+.pc-node.origin i,.pc-node.dest i{width:1.1rem;height:1.1rem;border-radius:50%;background:var(--panel);border:.28rem solid var(--c);opacity:1;}
+.pc-node.dest i{background:var(--c);}
+.pc-node.target i{width:1.15rem;height:1.15rem;opacity:1;background:var(--led);border:.2rem solid var(--text);box-shadow:0 0 0 .3rem color-mix(in srgb,var(--led) 45%,transparent);}
+.pc-node b{position:absolute;top:calc(100% - .1rem);font:600 .78rem var(--body);white-space:nowrap;color:var(--text);}
+.pc-node.origin b{left:0;color:var(--dim);} .pc-node.dest b{right:0;} .pc-node.target b{color:var(--led);}
+
+.pc-all{grid-column:1 / -1;list-style:none;margin:.7rem 0 0;padding:.6rem 0 0;border-top:1px solid var(--line);
+  display:grid;grid-template-columns:repeat(auto-fill,minmax(13rem,1fr));gap:.25rem .8rem;font-size:.9rem;}
+.pc-all li{display:flex;align-items:center;gap:.5rem;--c:var(--dim);}
+.pc-all li i{flex:none;--c:var(--dim);}
+.pc-all small{color:var(--dim);}
+.pc-all .target{color:var(--led);font-weight:700;}
+
+.pc-row.cancel{opacity:.6;} .pc-row.cancel .pc-dest,.pc-row.cancel .pc-time{text-decoration:line-through;color:var(--dim);}
+.pc-row.dim{opacity:.3;filter:grayscale(1);}
+.pc-row.hit{box-shadow:0 0 0 2px var(--led);}
+.pc-sep{padding:.3rem 0;color:var(--dim);font:600 1.1rem var(--display);letter-spacing:.06em;text-align:center;}
+.pc-empty{padding:2rem;text-align:center;color:var(--dim);}
+
+@media (max-width:820px){
+  .pc-row{grid-template-columns:4.4rem minmax(0,1fr) 2.6rem;column-gap:.6rem;padding:.7rem .7rem;}
+  .pc-time{font-size:1.9rem;} .pc-dest{font-size:1.45rem;}
+  .pc-st{margin-left:0;}
+  .pc-node b{font-size:.7rem;}
+}

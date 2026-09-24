@@ -22,7 +22,11 @@
         <h1>EAV ogliaEAspettà</h1>
         <p class="sub">Scegli la stazione · Choose a station</p>
       </div>
-      <button class="btn theme" type="button" data-theme-toggle aria-label="Cambia tema">Tema</button>
+      <div class="home-tools">
+        <label class="ui-pick"><span class="sr">Aspetto grafico</span>
+          <select data-ui-select aria-label="Aspetto grafico"></select></label>
+        <button class="btn theme" type="button" data-theme-toggle aria-label="Cambia tema">Tema</button>
+      </div>
     </header>
     <div class="search">
       <label for="home-q" class="sr">Cerca una stazione</label>
@@ -59,19 +63,14 @@
       </div>
 
       <label class="check" id="solo-wrap" hidden><input type="checkbox" id="solo"> Solo questi</label>
+      <label class="ui-pick"><span class="sr">Aspetto grafico</span>
+        <select data-ui-select aria-label="Aspetto grafico"></select></label>
       <button class="btn theme" type="button" data-theme-toggle aria-label="Cambia tema">Tema</button>
     </div>
 
     <nav class="routes" id="routes" aria-label="Filtra per linea"></nav>
 
-    <div class="head" aria-hidden="true">
-      <span>ORA<i>Time</i></span>
-      <span>DESTINAZIONE<i>Destination</i></span>
-      <span>BIN.<i>Platf.</i></span>
-      <span>STATO<i>Status</i></span>
-      <span style="text-align:right">TRA<i>In</i></span>
-    </div>
-    <ol id="rows"></ol>
+    <div id="view"></div>
     <button type="button" class="btn more" id="more" hidden></button>
 
     <div class="ticker" id="ticker" hidden></div>

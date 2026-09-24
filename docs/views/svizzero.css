@@ -1,0 +1,52 @@
+/* Aspetto "Svizzero": bianco, nero, un solo carattere. Segue il tema (con il tema scuro diventa negativo). */
+:root[data-ui="svizzero"]{
+  --bg:#f6f6f2; --panel:#f6f6f2; --alt:#ecece6; --line:#111; --text:#111; --dim:#6a6a64; --led:#111; --ok:#0a7d3b;
+  --d1:#8a6d00; --d2:#b45300; --d3:#d00000; --bad:#d00000; --badge-bg:#111; --badge-tx:#f6f6f2;
+  --display:"Helvetica Neue",Helvetica,Arial,sans-serif; --body:"Helvetica Neue",Helvetica,Arial,sans-serif;
+  --r-sor:#0a5bd8; --r-sar:#d00000; --r-bai:#f2b600; --r-tor:#0a7d3b; --r-pog:#0a7d3b; --r-neu:#777; --r-lil:#7a3fd0; --r-pas:#5fbf7c; --r-ora:#e8710a;
+  color-scheme:light;
+}
+@media (prefers-color-scheme:dark){
+  :root[data-ui="svizzero"]:not([data-theme="light"]){--bg:#111;--panel:#111;--alt:#1b1b1b;--line:#f2f2ee;--text:#f2f2ee;--dim:#9a9a94;--led:#f2f2ee;--ok:#5fd39a;
+    --d1:#ffd60a;--d2:#ff9f0a;--d3:#ff5d4d;--bad:#ff5d4d;--badge-bg:#f2f2ee;--badge-tx:#111;
+    --r-sor:#4aa8ff;--r-sar:#ff5d4d;--r-bai:#ffd43b;--r-tor:#37c78a;--r-pog:#37c78a;--r-neu:#8a8a84; --r-lil:#c9a7ff; --r-pas:#a9e5b8; --r-ora:#ff9a3d;color-scheme:dark;}
+}
+:root[data-ui="svizzero"][data-theme="dark"]{--bg:#111;--panel:#111;--alt:#1b1b1b;--line:#f2f2ee;--text:#f2f2ee;--dim:#9a9a94;--led:#f2f2ee;--ok:#5fd39a;
+  --d1:#ffd60a;--d2:#ff9f0a;--d3:#ff5d4d;--bad:#ff5d4d;--badge-bg:#f2f2ee;--badge-tx:#111;
+  --r-sor:#4aa8ff;--r-sar:#ff5d4d;--r-bai:#ffd43b;--r-tor:#37c78a;--r-pog:#37c78a;--r-neu:#8a8a84; --r-lil:#c9a7ff; --r-pas:#a9e5b8; --r-ora:#ff9a3d;color-scheme:dark;}
+:root[data-ui="svizzero"] h1{font-weight:700;letter-spacing:-.035em;font-size:3rem;}
+:root[data-ui="svizzero"] .clock{color:var(--text);font-weight:700;letter-spacing:-.03em;}
+:root[data-ui="svizzero"] .top{border-bottom:.5rem solid var(--text);padding-bottom:.6rem;}
+:root[data-ui="svizzero"] .chip{border-radius:0;border-width:2px;font-weight:700;}
+
+.sv-head,.sv-row{display:grid;grid-template-columns:9.5rem minmax(0,1fr) 12rem 4.5rem 10rem;column-gap:1.4rem;align-items:baseline;}
+.sv-head{padding:.8rem 0 .3rem;font:700 .8rem var(--body);text-transform:uppercase;letter-spacing:.14em;color:var(--dim);}
+.sv-list{list-style:none;margin:0;padding:0;border-top:.2rem solid var(--text);}
+.sv-row{padding:.6rem 0 .7rem;border-bottom:1px solid var(--line);}
+.sv-row[tabindex]{cursor:pointer;}
+.sv-time{font:700 3.6rem/.95 var(--display);letter-spacing:-.045em;font-variant-numeric:tabular-nums;}
+.sv-time small{display:block;font:500 .95rem var(--body);letter-spacing:0;color:var(--d2);margin-top:.15rem;}
+.sv-dest{font:700 2rem/1.05 var(--display);letter-spacing:-.025em;min-width:0;}
+.sv-dest span{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.sv-dest small{display:block;font:500 .85rem var(--body);letter-spacing:0;color:var(--dim);margin-top:.3rem;}
+.sv-line{display:flex;align-items:center;gap:.6rem;font:600 .95rem var(--body);}
+.sv-line i{flex:none;width:1.1rem;height:1.1rem;display:block;}
+.sv-plat{font:700 2.6rem/1 var(--display);letter-spacing:-.04em;}
+.sv-st{font:600 1.05rem/1.2 var(--body);}
+.st.ok{color:var(--ok);} .st.d1{color:var(--d1);} .st.d2{color:var(--d2);} .st.d3{color:var(--d3);} .st.cancel{color:var(--bad);text-transform:uppercase;}
+.st.go{color:var(--text);text-decoration:underline;text-decoration-thickness:.2rem;}
+.sv-stops{grid-column:2 / -1;margin:.4rem 0 0;color:var(--dim);font-size:.9rem;line-height:1.45;}
+.sv-row.cancel .sv-time,.sv-row.cancel .sv-dest span{color:var(--dim);}
+.sv-row.hit{background:var(--alt);box-shadow:-1rem 0 0 var(--alt),1rem 0 0 var(--alt),inset .4rem 0 0 var(--text);}
+.sv-sep{padding:1.4rem 0 .4rem;font:700 1.6rem var(--display);letter-spacing:-.02em;border-top:.2rem solid var(--text);}
+.sv-empty{padding:2rem 0;color:var(--dim);}
+
+@media (max-width:820px){
+  .sv-head{display:none;}
+  .sv-row{grid-template-columns:5.6rem minmax(0,1fr) auto;column-gap:.8rem;row-gap:.2rem;}
+  .sv-time{font-size:2.4rem;} .sv-dest{font-size:1.45rem;}
+  .sv-line{grid-column:2;grid-row:2;font-size:.85rem;} .sv-plat{grid-column:3;grid-row:1;font-size:1.8rem;}
+  .sv-st{grid-column:1;grid-row:2;font-size:.85rem;}
+  .sv-stops{grid-column:1 / -1;}
+  :root[data-ui="svizzero"] h1{font-size:2.1rem;}
+}

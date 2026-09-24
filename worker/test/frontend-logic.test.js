@@ -232,3 +232,109 @@ test('goesTo: con elenco fermate un DD che salta Barra dice no', () => {
   assert.equal(L.goesTo(dd, g, id('BARRA'), idx), 'no');
   assert.equal(L.goesTo(dd, g, id('SAN GIORGIO A CREMANO'), idx), 'si');
 });
+
+// ---- vista "Percorso" ----
+import { routeOf } from '../../docs/views/percorso.js';
+
+const routeFor = (t, station, vai = null) => {
+  const r = { t, inf: L.inferService(t, station, idx, CFG), match: null };
+  return routeOf(r, { idx, station, vai });
+};
+
+test('percorso: un DD con elenco fermate mostra le stazioni saltate', () => {
+  const g = id('NAPOLI PIAZZA GARIBALDI');
+  const dd = tr({ cat: 'DD', dest: 'SORRENTO', stops: [{ name: 'S. GIORGIO A CREMANO', time: '22:05' }, { name: 'TORRE A.TA - OPLONTI', time: '22:18' }, { name: 'SORRENTO', time: '23:05' }] });
+  const ro = routeFor(dd, g, id('BARRA'));
+  const byName = Object.fromEntries(ro.nodes.map((n) => [n.name, n]));
+  assert.equal(byName['BARRA'].kind, 'skip');
+  assert.equal(byName['BARRA'].target, true);
+  assert.equal(byName['SAN GIORGIO A CREMANO'].kind, 'stop');
+  assert.equal(byName['SAN GIORGIO A CREMANO'].time, '22:05');
+  assert.equal(ro.nodes.at(-1).name, 'SORRENTO');
+  assert.equal(ro.nodes.at(-1).dest, true);
+  assert.equal(ro.nodes.at(-1).kind, 'stop');
+  assert.equal(ro.nodes[0].name, 'VIA GIANTURCO');                 // la stazione del tabellone non c'e'
+  assert.ok(!ro.nodes.some((n) => n.id === g));
+});
+
+test('percorso: accelerato senza elenco ferma ovunque, diretto senza elenco = non noto', () => {
+  const td = id('TORRE DEL GRECO');
+  const a = routeFor(tr({ cat: 'A', dest: 'SORRENTO', num: '1201' }), td);
+  assert.ok(a.nodes.length > 5 && a.nodes.every((n) => n.kind === 'stop'));
+  const dd = routeFor(tr({ cat: 'DD', dest: 'SORRENTO', num: '1201' }), td);
+  assert.ok(dd.nodes.slice(0, -1).every((n) => n.kind === 'unknown'));
+  assert.equal(dd.nodes.at(-1).kind, 'stop'); // la destinazione e' certa
+});
+
+test('percorso: verso Napoli va all\'indietro sulla linea', () => {
+  const ro = routeFor(tr({ cat: 'A', dest: 'NAPOLI PORTA NOLANA', num: '1214' }), id('ERCOLANO SCAVI'));
+  assert.equal(ro.nodes.at(-1).name, 'NAPOLI PORTA NOLANA');
+  assert.ok(ro.nodes.some((n) => n.name === 'PORTICI BELLAVISTA'));
+  assert.ok(!ro.nodes.some((n) => n.name === 'TORRE DEL GRECO'));   // e' nella direzione opposta
+});
+
+test('percorso: destinazione non riconosciuta -> solo le fermate note, senza inventare', () => {
+  const ro = routeFor(tr({ cat: 'A', dest: 'DESTINAZIONE MAI VISTA', stops: [{ name: 'BARRA', time: '22:10' }] }), id('NAPOLI PIAZZA GARIBALDI'));
+  assert.equal(ro.approx, true);
+  assert.deepEqual(ro.nodes.map((n) => n.name), ['BARRA']);
+});
+
+// ---- stazioni non monitorate da EAV: mancano dall'elenco "Ferma a:" anche se il treno ci ferma ----
+
+test('goesTo/percorso: una stazione non monitorata assente dall\'elenco e "forse"/"non noto", non "no"/"salta"', () => {
+  const g = id('NAPOLI PIAZZA GARIBALDI'), cavalli = id('CAVALLI DI BRONZO');
+  assert.equal(idx.unmonitored(cavalli), true);
+  const t = tr({ cat: 'A', dest: 'SORRENTO', stops: [{ name: 'PORTICI BELLAVISTA', time: '22:20' }, { name: 'SORRENTO', time: '23:10' }] });
+  assert.equal(L.goesTo(t, g, cavalli, idx), 'forse');
+  assert.equal(L.goesTo(t, g, id('BARRA'), idx), 'no');           // monitorata e assente: salta davvero
+  const ro = routeFor(t, g);
+  assert.equal(ro.nodes.find((n) => n.id === cavalli).kind, 'unknown');
+  assert.equal(ro.nodes.find((n) => n.id === id('BARRA')).kind, 'skip');
+});
+
+test('nome dato a due stazioni (Pollena Trocchia = 9 e 95): entrambe risultano nell\'elenco', () => {
+  assert.equal(idx.sameStation('POLLENA TROCCHIA', '9'), true);
+  assert.equal(idx.sameStation('POLLENA TROCCHIA', '95'), true);
+  assert.equal(idx.sameStation('POLLENA TROCCHIA', '3'), false);
+});
+
+test('a cavallo della mezzanotte: un treno "di domani" tra 20 minuti ha minuti e stato', () => {
+  const now = 23 * 60 + 50;
+  const t = tr({ time: '00:10', day: 1 });
+  assert.equal(L.etaMin(t, now), 20);
+  assert.equal(L.statusOf(t, now).main, 'In orario');
+  assert.equal(L.statusOf(tr({ time: '00:10', day: 1, delay: 4 }), now).cls, 'd1');
+  assert.equal(L.etaMin(tr({ time: '05:19', day: 1 }), now), null);          // domattina: no
+  assert.equal(L.statusOf(tr({ time: '05:19', day: 1 }), now).main, '');
+});
+
+// ---- colori dei servizi: ogni servizio deve avere colore e classe in tutti i fogli di stile ----
+import { SERVIZI, LINEA_SERVIZIO } from '../../docs/config.js';
+import { readdirSync } from 'node:fs';
+
+test('ogni linea del catalogo ha un servizio, e ogni servizio un colore in tutti i CSS', () => {
+  for (const l of catalogo.linee) assert.ok(LINEA_SERVIZIO[l.nome], 'linea senza servizio: ' + l.nome);
+  for (const svc of Object.values(LINEA_SERVIZIO)) assert.ok(SERVIZI[svc], 'servizio inesistente: ' + svc);
+
+  const css = (f) => readFileSync(new URL('../../docs/' + f, import.meta.url), 'utf8');
+  const keys = [...new Set(Object.values(SERVIZI).map((v) => v.css))].filter((k) => !['neu', 'nap'].includes(k));
+  assert.deepEqual(keys.sort(), ['bai', 'lil', 'ora', 'pas', 'pog', 'pom', 'sar', 'sor', 'tor']);
+  for (const k of keys) {
+    assert.match(css('style.css'), new RegExp('\\.s-' + k + '\\{'), 'style.css: manca .s-' + k);
+    if (k !== 'pom') assert.match(css('style.css'), new RegExp('--r-' + k + ':'), 'style.css: manca --r-' + k);
+  }
+  // ogni foglio delle viste che mappa i colori delle linee deve mapparli tutti
+  for (const f of readdirSync(new URL('../../docs/views/', import.meta.url)).filter((x) => x.endsWith('.css'))) {
+    const text = css('views/' + f);
+    if (!/\.s-sor\{/.test(text)) continue;
+    for (const k of keys) assert.match(text, new RegExp('\\.s-' + k + '\\{'), f + ': manca .s-' + k);
+  }
+  // le tavolozze proprie (skin che ridefiniscono --r-sor) devono ridefinire anche i colori nuovi
+  for (const f of readdirSync(new URL('../../docs/views/', import.meta.url)).filter((x) => x.endsWith('.css'))) {
+    const text = css('views/' + f);
+    if (!/--r-sor:/.test(text)) continue;
+    for (const k of ['lil', 'pas', 'ora']) assert.match(text, new RegExp('--r-' + k + ':'), f + ': manca --r-' + k);
+  }
+  assert.equal(SERVIZI.pomigliano.strisce, true);
+  assert.equal(SERVIZI.torre.strisce, true);
+});

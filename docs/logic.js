@@ -38,9 +38,15 @@ export function buildIndex(catalogo) {
     byId.set(s.id, s);
     for (const n of [s.nome, ...(s.alias || [])]) if (!byName.has(norm(n))) byName.set(norm(n), s.id);
   }
+  // Tutti i nomi (normalizzati) con cui una stazione compare: catalogo, intestazione del tabellone, alias.
+  // EAV a volte da' lo stesso nome a due stazioni (es. "Pollena Trocchia" per la 9 e la 95): vanno abbinate entrambe.
+  const names = new Map(catalogo.stazioni.map((s) => [s.id, new Set([s.nome, s.nomeEav, ...(s.alias || [])].filter(Boolean).map(norm))]));
   const idx = {
     catalogo, byId, byName, lines,
     resolve: (name) => byName.get(norm(name)) ?? null,
+    sameStation: (name, id) => !!names.get(id) && names.get(id).has(norm(name)),
+    // stazioni che EAV non mostra nei tabelloni: non compaiono nemmeno negli elenchi "Ferma a:"
+    unmonitored: (id) => !!byId.get(id) && byId.get(id).dati === false,
     linesOf: (id) => new Set([...lines.values()].filter((l) => l.pos.has(id)).map((l) => l.nome)),
     isTerminus: (line, id) => {
       const l = lines.get(line);
@@ -136,9 +142,11 @@ export function inferService(train, stationId, idx, cfg) {
 export function goesTo(train, stationId, target, idx, candidateLines) {
   if (!target || target === stationId) return 'no';
   const destId = idx.resolve(train.dest);
-  if (destId === target) return 'si';
+  if (destId === target || idx.sameStation(train.dest, target)) return 'si';
   if (train.stops && train.stops.length) {
-    return train.stops.some((st) => idx.resolve(st.name) === target) ? 'si' : 'no';
+    if (train.stops.some((st) => idx.sameStation(st.name, target))) return 'si';
+    // una stazione che EAV non monitora manca dall'elenco anche se il treno ci ferma: non si puo' dire "no"
+    return idx.unmonitored(target) ? 'forse' : 'no';
   }
   const lines = candidateLines && candidateLines.length ? candidateLines : [...idx.linesOf(stationId)];
   let yes = false;
@@ -181,20 +189,22 @@ export const expMin = (t) => schedMin(t) + (t.delay || 0);
 export function statusOf(t, nowMin) {
   if (t.cancelled) return { cls: 'cancel', main: 'SOPPRESSO', sub: 'Cancelled' };
   const diff = expMin(t) - nowMin;
-  if (t.day === 0 && diff <= 1 && diff >= -5) return { cls: 'go', main: 'In partenza', sub: 'Departing' };
+  // "oggi" per il servizio: un treno delle 00:10 visto alle 23:50 e' di "domani" sul calendario ma parte tra 20 minuti
+  const near = t.day === 0 || diff <= 180;
+  if (near && diff <= 1 && diff >= -5) return { cls: 'go', main: 'In partenza', sub: 'Departing' };
   if (t.delay === null) return { cls: 'd2', main: 'In ritardo', sub: 'Delayed' };
   if (t.delay > 0) {
     const cls = t.delay > 15 ? 'd3' : t.delay > 5 ? 'd2' : 'd1';
     return { cls, main: 'Ritardo +' + t.delay + ' min', sub: 'Delayed' };
   }
-  if (t.day === 0 && diff < -5) return { cls: 'gone', main: 'Orario superato', sub: 'Time passed' };
-  if (t.day === 0) return { cls: 'ok', main: 'In orario', sub: 'On time' };
+  if (near && diff < -5) return { cls: 'gone', main: 'Orario superato', sub: 'Time passed' };
+  if (near) return { cls: 'ok', main: 'In orario', sub: 'On time' };
   return { cls: 'none', main: '', sub: '' };
 }
 
-// Minuti alla partenza (solo oggi, non soppresso, entro un'ora); altrimenti null.
+// Minuti alla partenza (non soppresso, entro un'ora, anche a cavallo della mezzanotte); altrimenti null.
 export function etaMin(t, nowMin) {
-  if (t.cancelled || t.day !== 0) return null;
+  if (t.cancelled) return null;
   const diff = expMin(t) - nowMin;
   return diff <= 60 ? Math.max(0, Math.ceil(diff)) : null;
 }

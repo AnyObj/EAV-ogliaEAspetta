@@ -1,26 +1,9 @@
 // Tabellone EAV: interfaccia. La logica pura sta in logic.js, la configurazione in config.js.
 // Regola di sicurezza: i dati del Worker entrano nella pagina SOLO come testo (textContent), mai come HTML.
 
-import { API, SERVIZI, LINEA_SERVIZIO, CFG, RIGHE_INIZIALI, INATTIVITA_MS } from './config.js';
+import { API, SERVIZI, LINEA_SERVIZIO, CFG, RIGHE_INIZIALI, INATTIVITA_MS, UI_LISTA } from './config.js';
 import * as L from './logic.js';
-
-const $ = (s) => document.querySelector(s);
-const el = (tag, props = {}, ...kids) => {
-  const e = document.createElement(tag);
-  for (const [k, v] of Object.entries(props)) {
-    if (v == null || v === false) continue;
-    if (k === 'class') e.className = v;
-    else if (k === 'text') e.textContent = v;
-    else if (k.startsWith('on')) e.addEventListener(k.slice(2), v);
-    else e.setAttribute(k, v === true ? '' : v);
-  }
-  for (const c of kids.flat()) if (c != null && c !== false) e.append(c);
-  return e;
-};
-const safeStore = {
-  get(k) { try { return localStorage.getItem(k); } catch { return null; } },
-  set(k, v) { try { localStorage.setItem(k, v); } catch { /* memoria del browser non disponibile */ } },
-};
+import { $, el, safeStore } from './dom.js';
 
 const state = {
   idx: null,
@@ -29,6 +12,7 @@ const state = {
   board: null, rows: [], version: 0, fetchedAt: null, error: null, backoff: 0,
   paused: false, lastActivity: Date.now(), kiosk: false,
   timer: null, ctrl: null, renderedKey: '', open: new Set(), intervalMs: null,
+  ui: 'classico', view: null, // aspetto grafico attivo e suo modulo (views/<id>.js)
 };
 
 // ---------- avvio ----------
@@ -45,6 +29,13 @@ async function init() {
   state.idx = L.buildIndex(await res.json());
 
   document.querySelectorAll('[data-theme-toggle]').forEach((b) => b.addEventListener('click', toggleTheme));
+  document.querySelectorAll('[data-ui-select]').forEach((sel) => {
+    const gruppi = [...new Set(UI_LISTA.map((u) => u.gruppo))];
+    sel.replaceChildren(...gruppi.map((g) => el('optgroup', { label: g },
+      UI_LISTA.filter((u) => u.gruppo === g).map((u) => el('option', { value: u.id, text: u.nome, title: u.desc })))));
+    sel.addEventListener('change', () => { safeStore.set('ui', sel.value); loadUi(sel.value); });
+  });
+  await loadUi(new URLSearchParams(location.search).get('ui') || safeStore.get('ui'));
   $('#home-q').addEventListener('input', renderHome);
   setupBoardControls();
   for (const ev of ['pointerdown', 'keydown', 'touchstart', 'wheel']) {
@@ -52,8 +43,9 @@ async function init() {
   }
   document.addEventListener('visibilitychange', onVisibility);
   addEventListener('popstate', route);
-  let rz; addEventListener('resize', () => { clearTimeout(rz); rz = setTimeout(fitStops, 150); });
+  let rz; addEventListener('resize', () => { clearTimeout(rz); rz = setTimeout(() => state.view && state.view.after && state.view.after($('#view')), 150); });
   setInterval(tickClock, 1000);
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => state.view && state.view.after && state.view.after($('#view')));
   route();
 }
 
@@ -82,6 +74,8 @@ function route() {
   const p = new URLSearchParams(location.search);
   const id = p.get('stazione');
   state.kiosk = p.get('kiosk') === '1';
+  const u = p.get('ui');
+  if (u && u !== state.ui && UI_LISTA.some((x) => x.id === u)) loadUi(u);
   if (id && state.idx.byId.has(id)) {
     showBoard(id, p.get('tipo') === 'A' ? 'A' : 'P', p.get('vai'));
   } else {
@@ -96,6 +90,7 @@ function syncUrl() {
   p.set('stazione', state.station);
   p.set('tipo', state.tipo);
   if (state.vai) p.set('vai', state.vai);
+  if (state.ui !== 'classico') p.set('ui', state.ui);
   if (state.kiosk) p.set('kiosk', '1');
   history.replaceState(null, '', '?' + p);
 }
@@ -312,14 +307,15 @@ function renderHeader() {
 }
 
 function renderRows(force) {
+  if (!state.view) return; // la vista si sta ancora caricando: loadUi() ridisegna appena pronta
   const now = L.romeNow();
-  const key = [state.version, state.tipo, state.filtro, state.vai, state.solo, state.showAll, state.error ? 1 : 0,
+  const key = [state.ui, state.version, state.tipo, state.filtro, state.vai, state.solo, state.showAll, state.error ? 1 : 0,
     state.open.size, Math.floor(now.min)].join('|');
   if (!force && key === state.renderedKey) return;
   state.renderedKey = key;
 
+  const view = $('#view');
   const focusedNum = document.activeElement && document.activeElement.dataset ? document.activeElement.dataset.num : null;
-  const listEl = $('#rows');
 
   // chip delle linee presenti nel tabellone (solo quelle riconosciute)
   const present = Object.keys(SERVIZI).filter((k) => state.rows.some((r) => r.inf.service === k));
@@ -332,17 +328,16 @@ function renderRows(force) {
 
   let rows = state.rows.filter((r) => !state.filtro || r.inf.service === state.filtro);
   if (state.vai && state.solo) rows = rows.filter((r) => r.match !== 'no');
-  const limit = state.showAll || state.vai ? rows.length : RIGHE_INIZIALI;
-  const shown = rows.slice(0, limit);
+  // le viste a righe usano il limite; quelle che raggruppano (meta.paginate === false) ricevono tutto
+  const shown = state.view.meta.paginate === false || state.showAll || state.vai ? rows : rows.slice(0, RIGHE_INIZIALI);
 
-  const out = [];
-  let prevDay = 0;
-  for (const r of shown) {
-    if (r.t.day > prevDay) { out.push(el('li', { class: 'sep', text: L.dayLabel(r.t.day) })); prevDay = r.t.day; }
-    out.push(rowEl(r, now));
-  }
-  if (!out.length) out.push(el('li', { class: 'empty', text: emptyMessage() }));
-  listEl.replaceChildren(...out);
+  // contesto per la vista: solo dati e azioni, nessuno stato interno dell'app
+  const ctx = {
+    rows: shown, all: rows, now, idx: state.idx, station: state.station, tipo: state.tipo, vai: state.vai,
+    open: state.open, empty: emptyMessage(),
+    toggle: (k) => { if (state.open.has(k)) state.open.delete(k); else state.open.add(k); renderRows(true); },
+  };
+  view.replaceChildren(state.view.render(ctx));
 
   const hidden = rows.length - shown.length;
   const more = $('#more');
@@ -357,27 +352,36 @@ function renderRows(force) {
     : (state.board && state.board.notice) || '';
   tk.hidden = !msg; tk.textContent = msg; tk.classList.toggle('alert', cancelled.length > 0);
 
-  fitStops();
+  if (state.view.after) state.view.after(view);
 
   if (focusedNum) {
-    const again = listEl.querySelector('[data-num="' + CSS.escape(focusedNum) + '"]');
+    const again = view.querySelector('[data-num="' + CSS.escape(focusedNum) + '"]');
     if (again) again.focus({ preventScroll: true });
   }
 }
 
-// Le fermate che non ci stanno in una riga scorrono avanti e indietro (come il testo scorrevole del sito EAV).
-function fitStops() {
-  if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-  requestAnimationFrame(() => {
-    for (const box of document.querySelectorAll('#rows .stops')) {
-      const over = box.scrollWidth - box.clientWidth;
-      box.classList.toggle('scroll', over > 4);
-      if (over > 4) {
-        box.style.setProperty('--shift', -over + 'px');
-        box.style.setProperty('--dur', Math.max(8, over / 30 + 4).toFixed(1) + 's');
+// ---------- aspetto grafico ----------
+
+async function loadUi(id) {
+  if (!UI_LISTA.some((u) => u.id === id)) id = 'classico';
+  try {
+    const mod = await import('./views/' + id + '.js');
+    for (const css of id === 'classico' ? [] : ['_common', id]) { // il CSS comune va prima di quello dell'aspetto
+      if (!document.querySelector('link[data-ui-css="' + css + '"]')) {
+        document.head.append(el('link', { rel: 'stylesheet', href: 'views/' + css + '.css', 'data-ui-css': css }));
       }
     }
-  });
+    state.view = mod;
+    state.ui = id;
+  } catch (e) {
+    console.error('Aspetto "' + id + '" non caricabile', e);
+    if (id !== 'classico') return loadUi('classico');
+    throw e;
+  }
+  document.documentElement.setAttribute('data-ui', id);
+  document.querySelectorAll('[data-ui-select]').forEach((sel) => { sel.value = id; });
+  state.renderedKey = '';
+  if (state.station) { syncUrl(); renderRows(true); }
 }
 
 function emptyMessage() {
@@ -387,50 +391,6 @@ function emptyMessage() {
   return s && s.dati === false
     ? 'EAV non mostra treni per questa stazione in questo momento. Alcune stazioni non hanno dati la sera: riprova domani mattina.'
     : 'EAV non mostra treni per questa stazione in questo momento.';
-}
-
-function rowEl(r, now) {
-  const { t, inf, match } = r;
-  const svc = inf.service ? SERVIZI[inf.service] : null;
-  const st = L.statusOf(t, now.min);
-  const eta = L.etaMin(t, now.min);
-  const isOpen = state.open.has(t.num);
-  const lineSvc = inf.lineService ? SERVIZI[inf.lineService] : null;
-  const cls = ['row', 's-' + (svc ? svc.css : 'neu'), svc && svc.strisce && 'strisce', svc && svc.arcobaleno && 'arcobaleno', t.cancelled && 'cancel',
-    match === 'si' && 'hit', match === 'no' && 'dim', st.cls === 'go' && 'soon'].filter(Boolean).join(' ');
-
-  const stopsText = t.stops.map((s) => L.titleCase(s.name)).join(', ');
-  const target = state.vai && match !== 'no' && match !== null ? state.vai : null;
-  const targetStop = target ? t.stops.find((s) => state.idx.resolve(s.name) === target) : null;
-  const inline = st.main ? st.main + (eta !== null && st.cls !== 'go' && !t.cancelled ? ' · tra ' + eta + ' min' : '') : '';
-
-  const li = el('li', { class: cls, 'data-num': t.num, tabindex: t.stops.length ? '0' : null,
-    title: t.stops.length ? 'Tocca per vedere tutte le fermate' : null },
-  el('div', { class: 'time' }, L.fmtHM(L.schedMin(t)),
-    t.delay > 0 && !t.cancelled ? el('small', { text: 'prev. ' + L.fmtHM(L.expMin(t)) }) : null),
-  el('div', {},
-    el('div', { class: 'dest', text: L.titleCase(t.dest) }),
-    el('div', { class: 'meta' },
-      el('span', { class: 'tag', text: t.cat || '–' }),
-      el('span', { text: 'Treno ' + t.num }),
-      svc ? el('span', { class: 'svc' + (svc.arcobaleno ? ' plain' : ''),
-        text: svc.nome + (svc.arcobaleno && lineSvc ? ' · ' + lineSvc.nome : '') }) : null,
-      target ? el('span', { class: 'arrivo', text: '→ ' + L.titleCase(state.idx.byId.get(target).nome)
-        + (targetStop ? ' ' + targetStop.time : match === 'forse' ? ' (probabile)' : '') }) : null,
-      stopsText ? el('span', { class: 'stops' }, el('span', { class: 'stops-in', text: 'Ferma a: ' + stopsText })) : null),
-    inline ? el('div', { class: 'st-inline st ' + st.cls, text: inline }) : null),
-  el('div', { class: 'plat' + (t.platform ? '' : ' none'), 'aria-label': 'Binario', text: t.platform || '–' }),
-  el('div', { class: 'col-st st ' + st.cls }, st.main, st.sub ? el('small', { text: st.sub }) : null),
-  el('div', { class: 'col-eta eta' }, eta !== null && !t.cancelled ? [String(eta), el('small', { text: 'min' })] : null));
-
-  if (t.stops.length) {
-    const full = () => el('p', { class: 'stops-full', text: 'Ferma a: ' + t.stops.map((s) => L.titleCase(s.name) + ' ' + s.time).join(' · ') });
-    if (isOpen) li.append(full());
-    const toggle = () => { if (state.open.has(t.num)) state.open.delete(t.num); else state.open.add(t.num); renderRows(true); };
-    li.addEventListener('click', toggle);
-    li.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggle(); } });
-  }
-  return li;
 }
 
 function renderStatus() {

@@ -6,18 +6,17 @@ const isLocal = typeof location !== 'undefined' && ['localhost', '127.0.0.1'].in
 export const API = isLocal ? 'http://localhost:8787' : 'https://eav-ogliaeaspetta.example.workers.dev';
 
 // Servizi: nome mostrato e come si disegna. `css` e' il suffisso della variabile --r-<css> in style.css;
-// `strisce` = riga a strisce (per non dipendere solo dal colore). Le linee senza colore noto restano
-// neutre: si completano qui e in style.css quando i colori sono confermati.
+// `strisce` = riga a strisce (per non dipendere solo dal colore). I colori veri (variabili --r-<css>) stanno in style.css.
 export const SERVIZI = {
   sorrento:      { nome: 'Sorrento',             css: 'sor' },
   torre:         { nome: 'Torre A.ta - Oplonti', css: 'tor', strisce: true },
   poggiomarino:  { nome: 'Poggiomarino',         css: 'pog' },
   sarno:         { nome: 'Sarno',                css: 'sar' },
   baiano:        { nome: 'Baiano',               css: 'bai' },
-  pomigliano:    { nome: 'Pomigliano',           css: 'neu' }, // colore da definire
-  cumana:        { nome: 'Cumana',               css: 'neu' }, // colore da definire
-  circumflegrea: { nome: 'Circumflegrea',        css: 'neu' }, // colore da definire
-  l7:            { nome: 'Linea 7',              css: 'neu' }, // colore da definire
+  pomigliano:    { nome: 'Pomigliano',           css: 'pom', strisce: true }, // giallo a strisce diagonali
+  cumana:        { nome: 'Cumana',               css: 'pas' }, // verde pastello
+  circumflegrea: { nome: 'Circumflegrea',        css: 'lil' }, // lilla
+  l7:            { nome: 'Linea 7',              css: 'ora' }, // arancione
   // Treni diretti a Napoli Porta Nolana: capolinea di tutte le linee, quindi barra "arcobaleno".
   napoli:        { nome: 'Verso Napoli',        css: 'nap', arcobaleno: true },
 };
@@ -59,3 +58,18 @@ export const CFG = { LINEA_SERVIZIO, DESTINAZIONE_SERVIZIO, NUMERO_LINEA };
 
 export const RIGHE_INIZIALI = 12;     // righe mostrate prima di "Mostra altri"
 export const INATTIVITA_MS = 5 * 60 * 1000; // dopo tanto senza interazione l'aggiornamento si ferma (tranne ?kiosk=1)
+
+// Aspetti grafici selezionabili: `id` e' anche il nome del modulo in views/<id>.js (e del suo .css, tranne "classico").
+// `gruppo` serve solo a raggrupparli nel menu.
+export const UI_LISTA = [
+  { id: 'classico',  gruppo: 'Tabellone',  nome: 'Classico',        desc: 'Tabellone da stazione' },
+  { id: 'metro',     gruppo: 'Tabellone',  nome: 'Metropolitana',   desc: 'Segnaletica da metro: cerchi di linea, minuti in grande' },
+  { id: 'svizzero',  gruppo: 'Tabellone',  nome: 'Svizzero',        desc: 'Tipografia da manifesto: orari enormi, filetti, poco colore' },
+  { id: 'carta',     gruppo: 'Tabellone',  nome: 'Carta',           desc: 'L\'orario ferroviario stampato, con i puntini di riempimento' },
+  { id: 'solari',    gruppo: 'Tabellone',  nome: 'Solari',          desc: 'Palette meccaniche, come nelle vecchie stazioni' },
+  { id: 'carte',     gruppo: 'Altri formati', nome: 'Per direzione', desc: 'Una scheda per destinazione con il conto alla rovescia' },
+  { id: 'percorso',  gruppo: 'Altri formati', nome: 'Percorso',      desc: 'Ogni treno con la linea e le stazioni dove ferma o salta' },
+  { id: 'radiale',   gruppo: 'Altri formati', nome: 'Orologio',      desc: 'Quadrante di 60 minuti: i treni si avvicinano al centro' },
+  { id: 'terminale', gruppo: 'Altri formati', nome: 'Terminale',     desc: 'Monitor a fosfori verdi, solo testo' },
+  { id: 'led',       gruppo: 'Altri formati', nome: 'LED',           desc: 'Insegna a matrice di punti con i treni che scorrono' },
+];

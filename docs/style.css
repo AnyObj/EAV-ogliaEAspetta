@@ -4,7 +4,8 @@
   --text:#eef5f3; --dim:#8fa9b2; --led:#ffb84a; --ok:#5fd39a;
   --d1:#ffb84a; --d2:#ff8a3d; --d3:#ff5d4d; --bad:#ff5d4d;
   --badge-bg:#eef5f3; --badge-tx:#08171e;
-  --r-sor:#4aa8ff; --r-sar:#ff5d4d; --r-bai:#ffd43b; --r-tor:#37c78a; --r-pog:#37c78a; --r-neu:#7d939b;
+  --r-sor:#4aa8ff; --r-sar:#ff5d4d; --r-bai:#ffd43b; --r-tor:#37c78a; --r-pog:#37c78a; --r-neu:#7d939b; --r-lil:#c9a7ff; --r-pas:#a9e5b8; --r-ora:#ff9a3d;
+  --r-pom:var(--r-bai);
   --display:"Barlow Condensed","Roboto Condensed","Arial Narrow",Arial,sans-serif;
   --body:"Barlow","Segoe UI",system-ui,-apple-system,Arial,sans-serif;
   color-scheme:dark;
@@ -15,7 +16,7 @@
     --text:#0b1c23; --dim:#547079; --led:#b45f00; --ok:#12805a;
     --d1:#a15c00; --d2:#c2410c; --d3:#c92a2a; --bad:#c92a2a;
     --badge-bg:#0b1c23; --badge-tx:#ffffff;
-    --r-sor:#1971c2; --r-sar:#d6303a; --r-bai:#d99a00; --r-tor:#0e9f63; --r-pog:#0e9f63; --r-neu:#6b7f87;
+    --r-sor:#1971c2; --r-sar:#d6303a; --r-bai:#d99a00; --r-tor:#0e9f63; --r-pog:#0e9f63; --r-neu:#6b7f87; --r-lil:#8a52d6; --r-pas:#74c98d; --r-ora:#e8710a;
     color-scheme:light;
   }
 }
@@ -24,7 +25,7 @@
   --text:#0b1c23; --dim:#547079; --led:#b45f00; --ok:#12805a;
   --d1:#a15c00; --d2:#c2410c; --d3:#c92a2a; --bad:#c92a2a;
   --badge-bg:#0b1c23; --badge-tx:#ffffff;
-  --r-sor:#1971c2; --r-sar:#d6303a; --r-bai:#d99a00; --r-tor:#0e9f63; --r-pog:#0e9f63; --r-neu:#6b7f87;
+  --r-sor:#1971c2; --r-sar:#d6303a; --r-bai:#d99a00; --r-tor:#0e9f63; --r-pog:#0e9f63; --r-neu:#6b7f87; --r-lil:#8a52d6; --r-pas:#74c98d; --r-ora:#e8710a;
   color-scheme:light;
 }
 *{box-sizing:border-box}
@@ -59,6 +60,11 @@ h1{font:600 2.3rem/1 var(--display);margin:0;letter-spacing:.01em;}
 .seg button:last-child{border-radius:0 .4rem .4rem 0;border-left:0;}
 .seg button[aria-pressed="true"]{background:var(--text);color:var(--bg);border-color:var(--text);}
 .theme{margin-left:auto;}
+.ui-pick select{font:500 .9rem var(--body);color:var(--text);background:var(--panel);border:1px solid var(--line);border-radius:.4rem;padding:.3rem .5rem;cursor:pointer;}
+.bar .ui-pick + .theme{margin-left:0;}
+.bar .ui-pick{margin-left:auto;}
+.home-tools{display:flex;gap:.5rem;align-items:center;}
+.home-tools .theme{margin-left:0;}
 .check{display:inline-flex;align-items:center;gap:.4rem;color:var(--dim);font-size:.9rem;cursor:pointer;}
 
 /* campo di ricerca */
@@ -90,6 +96,7 @@ input::placeholder{color:var(--dim);}
 /* colori dei servizi: la classe s-XXX imposta il colore, "strisce" lo disegna rigato */
 .s-sor{--c:var(--r-sor);} .s-sar{--c:var(--r-sar);} .s-bai{--c:var(--r-bai);}
 .s-tor{--c:var(--r-tor);} .s-pog{--c:var(--r-pog);} .s-neu{--c:var(--r-neu);}
+.s-lil{--c:var(--r-lil);} .s-pas{--c:var(--r-pas);} .s-pom{--c:var(--r-pom);} .s-ora{--c:var(--r-ora);}
 
 /* Napoli Porta Nolana: capolinea di tutte le linee -> arcobaleno */
 .s-nap{--c:var(--r-neu);}
@@ -110,13 +117,17 @@ ol{list-style:none;margin:0;padding:0;background:var(--panel);border:1px solid v
 .row:nth-child(even){background:var(--alt);}
 .row + .row{border-top:1px solid var(--line);}
 .row[tabindex]{cursor:pointer;}
+/* Senza questo la colonna centrale puo' crescere quanto il testo delle fermate (nowrap) e uscire dalla sua colonna:
+   il contenitore delle fermate si allargherebbe (niente scorrimento) e finirebbe sotto il binario. */
+.row > div{min-width:0;}
+.row > div:nth-child(2){overflow:hidden;}
 .time{font:600 2.5rem/1 var(--display);color:var(--led);font-variant-numeric:tabular-nums;}
 .time small{display:block;font:400 .78rem var(--body);color:var(--dim);margin-top:.2rem;}
 .dest{font:600 2.1rem/1.05 var(--display);letter-spacing:.005em;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
 .meta{display:flex;flex-wrap:wrap;align-items:center;gap:.15rem .6rem;color:var(--dim);font-size:.85rem;margin-top:.25rem;min-width:0;}
 .tag{border:1px solid var(--dim);border-radius:.25rem;padding:0 .35rem;font-weight:600;font-size:.78rem;flex:none;}
 .svc{flex:none;color:var(--c);font-weight:600;}
-.stops{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0;flex:1 1 12rem;}
+.stops{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0;max-width:100%;flex:1 1 12rem;}
 .stops.scroll{text-overflow:clip;}
 .stops.scroll .stops-in{display:inline-block;animation:stops-scroll var(--dur,20s) ease-in-out infinite alternate;}
 .row:hover .stops-in,.row:focus-visible .stops-in{animation-play-state:paused;}

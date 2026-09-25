@@ -51,7 +51,7 @@ const GTFS = {
   ].join('\n') },
   'stop_times.txt': { testo: [
     'trip_id,arrival_time,departure_time,stop_id,stop_sequence',
-    '10535_SV-A,05:36:00,05:36:00,6001,1', '10535_SV-A,05:39:00,05:39:00,6003,2', '10535_SV-A,06:06:00,06:06:00,6041,3', '10535_SV-A,07:05:00,07:05:00,6062,4',
+    '10535_SV-A,05:36:00,05:36:00,6001,1', '10535_SV-A,05:38:00,05:39:00,6003,2', '10535_SV-A,06:06:00,06:06:00,6041,3', '10535_SV-A,07:05:00,07:05:00,6062,4',
     '10550_SV-A,06:10:00,06:10:00,6062,2', '10550_SV-A,05:50:00,05:50:00,6041,1', '10550_SV-A,07:00:00,07:00:00,6003,3',                       // sequenze fuori ordine nel file
     '10557_SV-B,06:30:00,06:30:00,6001,1', '10557_SV-B,06:33:00,06:33:00,6003,2', '10557_SV-B,06:59:00,06:59:00,6041,3',
     '12299_SV-B,23:50:00,23:50:00,6001,1', '12299_SV-B,24:10:00,24:10:00,6003,2', '12299_SV-B,25:05:30,25:05:30,6062,3',                        // oltre le 24:00 e secondi
@@ -126,7 +126,7 @@ test('costruzione: solo la ferrovia, treni per numero, stazioni con il nostro id
   assert.deepEqual(Object.keys(o.linee), ['1', '1.']);                                 // niente autobus
   assert.equal(o.linee['1'], 'Napoli - Pompei Scavi, Sorrento');                     // virgola dentro le virgolette
   assert.ok(!('BUS1' in o.treni));
-  assert.deepEqual(o.treni['10535'], { l: '1', s: '0', c: 'Sorrento', f: [['1', 336], ['3', 339], ['41', 366], ['62', 425]] });
+  assert.deepEqual(o.treni['10535'], { l: '1', s: '0', c: 'Sorrento', f: [['1', 336], ['3', 339, 338], ['41', 366], ['62', 425]] });   // a Garibaldi arriva alle 05:38 e parte alle 05:39
   assert.deepEqual(Object.keys(o.stazioni), ['1', '3', '41', '62']);                 // 6001 -> 1, 6003 -> 3, ...
   assert.equal(o.stazioni['3'].n, 4);                                                 // treni che ci fermano
   assert.deepEqual(o.stazioni['62'], { lat: 40.62, lon: 14.37, n: 5 });   // 10535, 10550, 12299 e i due viaggi del 20000
@@ -216,4 +216,16 @@ test('file vero (se presente): valido e coerente con il catalogo', { skip: !exis
   const catalogo = JSON.parse(readFileSync(new URL('../../docs/stazioni.json', import.meta.url), 'utf8'));
   const v = validaOrari(o, { oggi: o.valido[0], catalogo });
   assert.deepEqual(v.errori, []);
+});
+
+test('costruzione: l\'orario di arrivo si salva solo quando e\' diverso dalla partenza, e il validatore accetta entrambe le forme', () => {
+  const { orari: o, errori } = costruisci();
+  assert.deepEqual(errori, []);
+  const conArrivo = o.treni['10535'].f.filter((x) => x.length === 3);
+  assert.deepEqual(conArrivo, [['3', 339, 338]]);
+  assert.ok(o.treni['10535'].f.every((x) => x.length === 2 || x.length === 3));
+  const guasto = JSON.parse(JSON.stringify(o)); guasto.treni['10535'].f[1] = ['3', 339, 'ieri'];
+  assert.ok(validaOrari(guasto, { oggi: '2026-09-25', minTreni: 1, minStazioni: 1 }).errori.some((e) => /treno 10535 malformato/.test(e)));
+  const quattro = JSON.parse(JSON.stringify(o)); quattro.treni['10535'].f[1] = ['3', 339, 338, 5];
+  assert.ok(validaOrari(quattro, { oggi: '2026-09-25', minTreni: 1, minStazioni: 1 }).errori.some((e) => /malformato/.test(e)));
 });

@@ -12,6 +12,8 @@
 //
 // Come sono fatti i dati (vedi notes/gtfs-scoperte.md): trip_short_name = numero di treno del tabellone,
 // stop_id = 6000 + id del nostro catalogo, route_id = linea e variante di servizio.
+// Fermate di un treno: f = [[stazione, partenza], ...] in minuti; se all'arrivo e alla partenza l'orario e' diverso
+// (sosta in stazione) c'e' un terzo numero, l'arrivo: [stazione, partenza, arrivo].
 
 import { readFileSync, writeFileSync, existsSync, mkdirSync } from 'node:fs';
 import { inflateRawSync } from 'node:zlib';
@@ -181,10 +183,11 @@ export function buildOrari(zip, opts = {}) {
     for (const r of t.righe) {
       const v = viaggi.get(r[t.col.trip_id]);
       if (!v) continue;
-      const tm = minutiDa((iD !== undefined && r[iD]) || (iA !== undefined && r[iA]) || '');
-      if (!tm) { nonLeggibili++; continue; }
-      if (tm.sec) secondiNonZero++;
-      v.stops.push([+r[t.col.stop_sequence], r[t.col.stop_id], tm.min]);
+      const dep = minutiDa((iD !== undefined && r[iD]) || ''), arr = minutiDa((iA !== undefined && r[iA]) || '');
+      if (!dep && !arr) { nonLeggibili++; continue; }
+      if ((dep && dep.sec) || (arr && arr.sec)) secondiNonZero++;
+      const d = (dep || arr).min, a = (arr || dep).min;
+      v.stops.push([+r[t.col.stop_sequence], r[t.col.stop_id], d, a]);
     } }
   if (nonLeggibili) avvisi.push(`${nonLeggibili} orari non leggibili in stop_times.txt (passaggi ignorati)`);
   if (secondiNonZero) avvisi.push(`${secondiNonZero} orari con secondi diversi da zero (arrotondati per difetto al minuto)`);
@@ -229,7 +232,7 @@ export function buildOrari(zip, opts = {}) {
     v.stops.sort((a, b) => a[0] - b[0]);
     if (v.stops.length < 2) { avvisi.push(`treno ${v.num} con meno di 2 fermate: ignorato`); continue; }
     if (v.stops.some((s, i) => i && s[2] < v.stops[i - 1][2])) nonCrescenti++;
-    const f = v.stops.map(([, stopId, min]) => {
+    const f = v.stops.map(([, stopId, min, arr]) => {
       const id = idCatalogo(stopId) ?? ('?' + stopId);
       const fer = fermate.get(stopId);
       if (!fer) sconosciute.set(stopId, '(assente da stops.txt)');
@@ -238,7 +241,7 @@ export function buildOrari(zip, opts = {}) {
         if (!nomi) sconosciute.set(stopId, fer.nome);
         else if (!nomi.has(norm(fer.nome)) && !nomeDiverso.some((x) => x.id === id)) nomeDiverso.push({ id, gtfs: fer.nome });
       }
-      return [id, min];
+      return arr !== min ? [id, min, arr] : [id, min];   // [stazione, partenza] oppure [stazione, partenza, arrivo] se la sosta e' registrata
     });
     for (const id of new Set(f.map((x) => x[0]))) contaStazioni.set(id, (contaStazioni.get(id) || 0) + 1);
     const treno = { l: v.l, s: idxServizio.get(v.sid), c: v.c, f };
@@ -313,7 +316,8 @@ export function validaOrari(o, { oggi, catalogo, minTreni = 100, minStazioni = 5
   let cattivi = 0, indietro = 0;
   for (const [num, t0] of Object.entries(o.treni)) for (const t of [].concat(t0)) {
     const ok = t && o.linee[t.l] !== undefined && o.servizi[t.s] !== undefined && Array.isArray(t.f) && t.f.length >= 2
-      && t.f.every((x) => Array.isArray(x) && typeof x[0] === 'string' && Number.isInteger(x[1]) && x[1] >= 0 && x[1] < 2880);
+      && t.f.every((x) => Array.isArray(x) && typeof x[0] === 'string' && Number.isInteger(x[1]) && x[1] >= 0 && x[1] < 2880
+        && (x.length === 2 || (x.length === 3 && Number.isInteger(x[2]) && x[2] >= 0 && x[2] < 2880)));
     if (!ok) { cattivi++; if (cattivi <= 3) errori.push(`treno ${num} malformato`); continue; }
     if (t.f.some((x, i) => i && x[1] < t.f[i - 1][1])) indietro++;
     for (const [id] of t.f) if (!(id in o.stazioni)) errori.push(`treno ${num}: la stazione ${id} non e' in "stazioni"`);

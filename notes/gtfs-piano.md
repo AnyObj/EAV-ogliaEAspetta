@@ -1,6 +1,6 @@
 # Piano: usare il GTFS di EAV nell'app
 
-**Stato: solo la fase 1 è fatta** (lo script che costruisce `orari.json`, con test, provato sul file vero). Nulla è collegato all'app. Le scoperte su cui si basa il piano sono in [`gtfs-scoperte.md`](gtfs-scoperte.md); il riassunto per chi ha fretta è in [`gtfs-riassunto.md`](gtfs-riassunto.md).
+**Stato: fatte le fasi 1 e 4** (lo script che costruisce `orari.json` e lo script che analizza i dati del monitor, entrambi con test e provati sui dati veri). Nulla è collegato all'app. Le scoperte su cui si basa il piano sono in [`gtfs-scoperte.md`](gtfs-scoperte.md); il riassunto per chi ha fretta è in [`gtfs-riassunto.md`](gtfs-riassunto.md).
 
 ## Regole di lavoro (decise con il proprietario del progetto)
 
@@ -8,6 +8,7 @@
 - Se si chiede di pushare altro (per esempio correzioni o stili), si pusha il branch normale (`claude/eav-attr-work`) **senza** portarsi dietro il lavoro sul GTFS.
 - Le modifiche sono **additive**: si aggiungono file e funzioni, non si riscrivono stili o logica esistenti. Ogni fase è un commit separato e si può annullare da sola.
 - L'app deve **funzionare identica se `orari.json` manca o è scaduto**: i dati del GTFS migliorano cose che già ci sono, non sono un requisito.
+- **Regola di fiducia** (decisa con il proprietario): **se il GTFS differisce troppo dai tabelloni, non si usa per gli orari.** Vedi la sezione "Regola di fiducia" qui sotto.
 - Tutto dietro un **interruttore** (`USA_ORARI` in `docs/config.js`, con `?orari=1` / `?orari=0` nell'indirizzo). Predefinito: spento, finché non è validato.
 
 ## Obiettivi (dal più utile)
@@ -41,12 +42,12 @@ Generato dallo script della fase 1. Compatto, solo la ferrovia.
 }
 ```
 
-- `treni[num].f` = fermate in ordine: `[id della stazione nel nostro catalogo (stop_id − 6000), minuti dalla mezzanotte]`. Se lo stesso numero di treno compare in più viaggi, `treni[num]` è una **lista** (oggi non succede, c'è un avviso).
+- `treni[num].f` = fermate in ordine: `[stazione, partenza]` oppure `[stazione, partenza, arrivo]` (l'arrivo c'è solo se diverso dalla partenza, cioè se il GTFS registra la sosta: succede in 4.199 passaggi su 7.763). Stazione = id del nostro catalogo (stop_id − 6000), orari in minuti dalla mezzanotte. **Il tabellone delle partenze mostra la partenza, quello degli arrivi l'arrivo**: serve per confrontarli. Se lo stesso numero di treno compare in più viaggi, `treni[num]` è una **lista** (oggi non succede, c'è un avviso).
 - `zip.sha1` serve a capire se il GTFS è cambiato; `avvisi` riporta ciò che lo script ha notato (fermate fuori catalogo, nomi diversi, ecc.).
 - Le stazioni fuori dal nostro catalogo (Aversa, Piedimonte Matese…) restano in `stazioni` con il loro id (6112 → `112`): l'app le ignora.
 - `servizi[s]` = giorni di circolazione in intervalli (comprime molto).
 - `stazioni[id].n` = quanti treni ci fermano: **0 significa "non servita"**.
-- Dimensioni reali: **131 KB (30 KB compressi)**, un treno per riga.
+- Dimensioni reali: **146 KB**, un treno per riga (circa 33 KB compressi).
 
 ## Fasi
 
@@ -78,7 +79,7 @@ Generato dallo script della fase 1. Compatto, solo la ferrovia.
 
 **3a. Linea e servizio esatti.** `inferService` (in `docs/logic.js`) riceve, se disponibile, il dato del GTFS: prima si guarda il numero di treno, poi il ripiego attuale (euristica). Mappa `route_id → servizio` in `config.js` (vedi "Decisioni aperte"; i percorsi con treni sono 11). Test: sui 364 numeri reali del 25/09 il risultato deve coincidere con quello attuale dove l'euristica dà una risposta.
 **3b. Fermate esatte.** Percorso e "Vai a" usano la sequenza di fermate del GTFS (esatta e per ogni treno, anche senza elenco EAV). "Ferma / salta / non servita" diventano certi. **Arrivi**: "Da X" = X è tra le fermate precedenti del treno; si riattiva "Vai a" per gli arrivi.
-**3c. Confronto programmato / tabellone (segnalazione, non verdetto).** **Si escludono i treni di categoria `EXP`** (nel GTFS non ci sono) e, per lo stesso motivo, non si segnalano come "non programmati". Per una stazione con dati: treni programmati oggi nella finestra `[adesso − 2 min, adesso + 60 min]` che non compaiono nell'elenco per **due aggiornamenti di fila** → nota discreta "10535 delle 05:36 per Sorrento non è in elenco". Non dice mai "soppresso". Da attivare **solo dopo la fase 4** (i falsi positivi si valutano sui dati del monitor).
+**3c. Confronto programmato / tabellone (segnalazione, non verdetto).** *Distinzione voluta dal proprietario*: **rosso "SOPPRESSO"** solo quando è **EAV** a segnare il treno soppresso sul tabellone; **grigio e barrato** quando il treno è nel GTFS ma non compare sul tabellone. Il grigio va chiamato **"Previsto, non in elenco"** (mai "soppresso" o "cancellato": un treno può mancare perché non è ancora entrato nell'elenco, è già partito, non è nel GTFS o il tabellone è in ritardo, e chi legge "cancellato" potrebbe non presentarsi a un treno che parte). "Tolto definitivamente" non si distingue dai dati: il GTFS lo perde al prossimo aggiornamento mensile. Vale solo con la **regola di fiducia** soddisfatta. **Si escludono i treni di categoria `EXP`** (nel GTFS non ci sono) e, per lo stesso motivo, non si segnalano come "non programmati". Per una stazione con dati: treni programmati oggi nella finestra `[adesso − 2 min, adesso + 60 min]` che non compaiono nell'elenco per **due aggiornamenti di fila** → nota discreta "10535 delle 05:36 per Sorrento non è in elenco". Non dice mai "soppresso". Da attivare **solo dopo la fase 4** (i falsi positivi si valutano sui dati del monitor).
 **3d. Domani e pianificatore.** "Primo e ultimo treno", elenco di domani quando il tabellone mostra pochi treni; "da A a B": treni in cui A precede B nella sequenza delle fermate, attivi alla data, dal momento attuale; se il treno compare nel tabellone di A si sovrappone il ritardo vivo. Più impegnativa: fase a sé.
 **3e. Stazione più vicina.** Bottone nell'elenco stazioni; `navigator.geolocation` (chiede il permesso, la posizione **resta sul dispositivo**, non viene inviata a nessuno); distanza con la formula di Haversine sulle 127 stazioni.
 **3f. Mappe.** I treni **non hanno tracciati** nel GTFS (`shapes.txt` è solo di autobus e traghetti). Volendo si uniscono le stazioni con segmenti dritti. Da fare solo se richiesto.
@@ -88,7 +89,11 @@ Generato dallo script della fase 1. Compatto, solo la ferrovia.
 - **Tipo di treno / aria condizionata**: i dati pubblici non collegano treni e convogli. Strade possibili: tabella a mano (`docs/materiale.json`, numero → tipo con una nota sulla fonte), segnalazioni degli utenti, oppure una fonte esterna affidabile che colleghi le serie alle linee (da cercare e da citare). Le caratteristiche dei tipi (FE220, MTS, T21, ET 500…) vanno verificate su una fonte: non sono nei file EAV.
 - **Stazioni**: il file delle stazioni di EAV (`Dismessa`, `Disabilitata_Temporaneamente`, chilometrica, capolinea) può arricchire il catalogo, per esempio "dismessa" invece di "non servita".
 
-### Fase 4 — Analisi dei dati del monitor con il GTFS (offline, prima della 3c)
+### Fase 4 — Analisi dei dati del monitor con il GTFS (offline, prima della 3c) — **FATTA**
+**Script**: `scripts/analizza-monitor.mjs` (solo lettura, nessuna richiesta a EAV, nessuna modifica all'app); **test**: `worker/test/analizza-monitor.test.js` (una giornata sintetica con 12 treni, un buco nei dati e un errore di rete). Uso: `node scripts/analizza-monitor.mjs [cartella] [--orari data/orari.json] [--soglia 5]`; scrive `rapporto.md` nella cartella dei dati.
+Cosa fa: trova le soppressioni segnalate da EAV con la scritta esatta, i treni **usciti dal tabellone troppo presto** (mai contando quelli usciti durante un buco nei dati: l'anticipo è un intervallo), i programmati mai visti, i visti ma non programmati (per categoria), gli orari diversi dal GTFS, i ritardi, i cambi di destinazione, le fermate tolte, i cambi di binario (solo riassegnazioni vere), i valori mai visti e i buchi nei dati; e calcola la **misura di fiducia** del GTFS.
+Errori che la prova sui dati veri ha fatto emergere e che sono stati corretti: gli arrivi vanno confrontati con l'orario di *arrivo* (per questo `orari.json` ora lo contiene), il binario "assegnato la prima volta" non è un cambio, la riga di intestazione della tabella EAV (`bgcolor="yellow"`) non è una novità.
+Le voci del rapporto sono **candidati**, mai verdetti.
 **File nuovo**: `scripts/analizza-monitor.mjs` (i treni `EXP` si trattano a parte: non sono nel GTFS ma sono nel file delle corse come `FAC EX`; per il confronto si può usare anche quel file, scaricabile dalla pagina open data). Legge `data/monitor/<giro>/campioni.jsonl` (e `novita.jsonl`), ricostruisce nel tempo il tabellone di ogni capolinea e lo confronta con il programmato:
 - treni programmati che non compaiono mai / che spariscono prima dell'orario;
 - treni che compaiono ma non sono programmati (i 7 del 25/09);
@@ -98,6 +103,29 @@ Serve a decidere soglie e regole della 3c e a completare il riconoscimento delle
 
 ### Fase 5 — Documentazione e attribuzione
 Nota di attribuzione nel sito (piè di pagina) e nel README con la citazione della fonte e della licenza; TODO aggiornato; questa cartella `notes/` aggiornata a ogni fase.
+
+## Regola di fiducia: quando il GTFS non va usato per gli orari
+
+**Regola**: se il GTFS differisce troppo da ciò che mostrano i tabelloni, l'app **non lo usa per gli orari** (lo tratta come se non esistesse).
+
+**Come si misura** (implementato nello script di analisi, `valutaFiducia` in `scripts/analizza-monitor.mjs`, e da riportare nell'app in `docs/orari.js`). Sui treni di oggi visti sul tabellone, **esclusi gli `EXP`/`FAC EX`** (che il GTFS non contiene):
+
+| Misura | Cosa dice | Soglia predefinita |
+|---|---|---|
+| **Copertura** | quota dei treni visti che il GTFS conosce | almeno **90%** |
+| **Concordanza** | quota di quelli con lo stesso orario (partenza, o arrivo sugli arrivi) | almeno **95%** |
+| **Mancanti** | quota dei treni programmati (nella finestra osservata) che non si sono mai visti | al massimo **10%** |
+
+Verdetto: `affidabile`, `non usare` (una soglia non rispettata) oppure `non valutabile` (meno di 10 treni osservati).
+
+**Come la applicherà l'app** (fase 3):
+- Il confronto si calcola sul tabellone della stazione che si sta guardando, a ogni aggiornamento (senza richieste in più: i treni ci sono già), e si tiene l'ultimo verdetto della giornata.
+- Con verdetto diverso da `affidabile` **tutte le funzioni basate sugli orari programmati si spengono**: orari di domani, "da A a B", segnalazione "programmato ma non in elenco". Il tabellone normale resta com'è.
+- Vale lo stesso se `orari.json` è scaduto (oggi fuori da `valido`) o mancante.
+- Gli orari di domani non si possono confrontare con un tabellone che non c'è ancora: si fidano solo se l'ultimo verdetto è `affidabile`.
+- Le soglie stanno in `config.js`; sul sito compare una nota discreta ("Orari programmati non disponibili: non coincidono con il tabellone") solo quando la regola scatta.
+
+**Prima misura reale** (25/09/2026, ore 07:22, 24 tabelloni dei capolinea, 114 treni programmati controllati): copertura **100%**, concordanza **100%**, mancanti **0%** → `affidabile`.
 
 ## Aggiornamento periodico (mensile o quindicinale)
 
@@ -144,9 +172,10 @@ I colori delle linee **ci sono già**: il GTFS serve solo a dire a quale di essi
 5. **Aggiornamento**: a mano o con la Action settimanale?
 6. **Pianificatore** (3d) e **stazione più vicina** (3e): quanta priorità?
 7. Testo di **attribuzione** e dove metterlo.
-8. Cosa fare delle **stazioni non servite** nel Percorso: mostrarle "non servita" o toglierle dal disegno?
-9. **Categoria `EXP`**: mostrarla come "Campania Express"? (L'ipotesi viene dal nome e dal percorso Porta Nolana-Sorrento, non è scritta nei dati: da verificare.)
-10. **Materiale rotabile** (aria condizionata, età): nessun dato collega numeri di treno e tipo di convoglio. Vogliamo una **tabella compilata a mano** (numero → tipo, per cominciare poche righe) o le **segnalazioni degli utenti** (serve un archivio sul Worker, moderazione e privacy)? Vedi `gtfs-scoperte.md` §8.
+8. **Soglie di fiducia** (copertura 90%, concordanza 95%, mancanti 10%): vanno bene o le tariamo su più giorni di dati?
+9. Cosa fare delle **stazioni non servite** nel Percorso: mostrarle "non servita" o toglierle dal disegno?
+10. **Categoria `EXP`**: mostrarla come "Campania Express"? (L'ipotesi viene dal nome e dal percorso Porta Nolana-Sorrento, non è scritta nei dati: da verificare.)
+11. **Materiale rotabile** (aria condizionata, età): nessun dato collega numeri di treno e tipo di convoglio. Vogliamo una **tabella compilata a mano** (numero → tipo, per cominciare poche righe) o le **segnalazioni degli utenti** (serve un archivio sul Worker, moderazione e privacy)? Vedi `gtfs-scoperte.md` §8.
 
 ## Stima del lavoro
 

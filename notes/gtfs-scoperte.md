@@ -165,3 +165,14 @@ Il file elenca **147 unità**, non i treni:
 - Non ci sono l'anno di costruzione né l'aria condizionata.
 - **Nessun file lega un numero di treno a un'unità o a un tipo di materiale.** Nel GTFS `block_id` (che concatenerebbe le corse dello stesso convoglio) è vuoto per tutti i 623 treni, e `wheelchair_accessible` e `bikes_allowed` valgono tutti `0` (= nessuna informazione).
 - Quello che si può dire è statistico (per esempio, quota di ogni tipo tra le unità di una linea), oppure legato alla categoria (`FAC EX`/`EXP`).
+
+## 9. Analisi del monitor: prime misure (25/09/2026, dalle 05:49)
+
+Il monitor (`scripts/monitor-capolinea.mjs`) interroga i tabelloni di 12 capolinea (partenze e arrivi) ogni 2 minuti, una richiesta ogni 5 secondi, direttamente su EAV. Lo script `scripts/analizza-monitor.mjs` ne ricava il rapporto. Alle 07:22: 1.116 richieste, 0 errori.
+
+- **Soppressioni segnalate da EAV: nessuna** (0 righe con `cancelled` e 0 con parole da soppressione). I 27 "segnali" del monitor erano tutti solo ritardi. Il registro delle novità contiene valori di ritardo da 1 a 39 minuti, `RIT.`, la scritta `IN RITARDO - DELAYED` e le categorie A, A FES, D, DD, EXP. **Come EAV scrive una soppressione non lo sappiamo ancora.**
+- **Treni usciti dal tabellone più di 5 minuti prima dell'orario: 0.**
+- **Affidabilità del GTFS: affidabile.** Copertura 100%, concordanza degli orari 100%, programmati mai visti 0% (114 treni programmati controllati). I 11 treni visti ma non programmati sono tutti `EXP` (i `FAC EX`, vedi §8).
+- **Un errore mio, trovato dalla prova**: il primo rapporto segnalava 21 "orari diversi": erano tutti tabelloni degli arrivi, dove EAV mostra l'orario di *arrivo* mentre `orari.json` salvava solo la partenza (la differenza è la sosta in stazione, 1-2 minuti). Ora il file contiene l'arrivo quando è diverso (4.199 passaggi su 7.763) e le differenze sono 0.
+- Altri due errori dello script corretti dalla prova: i **cambi di binario** contavano anche l'assegnazione iniziale (398, in realtà 14), e la riga di intestazione della tabella EAV (`bgcolor="yellow"`) risultava una "novità".
+- Un treno che esce **durante un buco nei dati** (il monitor non riceve risposta) non è mai un candidato: non si sa quando è uscito. Dalla prova sintetica.

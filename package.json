@@ -8,6 +8,8 @@
     "serve": "python3 -m http.server 8000 --directory docs",
     "build:orari": "node scripts/build-orari.mjs",
     "orari:check": "node scripts/build-orari.mjs --check",
-    "orari:valida": "node scripts/build-orari.mjs --valida docs/orari.json"
+    "orari:valida": "node scripts/build-orari.mjs --valida docs/orari.json",
+    "monitor": "node scripts/monitor-capolinea.mjs",
+    "analizza:monitor": "node scripts/analizza-monitor.mjs"
   }
 }

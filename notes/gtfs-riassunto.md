@@ -42,10 +42,14 @@ Non si può fare (con questi dati): disegnare i binari veri delle linee, mostrar
 - Provato sul file vero: **0,55 secondi, 131 KB (30 KB compressi)**, valido, e coerente con i tabelloni dal vivo.
 - Si aggiorna con un comando: `--check` dice se EAV ha pubblicato una versione nuova (codice 10 se è cambiata), il comando normale la scarica e la ricostruisce.
 - Non scrive mai un file rotto: si ferma se il file scaricato non è uno zip, se il GTFS è scaduto, se i treni cambiano di oltre il 25% o se un treno è malformato.
-- **18 test** (mini GTFS costruito nel test, nessuna rete).
+- **Test** (mini GTFS costruito nel test, nessuna rete). Il file ora contiene anche l'orario di **arrivo** quando diverso dalla partenza: 146 KB.
 - **Non è collegato all'app**: non cambia niente di ciò che vedi.
 
 Cosa ha insegnato la prova: lo zip di EAV usa un formato "zip64" che un lettore semplice rifiuta (ora gestito), il server non comunica la data di aggiornamento (quindi `--check` scarica i 6 MB), e i percorsi con treni sono 11 e non 16.
+
+**`scripts/analizza-monitor.mjs`**: legge i dati raccolti dal monitor e scrive un rapporto con le anomalie candidate (soppressioni con la scritta esatta, treni usciti troppo presto, programmati mai visti, ritardi, cambi di destinazione e fermate, valori mai visti, buchi nei dati). Solo lettura, 99 test in tutto nella repo. **Prima misura reale (25/09, 07:22)**: nessuna soppressione segnalata da EAV finora, e il GTFS è **affidabile** (copertura 100%, concordanza degli orari 100%, programmati mai visti 0%).
+
+**Regola decisa**: se il GTFS differisce troppo dai tabelloni (copertura sotto il 90%, concordanza sotto il 95% o più del 10% di programmati mai visti), **l'app non lo usa per gli orari**. Vedi il piano, "Regola di fiducia".
 
 ## Perché è parcheggiato
 

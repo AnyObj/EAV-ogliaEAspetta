@@ -1,4 +1,6 @@
 # EAV-ogliaEAspettà
+> **Progetto indipendente e non ufficiale.** Non è affiliato, sponsorizzato né approvato in alcun modo da EAV (Ente Autonomo Volturno). Nomi e marchi appartengono ai rispettivi proprietari.
+
 Piccolo frontend dedicato per i treni eav. Per ora focalizzato sulla circumvesuviana in quanto colori delle linee e alcuni dettagli li conosco a memoria.
 
 Al momento si appoggia ad un worker cloudflare per bypassare le CORS del browser, quindi le richieste sono limitate a 100.000 al giorno, con un picco di 1000 al minuto. 

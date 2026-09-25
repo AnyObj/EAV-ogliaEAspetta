@@ -212,3 +212,8 @@ ol{list-style:none;margin:0;padding:0;background:var(--panel);border:1px solid v
   h1{font-size:1.7rem;} .clock{font-size:2rem;}
   .theme{margin-left:0;}
 }
+
+/* Avviso di non affiliazione (in fondo a ogni pagina) */
+.disclaimer{margin:0 auto;padding:0 1.5rem 2rem;color:var(--dim);font-size:.8rem;}
+.disclaimer p{margin:0;max-width:60rem;}
+@media (max-width:640px){.disclaimer{padding:0 1rem 2rem;}}

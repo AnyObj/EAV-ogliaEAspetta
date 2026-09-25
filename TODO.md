@@ -6,6 +6,7 @@ Stato al 25/09/2026. Il Worker è pubblicato su Cloudflare; il frontend (`docs/`
 - [ ] Attivare GitHub Pages (Settings → Pages → *Deploy from branch* → `/docs`). Serve la repo pubblica.
 - [ ] Pull Request `claude/eav-attr-work` → `main`, poi far puntare Pages a `main`.
 - [ ] Provare il sito online (Pages + Worker) con tutti gli aspetti, su telefono e su un monitor grande.
+- [ ] Installabile (PWA): manifest, icone (trenino, in `docs/icons/`) e meta in `index.html` fatti il 25/09, senza service worker. Da provare online quando Pages e' attivo ("Installa" su Chrome, "Aggiungi a Home" su iOS). Se Chrome non propone l'installazione, aggiungere un service worker vuoto.
 - [ ] Scrivere a EAV: chiedere l'header `Access-Control-Allow-Origin` (renderebbe inutile il Worker) e avvisarli del carico.
 
 ## 2. Glitch grafici
@@ -13,6 +14,7 @@ Raccolti durante le prove. Molti sono stati corretti senza poterli vedere, quind
 - [ ] Carta su mobile: l'orario toccava il filetto e la barra di evidenziazione della ricerca (corretto, da verificare).
 - [ ] Solari con "Vai a": la barra colorata non copriva l'altezza della riga allungata (corretto, da verificare).
 - [ ] Solari su mobile: testo ancora piccolo? (0,76 rem, 43 tessere per riga).
+- [ ] Metropolitana su mobile: la riga non si vede bene (segnalato il 25/09; sospetto: cerchio di linea + minuti da 3 rem + quadratino del binario, tutti a larghezza fissa, non stanno in una riga stretta). Da sistemare in `docs/views/metro.css`; controllare anche `tab-metro`.
 - [ ] Percorso: nodi "fantasma" su Poggiomarino / Torre A.ta (corretto: le stazioni non monitorate ora sono "non note"; da verificare a schermo largo).
 - [ ] Classico: scorrimento automatico delle fermate lunghe (corretto con `min-width:0` sulla colonna centrale; da verificare. Se Windows ha gli effetti di animazione disattivati non parte, per scelta).
 - [ ] Orologio: mai visto con dati veri (la sera non ci sono treni entro 60 minuti). Provarlo di giorno.

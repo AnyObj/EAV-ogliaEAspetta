@@ -2,6 +2,11 @@
 
 Stato al 25/09/2026 (sera). Il Worker è pubblicato su Cloudflare; il lavoro è in `main` (PR #2 "Quasi stabile", unita come squash) e le Pages vanno puntate a `main`.
 
+## 0. Analisi UX seria (priorità alta, chiesta dall'utente il 25/09)
+- [ ] Analisi vera di leggibilità, accessibilità e design in tutti gli aspetti grafici (17 viste + 4 tabelloni a schermo intero): non solo bug visivi puntuali (già in sez. 2), ma un giudizio complessivo su gerarchia visiva, dimensioni/contrasto del testo, distanza minima di lettura per ciascun aspetto (da telefono in mano a tabellone a distanza), e coerenza tra gli aspetti.
+- [ ] Accessibilità con criteri riconosciuti (WCAG: contrasto colore/sfondo, non affidarsi solo al colore per lo stato del treno, dimensione minima del testo, focus da tastiera, screen reader — collegare/ampliare il punto già in sez. 6).
+- [ ] Uscirne con proposte di design "ben congegnate", non solo correzioni: possono richiedere modifiche più profonde di un singolo CSS, quindi da valutare con l'utente prima di implementare (resta valida la regola delle modifiche additive, [[feedback-solo-modifiche-additive]]).
+
 ## 1. Pubblicazione
 - [ ] Pages: Settings → Pages → *Deploy from branch* → `main` → `/docs`. Serve la repo pubblica (o un piano adatto). Fatto: PR `claude/eav-attr-work` → `main` (#2, squash).
 - [ ] **Storia divisa dopo lo squash**: `main` ha `548a5e8` (un commit) mentre il vecchio branch ha i 31 originali, stesso contenuto. Una nuova PR dal vecchio branch darebbe conflitti. Scegliere: (a) riconciliare con `git merge -s ours origin/main` sul branch, oppure (b) lavorare da un branch nuovo creato da `main` e cancellare `claude/eav-attr-work`. Meglio (b). Nelle PR usare *Create a merge commit* se GitHub lo permette (con lo squash si ripete il problema).

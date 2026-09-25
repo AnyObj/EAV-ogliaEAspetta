@@ -4,7 +4,7 @@ import { el } from '../dom.js';
 import * as L from '../logic.js';
 import { SERVIZI } from '../config.js';
 
-export const meta = { id: 'classico', paginate: true };
+export const meta = { id: 'classico', paginate: true, fantasmi: true };
 
 export function render(ctx) {
   const out = [];
@@ -45,7 +45,7 @@ function rowEl(r, ctx) {
   const eta = L.etaMin(t, now.min);
   const isOpen = ctx.open.has(t.num);
   const lineSvc = inf.lineService ? SERVIZI[inf.lineService] : null;
-  const cls = ['row', 's-' + (svc ? svc.css : 'neu'), svc && svc.strisce && 'strisce', svc && svc.arcobaleno && 'arcobaleno', t.cancelled && 'cancel',
+  const cls = ['row', 's-' + (svc ? svc.css : 'neu'), svc && svc.strisce && 'strisce', svc && svc.arcobaleno && 'arcobaleno', t.cancelled && 'cancel', t.fantasma && 'ghost',
     match === 'si' && 'hit', match === 'no' && 'dim', st.cls === 'go' && 'soon'].filter(Boolean).join(' ');
 
   const stopsText = t.stops.map((s) => L.titleCase(s.name)).join(', ');
@@ -64,7 +64,7 @@ function rowEl(r, ctx) {
       el('span', { text: 'Treno ' + t.num }),
       svc ? el('span', { class: 'svc' + (svc.arcobaleno ? ' plain' : ''),
         text: svc.nome + (svc.arcobaleno && lineSvc ? ' · ' + lineSvc.nome : '') }) : null,
-      target ? el('span', { class: 'arrivo', text: '→ ' + L.titleCase(idx.byId.get(target).nome)
+      target ? el('span', { class: 'arrivo', text: (ctx.tipo === 'A' ? '← ' : '→ ') + L.titleCase(idx.byId.get(target).nome)
         + (targetStop ? ' ' + targetStop.time : match === 'forse' ? ' (probabile)' : '') }) : null,
       stopsText ? el('span', { class: 'stops' }, el('span', { class: 'stops-in', text: 'Ferma a: ' + stopsText })) : null),
     inline ? el('div', { class: 'st-inline st ' + st.cls, text: inline }) : null),

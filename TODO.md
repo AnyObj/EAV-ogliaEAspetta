@@ -33,7 +33,7 @@ Fatto come **stili aggiuntivi**, senza toccare quelli esistenti: `Tabellone clas
 
 ## 4. Dati e logica
 - [ ] Scoprire come EAV segnala le **soppressioni**: finora nessun caso reale, il riconoscimento cerca "Soppr."/"soppresso"/"cancelled"/"annullato" in tutta la riga. Appena ne capita una, salvare la risposta come fixture.
-- [ ] "Vai a" per gli **arrivi** ("Da…"): il significato dell'elenco fermate negli arrivi non è noto, per ora è disattivato.
+- [x] "Da…" negli arrivi: fatto con gli orari programmati (fermate esatte per numero di treno); senza orari resta disattivato.
 - [ ] Rifare ogni tanto il giro `node scripts/build-stazioni.mjs --probe` (una richiesta ogni 2 s) in ore diverse: `dati:false` è una fotografia della sera del 24/09/2026.
 - [ ] Colore/segno per i treni che restano grigi (Porta Nolana nei tratti in comune tra le linee) o altre regole sui numeri di treno, se l'esperienza le conferma (`NUMERO_LINEA` in `docs/config.js`).
 - [ ] Nome ambiguo "Pollena Trocchia" (stazioni 9 e 95): capire se sono la stessa stazione.
@@ -55,3 +55,11 @@ Fatto come **stili aggiuntivi**, senza toccare quelli esistenti: `Tabellone clas
 - Worker su Cloudflare con origine obbligatoria e cache a 10 s; catalogo di 123 stazioni; 58 test automatici.
 - Frontend con elenco stazioni, ricerca "Vai a", refresh adattivo, colori di tutte le linee.
 - Tredici aspetti grafici selezionabili, senza richieste di rete al cambio.
+
+## 7. Orari programmati (GTFS)
+Integrati e attivi di default; `?orari=0` li spegne. Note: `notes/gtfs-*.md`.
+- [ ] **Riverificare dal vivo**: righe grigie "Previsto, non in elenco", "Da…" negli arrivi, colori Pomigliano (Volla) e Circumflegrea, stazioni non servite nel Percorso.
+- [ ] Aggiornare `docs/orari.json` ogni mese (`node scripts/build-orari.mjs --check` dice se EAV ha pubblicato una versione nuova; scade il 31/12/2026). Idea: GitHub Action mensile.
+- [ ] Rieseguire `npm run analizza:monitor` sui dati raccolti dal monitor: come scrive EAV una soppressione? Poi decidere se il rosso può usare altri segnali.
+- [ ] Non fatto: orari di domani / primo e ultimo treno, "da A a B", stazione più vicina.
+- [ ] Le viste a schermo intero (tab-*), LED, Radiale, Carte, Banchina e Golfo non mostrano i treni "non in elenco" (scelta prudente): valutarlo.

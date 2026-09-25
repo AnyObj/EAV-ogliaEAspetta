@@ -24,11 +24,11 @@ export function model(r, ctx) {
     statusText: st.main ? st.main + (eta !== null && st.cls !== 'go' && !t.cancelled ? ' · tra ' + eta + ' min' : '') : '',
     targetName: target ? L.titleCase(idx.byId.get(target).nome) : null,   // stazione scelta con "Vai a"
     targetTime: targetStop ? targetStop.time : null,                       // orario di arrivo li', se EAV lo da'
-    targetText: target ? '→ ' + L.titleCase(idx.byId.get(target).nome)
+    targetText: target ? (ctx.tipo === 'A' ? '← ' : '→ ') + L.titleCase(idx.byId.get(target).nome)
       + (targetStop ? ' ' + targetStop.time : match === 'forse' ? ' (probabile)' : '') : null,
     stopsText: t.stops.map((s) => L.titleCase(s.name)).join(', '),
     stopsFull: t.stops.map((s) => L.titleCase(s.name) + ' ' + s.time).join(' · '),
-    cls: ['s-' + (svc ? svc.css : 'neu'), svc && svc.strisce && 'strisce', svc && svc.arcobaleno && 'arcobaleno', t.cancelled && 'cancel',
+    cls: ['s-' + (svc ? svc.css : 'neu'), svc && svc.strisce && 'strisce', svc && svc.arcobaleno && 'arcobaleno', t.cancelled && 'cancel', t.fantasma && 'ghost',
       match === 'si' && 'hit', match === 'no' && 'dim', 'st-' + st.cls].filter(Boolean).join(' '),
   };
 }

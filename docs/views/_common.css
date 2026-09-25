@@ -9,3 +9,8 @@
 .dim{opacity:.3;filter:grayscale(1);}
 .cancel .strike{text-decoration:line-through;}
 @media (prefers-reduced-motion:reduce){*{animation-duration:0s !important;animation-iteration-count:1 !important;}}
+
+/* Treno previsto dagli orari programmati ma assente dal tabellone: grigio e barrato (il rosso e' solo per i soppressi di EAV). */
+.ghost{opacity:.6;filter:grayscale(1);}
+.ghost .strike{text-decoration:line-through;}
+.st.ghost{color:var(--dim);font-style:italic;}

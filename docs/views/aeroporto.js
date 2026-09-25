@@ -3,9 +3,10 @@
 import { el } from '../dom.js';
 import { model, wire, withDays } from './_lib.js';
 
-export const meta = { id: 'aeroporto', paginate: true };
+export const meta = { id: 'aeroporto', paginate: true, fantasmi: true };
 
 function statusText(m) {
+  if (m.t.fantasma) return 'PREVISTO';
   if (m.t.cancelled) return 'SOPPRESSO';
   if (m.st.cls === 'go') return 'IN PARTENZA';
   if (m.t.delay === null) return 'IN RITARDO';
@@ -27,7 +28,7 @@ function rowEl(r, ctx) {
   const { t } = m;
   const li = el('li', { class: 'ap-row ' + m.cls, 'data-num': t.num },
     el('span', { class: 'ap-time strike', text: m.time }),
-    el('span', { class: 'ap-dest strike' }, m.dest.toUpperCase(), m.targetText ? el('small', { text: m.targetText }) : null),
+    el('span', { class: 'ap-dest strike' }, m.dest.toUpperCase(), m.t.fantasma ? el('small', { text: 'Previsto, non in elenco' }) : m.targetText ? el('small', { text: m.targetText }) : null),
     el('span', { class: 'ap-line' }, el('i', { class: 'swatch' }), el('span', { text: m.svcName || '—' })),
     el('span', { class: 'ap-plat' + (t.platform ? '' : ' none'), 'aria-label': 'Binario', text: t.platform || '' }),
     el('span', { class: 'ap-st st ' + m.st.cls, text: statusText(m) }));

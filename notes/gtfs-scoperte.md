@@ -130,3 +130,38 @@ Sono state fatte con script temporanei, non salvati nella repo. La procedura:
 5. Per i giorni di circolazione: `service_id` del viaggio dentro `calendar_dates.txt` alla data voluta.
 
 Lo script definitivo esiste: `scripts/build-orari.mjs` (fase 1 del piano). Con `--valida` controlla un file già costruito.
+
+## 8. Gli altri documenti open data e il materiale rotabile
+
+Scaricati il 25/09/2026 dalla stessa pagina (sono CSV pubblici, tutti aggiornati al **28/11/2024**, quindi più vecchi del GTFS). Il link vero si trova nella pagina di ogni documento (`data-downloadurl`, con un parametro temporaneo `refresh`): non è un indirizzo fisso.
+
+| Documento | Righe | Cosa contiene |
+|---|---:|---|
+| Elenco delle stazioni | 176 | codice unificato (= il nostro id), coordinate, bacino, capolinea, chilometrica, `Dismessa`, `Disabilitata_Temporaneamente`, `StazioneSiNo` (stazione o fermata), codice ISTAT |
+| Elenco delle linee | 16 | codice della linea, nome, bacino |
+| Elenco delle corse | 2.185 | numero di treno, linea, categoria, tipologia, partenza e arrivo, destinazione |
+| Materiale rotabile | 147 | matricola, tipo, bacino (una riga per unità) |
+
+### Le varianti di linea, spiegate (file delle linee)
+`1` Napoli - Sorrento · `1.` Napoli - Torre Annunziata · **`1..` Napoli - Torre del Greco via Centro Direzionale** · `8` Napoli - Nola - Baiano · **`8.` Napoli - San Giorgio via Centro Direzionale** · `8..` Napoli - Acerra · `8...` San Giorgio - Volla · `4`, `6`, `2`, `3`, `7`, `5`, `9`.
+Bacini: 1 = linee vesuviane, 2 = flegree, 3 = suburbane, 4 = metropolitane.
+
+**Questo spiega i percorsi senza treni** (`1..` e `8.`): sono i servizi "via Centro Direzionale", e le stazioni di quel tratto (Centro Direzionale, Poggioreale, Botteghelle, Madonnelle, Argine-Palasport, Villa Visconti, Bartolo Longo, Parco Piemonte, Vesuvio De Meis SGV…) sono proprio tra le 20 "non servite". Nell'orario attuale non circola nessun treno su quel percorso.
+
+### Le stazioni "non servite" e i loro indicatori
+Il file delle stazioni ha 19 stazioni `Dismessa = 1` e 1 `Disabilitata_Temporaneamente = 1`. Delle 20 non servite dal GTFS, solo 4 sono segnate così (Castellammare Terme, Bivio Botteghelle e Bivio Madonnelle dismesse, Scrajo temporaneamente disabilitata). Le altre non hanno nessun indicatore: non sono chiuse per il file, semplicemente **nessun treno dell'orario attuale ci ferma** (i servizi via Centro Direzionale, e alcune fermate della linea di Sorrento come Cavalli di Bronzo, Via dei Monaci, Via Viuli, Moregine, Pozzano). Il termine giusto è "non servita" (non "chiusa").
+
+### I 7 treni "extra" del 25/09: sono `FAC EX`
+I sei treni sul tabellone ma non nel GTFS (10821, 11121, 11018, 11318, 11618, 11918) sono nel file delle corse con categoria **`FAC EX`**, Napoli Porta Nolana - Sorrento (e ritorno). Sul tabellone dal vivo hanno categoria `EXP`. È un servizio facoltativo (probabilmente il "Campania Express" turistico: la pagina di EAV ha un download "Orari e tariffe Campania Express") che **il GTFS non contiene**. Quindi i "programmati ma assenti" e "presenti ma non programmati" vanno letti tenendo conto che il GTFS **non copre** i `FAC EX`.
+
+### File delle corse
+1.084 numeri di treno, contro i 623 del GTFS ferroviario: 476 in comune. Contiene anche altri bacini e giorni particolari. Categorie: `A` (1.373), `DD` (246), `D` (199), `A fer` (162), `STR` (64), `INO` (52), `FAC EX` (32), `A FES` (23), `IMA` (22) e poche altre; tipologia `ORD`, `FES`, `FER`, `STR`, `PER`. Il significato esatto delle sigle non è documentato nei file (`A`, `D`, `DD`, `EXP` sono le stesse sigle del tabellone). La colonna `Validita` è un numero codificato, non decifrato.
+
+### Materiale rotabile e numero di treno: non c'è il collegamento
+Il file elenca **147 unità**, non i treni:
+- Linee vesuviane (90): **FE220** (32), **MTS** (25), **T21** (11), **T21R** (22).
+- Linee flegree (28): **ET 100** (2), **ET 400R** (12), **ET 500** (14).
+- Linee suburbane (29): ATR 803, Ale, Aln 663/668, ETR 243.
+- Non ci sono l'anno di costruzione né l'aria condizionata.
+- **Nessun file lega un numero di treno a un'unità o a un tipo di materiale.** Nel GTFS `block_id` (che concatenerebbe le corse dello stesso convoglio) è vuoto per tutti i 623 treni, e `wheelchair_accessible` e `bikes_allowed` valgono tutti `0` (= nessuna informazione).
+- Quello che si può dire è statistico (per esempio, quota di ogni tipo tra le unità di una linea), oppure legato alla categoria (`FAC EX`/`EXP`).

@@ -117,8 +117,9 @@ export function inferGtfs(orari, t, stazione, tipo, idx, cfg) {
   if (destId !== capo && !idx.sameStation(t.dest, capo)) return null;
   const lineService = orari.servizioDi(g);
   if (!lineService) return { service: null, lineService: null, fermate, gtfs: g };
-  // il capolinea VERO del treno (anche sui tabelloni degli arrivi, dove `dest` e' la provenienza) puo' fare da servizio
-  return { service: cfg.DESTINAZIONE_SERVIZIO[g.f.at(-1)[0]] || lineService, lineService, fermate, gtfs: g };
+  // Sulle partenze il capolinea puo' fare da servizio (Torre A.ta, Napoli). Sugli arrivi no: a Napoli arrivano tutti i treni
+  // e colorarli tutti "Napoli" non direbbe nulla, meglio il colore della linea da cui vengono.
+  return { service: (tipo === 'P' && cfg.DESTINAZIONE_SERVIZIO[g.f.at(-1)[0]]) || lineService, lineService, fermate, gtfs: g };
 }
 
 // Treni programmati nella finestra che il tabellone dovrebbe mostrare ma non mostra (candidati "non in elenco").

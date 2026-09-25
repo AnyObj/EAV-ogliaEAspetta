@@ -286,7 +286,8 @@ function buildRows(nuovoGiro) {
   }
   state.gtfsOk = usa;
   state.rows = board.trains.map((t) => {
-    let inf = L.inferService(t, state.station, idx, CFG);
+    // negli arrivi `dest` e' la provenienza: la regola "la destinazione fa da servizio" (Napoli, Torre A.ta) non vale
+    let inf = L.inferService(t, state.station, idx, state.tipo === 'A' ? { ...CFG, DESTINAZIONE_SERVIZIO: {} } : CFG);
     const g = usa ? O.inferGtfs(state.orari, t, state.station, state.tipo, idx, CFG) : null;
     if (g) inf = { ...inf, service: g.service || inf.service, lineService: g.lineService || inf.lineService, fermate: g.fermate };
     return { t, inf, match: null };
@@ -308,7 +309,7 @@ function buildRows(nuovoGiro) {
     const s = idx.byId.get(capo);
     const t = { num: a.num, cat: '', dest: s ? s.nome : a.g.c, time: O.hm(a.min), day: 0, platform: null, delay: 0, cancelled: false, stops: [], fantasma: true };
     const lineService = state.orari.servizioDi(a.g);
-    state.fantasmi.push({ t, match: null, inf: { service: CFG.DESTINAZIONE_SERVIZIO[a.g.f.at(-1)[0]] || lineService, lineService, lines: [],
+    state.fantasmi.push({ t, match: null, inf: { service: (state.tipo === 'P' && CFG.DESTINAZIONE_SERVIZIO[a.g.f.at(-1)[0]]) || lineService, lineService, lines: [],
       fermate: state.orari.fermateDa(a.g, state.station, state.tipo) } });
   }
 }

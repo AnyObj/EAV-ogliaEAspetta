@@ -176,3 +176,13 @@ test('orari.json reale: valido, e coerente con la mappa dei percorsi', () => {
   for (const t0 of Object.values(dr.treni)) for (const t of [].concat(t0)) if (!o.servizioDi(t)) senza.add(t.l);
   assert.deepEqual([...senza].sort(), ['2', '7'], 'percorsi con treni ma senza servizio: ' + [...senza]);
 });
+
+test('inferGtfs sugli arrivi: colore della linea di provenienza, non "Napoli" per tutti', () => {
+  const idx = nuovoIdx();
+  const o = O.creaOrari(dati({ treni: { 5: { l: '1', s: '0', c: 'Napoli', f: [['62', 600], ['41', 640], ['1', 690]] } } }), { oggi: OGGI });
+  const nome = (id) => catalogo.stazioni.find((s) => s.id === id).nome;
+  const arr = O.inferGtfs(o, tr({ num: '5', dest: nome('62') }), '1', 'A', idx, CFG);
+  assert.equal(arr.service, 'sorrento');
+  assert.equal(arr.lineService, 'sorrento');
+  assert.deepEqual(arr.fermate, ['62', '41']);
+});

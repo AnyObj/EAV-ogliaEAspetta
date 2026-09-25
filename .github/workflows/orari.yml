@@ -1,0 +1,78 @@
+# Aggiorna docs/orari.json quando EAV pubblica un GTFS nuovo.
+#  - ogni lunedi' controlla se il GTFS e' cambiato (1 download da ~6 MB, gentile con EAV);
+#  - se e' cambiato lo ricostruisce, lo valida, lancia i test e apre una Pull Request (non pusha da solo);
+#  - si puo' lanciare anche a mano: scheda Actions -> "Aggiorna orari" -> Run workflow (scegliendo il branch).
+# Nota: la partenza programmata (cron) funziona solo se questo file e' nel branch predefinito del repository.
+name: Aggiorna orari
+
+on:
+  schedule:
+    - cron: '17 5 * * 1'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: aggiorna-orari
+  cancel-in-progress: false
+
+jobs:
+  orari:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+
+      - name: Il GTFS di EAV e' cambiato?
+        id: check
+        run: |
+          set +e
+          npm run --silent orari:check
+          code=$?
+          echo "Codice di uscita: $code"
+          if [ "$code" -eq 10 ]; then
+            echo "cambiato=true" >> "$GITHUB_OUTPUT"
+          elif [ "$code" -eq 0 ]; then
+            echo "cambiato=false" >> "$GITHUB_OUTPUT"
+            echo "Nessuna novita': orari.json e' aggiornato."
+          else
+            echo "Controllo fallito (codice $code)."
+            exit "$code"
+          fi
+
+      - name: Ricostruisce e valida orari.json
+        if: steps.check.outputs.cambiato == 'true'
+        run: |
+          npm run --silent build:orari
+          npm run --silent orari:valida
+          npm test
+
+      - name: Apre la Pull Request
+        if: steps.check.outputs.cambiato == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          BASE: ${{ github.ref_name }}
+        run: |
+          if git diff --quiet -- docs/orari.json; then
+            echo "orari.json identico dopo la ricostruzione: niente da fare."
+            exit 0
+          fi
+          ramo="orari/aggiornamento-$(date -u +%Y-%m-%d)"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git checkout -b "$ramo"
+          git add docs/orari.json
+          git commit -m "Orari: nuovo GTFS di EAV"
+          git push --force-with-lease origin "$ramo"
+          gh pr create --base "$BASE" --head "$ramo" \
+            --title "Orari: nuovo GTFS di EAV" \
+            --body "Il GTFS di EAV e' cambiato. \`docs/orari.json\` e' stato ricostruito con \`npm run build:orari\`, validato con \`npm run orari:valida\` e i test sono passati. Controllare il diff e unire.
+
+          Dati: «Dati del servizio EAV ferro e gomma», EAV srl, rielaborati, licenza IODL 2.0." \
+            || echo "PR gia' aperta per questo ramo."

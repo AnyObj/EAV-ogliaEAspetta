@@ -1,0 +1,24 @@
+@import url('https://fonts.googleapis.com/css2?family=DotGothic16&display=swap');
+.tb-tab-led{--tb-bg:#000;--tb-fg:#ffb000;--tb-accent:#ffd060;--tb-font:"DotGothic16","Courier New",ui-monospace,monospace;
+  --cols:1.2cqw 11cqw minmax(0,1fr) 6cqw 21cqw;--cols-narrow:1.8cqw 17cqw minmax(0,1fr) 34cqw;--gap:1.6cqw;
+  --r-sor:#4aa8ff;--r-sar:#ff5d4d;--r-bai:#ffd43b;--r-tor:#37c78a;--r-pog:#37c78a;--r-neu:#8a5f00;--r-lil:#c9a7ff;--r-pas:#a9e5b8;--r-ora:#ff9a3d;--r-pom:#ffd43b;}
+.tb-tab-led .tb-head,.tb-tab-led .tb-clock,.tb-tab-led .tb-title h2{text-shadow:0 0 .4em rgba(255,176,0,.75);}
+.tb-tab-led .tb-title h2{font-weight:400;text-transform:uppercase;letter-spacing:.06em;}
+.tb-tab-led .tb-head{border-bottom:.4vh solid #2a2110;}
+.tb-tab-led .tb-cols{color:#ffd060;opacity:1;text-shadow:0 0 .4em rgba(255,208,96,.6);letter-spacing:.14em;}
+.tb-tab-led .tb-rows{position:relative;}
+.tb-tab-led .tb-row + .tb-row{border-top:1px solid #1a1508;}
+.tb-tab-led .tb-in > *{text-shadow:0 0 .5em rgba(255,176,0,.75);}
+.tb-tab-led .c-time{color:#ffd060;}
+.tb-tab-led .c-dest{letter-spacing:.03em;}
+.tb-tab-led .c-line{align-self:stretch;overflow:visible;text-shadow:none;}
+.tb-tab-led .c-line i{display:block;width:100%;height:70cqh;margin-top:15cqh;background:var(--c,var(--r-neu));}
+.tb-tab-led .strisce .c-line i{background:repeating-linear-gradient(135deg,var(--c) 0 .3em,#000 .3em .6em);}
+.tb-tab-led .arcobaleno .c-line i{background:linear-gradient(to bottom,var(--r-sor) 0 25%,var(--r-sar) 25% 50%,var(--r-bai) 50% 75%,var(--r-pog) 75% 100%);}
+.tb-tab-led .st-ok{color:#7dff8a;text-shadow:0 0 .5em rgba(125,255,138,.6);} .tb-tab-led .st-d1{color:#ffd060;} .tb-tab-led .st-d2{color:#ff9a1f;} .tb-tab-led .st-d3,.tb-tab-led .st-cancel{color:#ff5533;}
+.tb-tab-led .st-go,.tb-tab-led .st-cancel{animation:tl-blink 1s steps(2,jump-none) infinite;} .tb-tab-led .st-gone{color:#8a5f00;}
+.tb-tab-led .tb-row.hit{background:rgba(255,208,96,.12);}
+/* la griglia di puntini: uno strato che "buca" il testo */
+.tb-tab-led::after{content:"";pointer-events:none;position:absolute;inset:0;
+  background:radial-gradient(circle at center,rgba(0,0,0,0) 0 .09em,rgba(0,0,0,.8) .17em);background-size:.3em .3em;font-size:min(1.2vh,.9vw);}
+@keyframes tl-blink{50%{opacity:.15;}}

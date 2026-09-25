@@ -23,14 +23,13 @@ Raccolti durante le prove. Molti sono stati corretti senza poterli vedere, quind
 - [ ] Idea: test visivi automatici (screenshot con un browser headless) per non dipendere solo dall'occhio.
 
 ## 3. Tabelloni a schermo intero (stili dedicati)
-Indicazione: **non modificare gli stili esistenti**. Servono stili *nuovi*, pensati fin dall'inizio per stare in una schermata senza scorrere, con 15–20 treni (i primi in ordine di orario, **nessun cambio pagina automatico**).
-Un primo tentativo come "modalità" applicata agli stili esistenti (contenitore scalato da JavaScript, regole aggiunte in ogni foglio) è stato **annullato**, perché rompeva la pagina anche a modalità spenta.
-- [ ] Decidere quanti tabelloni e con che carattere (partenze da: Aeroporto, Banchina, Solari, LED, Terminale sono buoni punti di partenza).
-- [ ] Ognuno autonomo: un solo foglio di stile con griglia a righe uguali (`repeat(N, 1fr)` su `100dvh`) e dimensioni dei caratteri in unità del contenitore, senza scalare da JavaScript e senza toccare gli altri stili.
-- [ ] Solo i primi N treni, senza pagine: se sono meno, righe vuote per tenere l'impaginazione fissa.
-- [ ] Verificare su: telefono verticale e orizzontale, tablet, monitor 16:9, TV 4K, formato verticale da insegna.
-- [ ] Accesso: un aspetto in più nel menu (o `?ui=...`), più un modo per nascondere i comandi.
+Fatto come **stili aggiuntivi**, senza toccare quelli esistenti: `Tabellone classico`, `aeroporto`, `LED`, `metro` (gruppo "Tabelloni a schermo intero" del menu). Ognuno copre da solo lo schermo, mostra sempre 15/18/20/25 righe uguali (predefinite 18, si cambiano dal ⚙ in basso a destra), solo i primi treni in ordine di orario, **senza pagine e senza scorrere**. Le dimensioni le decide solo il CSS (unità del contenitore), nessuna misura o scala da JavaScript. File: `docs/views/_tab.*` (base) e `tab-*.js/.css`.
+- [ ] **Provarli dal vivo** su: telefono verticale e orizzontale, tablet, monitor 16:9, TV 4K, formato verticale da insegna. Verificati solo nel DOM (jsdom): il layout vero non è controllabile senza un browser.
+- [ ] Richiedono un browser recente (unità `cqh/cqw`, `:has()`): Chrome 105+, Safari 16+, Firefox 121+.
+- [ ] Su schermi stretti (< 700 px) nascondono la colonna del binario: decidere se va bene.
+- [ ] Altri tabelloni possibili (Solari, Terminale, Banchina, Golfo) sullo stesso schema: basta un file `tab-*.js` con le colonne e le celle, più il suo CSS.
 - [ ] Facoltativo: schermo che non si spegne (`Screen Wake Lock`) e spostamento leggero del contenuto contro il burn-in delle TV.
+- [ ] Facoltativo: mostrare "Aggiornato alle…" in modo più evidente se i dati diventano vecchi.
 
 ## 4. Dati e logica
 - [ ] Scoprire come EAV segnala le **soppressioni**: finora nessun caso reale, il riconoscimento cerca "Soppr."/"soppresso"/"cancelled"/"annullato" in tutta la riga. Appena ne capita una, salvare la risposta come fixture.
@@ -53,6 +52,6 @@ Un primo tentativo come "modalità" applicata agli stili esistenti (contenitore 
 
 ## Fatto
 - Aspetto **Golfo**: blu mare e limone, la frase in cima ("Il prossimo treno per Sorrento parte tra 3 minuti, dal binario 4"), biglietti perforati.
-- Worker su Cloudflare con origine obbligatoria e cache a 10 s; catalogo di 123 stazioni; 55 test automatici.
+- Worker su Cloudflare con origine obbligatoria e cache a 10 s; catalogo di 123 stazioni; 58 test automatici.
 - Frontend con elenco stazioni, ricerca "Vai a", refresh adattivo, colori di tutte le linee.
 - Tredici aspetti grafici selezionabili, senza richieste di rete al cambio.

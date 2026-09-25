@@ -420,3 +420,34 @@ test('UI_LISTA: ogni aspetto ha modulo e CSS coerenti, nessuna vista non elencat
   const stray = readdirSync(new URL('../../docs/views/', import.meta.url)).filter((f) => f.endsWith('.js') && !f.startsWith('_') && !ids.includes(f.slice(0, -3)));
   assert.deepEqual(stray, [], 'viste non elencate in UI_LISTA');
 });
+
+// ---- tabelloni a schermo intero (stili aggiuntivi): parti pure ----
+import { slots, statoBreve, righe, OPZIONI, PREDEFINITE } from '../../docs/views/_tab.js';
+
+test('tabelloni: slots restituisce sempre esattamente N voci (i primi treni, poi righe vuote)', () => {
+  const rows = Array.from({ length: 40 }, (_, i) => ({ i }));
+  assert.equal(slots(rows, 18).length, 18);
+  assert.deepEqual(slots(rows, 18).map((r) => r.i), Array.from({ length: 18 }, (_, i) => i));   // solo i primi, nessuna pagina
+  const poche = slots(rows.slice(0, 5), 18);
+  assert.equal(poche.length, 18);
+  assert.equal(poche.filter(Boolean).length, 5);
+  assert.deepEqual(poche.slice(5), Array(13).fill(null));
+  assert.deepEqual(slots([], 15), Array(15).fill(null));
+});
+
+test('tabelloni: righe 15/18/20/25, predefinite 18, senza memoria del browser', () => {
+  assert.deepEqual(OPZIONI, [15, 18, 20, 25]);
+  assert.equal(PREDEFINITE, 18);
+  assert.equal(righe(), 18);                                   // in Node non c'e' localStorage: valore predefinito
+  assert.ok(PREDEFINITE >= 15 && PREDEFINITE <= 20);
+});
+
+test('tabelloni: statoBreve', () => {
+  const m = (o, now = 22 * 60) => { const t = tr(o); return { t, st: L.statusOf(t, now) }; };
+  assert.equal(statoBreve(m({ time: '22:40' })), 'IN ORARIO');
+  assert.equal(statoBreve(m({ time: '22:40', delay: 7 })), 'RIT +7 MIN');
+  assert.equal(statoBreve(m({ time: '22:40', delay: null })), 'IN RITARDO');
+  assert.equal(statoBreve(m({ time: '22:40', cancelled: true })), 'SOPPRESSO');
+  assert.equal(statoBreve(m({ time: '22:00' })), 'IN PARTENZA');
+  assert.equal(statoBreve(m({ time: '05:19', day: 1 })), '');
+});

@@ -73,6 +73,10 @@ export const UI_LISTA = [
   { id: 'carte',     gruppo: 'Altri formati', nome: 'Per direzione', desc: 'Una scheda per destinazione con il conto alla rovescia' },
   { id: 'percorso',  gruppo: 'Altri formati', nome: 'Percorso',      desc: 'Ogni treno con la linea e le stazioni dove ferma o salta' },
   { id: 'radiale',   gruppo: 'Altri formati', nome: 'Orologio',      desc: 'Quadrante di 60 minuti: i treni si avvicinano al centro' },
+  { id: 'tab-classico',  gruppo: 'Tabelloni a schermo intero', nome: 'Tabellone classico',  desc: 'Schermo intero, i primi treni, senza scorrere: blu petrolio e ambra' },
+  { id: 'tab-aeroporto', gruppo: 'Tabelloni a schermo intero', nome: 'Tabellone aeroporto', desc: 'Schermo intero, i primi treni, senza scorrere: blu notte e giallo' },
+  { id: 'tab-led',       gruppo: 'Tabelloni a schermo intero', nome: 'Tabellone LED',       desc: 'Schermo intero, i primi treni, senza scorrere: matrice di punti ambra' },
+  { id: 'tab-metro',     gruppo: 'Tabelloni a schermo intero', nome: 'Tabellone metro',     desc: 'Schermo intero, i primi treni, senza scorrere: bianco su nero, cerchi di linea' },
   { id: 'terminale', gruppo: 'Altri formati', nome: 'Terminale',     desc: 'Monitor a fosfori verdi, solo testo' },
   { id: 'led',       gruppo: 'Altri formati', nome: 'LED',           desc: 'Insegna a matrice di punti con i treni che scorrono' },
 ];

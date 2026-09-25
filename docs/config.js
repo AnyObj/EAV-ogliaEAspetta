@@ -1,9 +1,9 @@
 // Configurazione del tabellone. I colori veri stanno in style.css (variabili --r-*).
 
-// Indirizzo del Worker Cloudflare. In locale: `npm run dev` in worker/ (porta 8787).
-// TODO: sostituire con l'indirizzo pubblicato dopo `wrangler deploy`.
+// Indirizzo del Worker Cloudflare (pubblicato con `wrangler deploy` in worker/).
+// In locale si usa `npm run dev` in worker/ (porta 8787).
 const isLocal = typeof location !== 'undefined' && ['localhost', '127.0.0.1'].includes(location.hostname);
-export const API = isLocal ? 'http://localhost:8787' : 'https://eav-ogliaeaspetta.example.workers.dev';
+export const API = isLocal ? 'http://localhost:8787' : 'https://eav-ogliaeaspetta.eav-ogliaeaspetta-worker.workers.dev';
 
 // Servizi: nome mostrato e come si disegna. `css` e' il suffisso della variabile --r-<css> in style.css;
 // `strisce` = riga a strisce (per non dipendere solo dal colore). I colori veri (variabili --r-<css>) stanno in style.css.
@@ -63,13 +63,41 @@ export const INATTIVITA_MS = 5 * 60 * 1000; // dopo tanto senza interazione l'ag
 // `gruppo` serve solo a raggrupparli nel menu.
 export const UI_LISTA = [
   { id: 'classico',  gruppo: 'Tabellone',  nome: 'Classico',        desc: 'Tabellone da stazione' },
+  { id: 'golfo',     gruppo: 'Tabellone',  nome: 'Golfo',           desc: 'Il tabellone che parla: una frase semplice, il disco giallo con i minuti, biglietti perforati' },
   { id: 'metro',     gruppo: 'Tabellone',  nome: 'Metropolitana',   desc: 'Segnaletica da metro: cerchi di linea, minuti in grande' },
   { id: 'svizzero',  gruppo: 'Tabellone',  nome: 'Svizzero',        desc: 'Tipografia da manifesto: orari enormi, filetti, poco colore' },
   { id: 'carta',     gruppo: 'Tabellone',  nome: 'Carta',           desc: 'L\'orario ferroviario stampato, con i puntini di riempimento' },
   { id: 'solari',    gruppo: 'Tabellone',  nome: 'Solari',          desc: 'Palette meccaniche, come nelle vecchie stazioni' },
+  { id: 'aeroporto', gruppo: 'Tabellone',  nome: 'Aeroporto',       desc: 'Blu notte e giallo, come i tabelloni degli aeroporti' },
+  { id: 'banchina',  gruppo: 'Tabellone',  nome: 'Banchina',        desc: 'Insegna da banchina: il prossimo treno in grande, poi l\'elenco' },
   { id: 'carte',     gruppo: 'Altri formati', nome: 'Per direzione', desc: 'Una scheda per destinazione con il conto alla rovescia' },
   { id: 'percorso',  gruppo: 'Altri formati', nome: 'Percorso',      desc: 'Ogni treno con la linea e le stazioni dove ferma o salta' },
   { id: 'radiale',   gruppo: 'Altri formati', nome: 'Orologio',      desc: 'Quadrante di 60 minuti: i treni si avvicinano al centro' },
+  { id: 'tab-classico',  gruppo: 'Tabelloni a schermo intero', nome: 'Tabellone classico',  desc: 'Schermo intero, i primi treni, senza scorrere: blu petrolio e ambra' },
+  { id: 'tab-aeroporto', gruppo: 'Tabelloni a schermo intero', nome: 'Tabellone aeroporto', desc: 'Schermo intero, i primi treni, senza scorrere: blu notte e giallo' },
+  { id: 'tab-led',       gruppo: 'Tabelloni a schermo intero', nome: 'Tabellone LED',       desc: 'Schermo intero, i primi treni, senza scorrere: matrice di punti ambra' },
+  { id: 'tab-metro',     gruppo: 'Tabelloni a schermo intero', nome: 'Tabellone metro',     desc: 'Schermo intero, i primi treni, senza scorrere: bianco su nero, cerchi di linea' },
   { id: 'terminale', gruppo: 'Altri formati', nome: 'Terminale',     desc: 'Monitor a fosfori verdi, solo testo' },
   { id: 'led',       gruppo: 'Altri formati', nome: 'LED',           desc: 'Insegna a matrice di punti con i treni che scorrono' },
 ];
+
+// ---------- Orari programmati (GTFS di EAV) ----------
+// Interruttore: ?orari=0 nell'indirizzo lo spegne, ?orari=1 lo accende. Se il file manca, e' scaduto o non e'
+// affidabile, l'app si comporta come senza (vedi docs/orari.js e notes/gtfs-piano.md).
+export const USA_ORARI = true;
+export const ORARI_URL = 'orari.json';
+
+// route_id del GTFS -> servizio (stile) dell'app. Solo i percorsi che hanno treni; gli altri (linee 2 e 7 fuori catalogo,
+// varianti senza treni) restano senza servizio e si ricade sull'euristica.
+export const ROTTA_SERVIZIO = {
+  '1': 'sorrento', '1.': 'torre', '4': 'poggiomarino', '6': 'sarno', '8': 'baiano',
+  '5': 'circumflegrea', '5.': 'l7', '9': 'cumana', '9.': 'cumana',
+};
+// I treni del percorso 8 che partono da o arrivano a Volla (id 70) usano lo stile Pomigliano: nel GTFS nessun treno ha
+// capolinea Pomigliano, quindi altrimenti quello stile non uscirebbe mai.
+export const STAZIONE_VOLLA = '70';
+
+// Regola di fiducia: se il GTFS differisce troppo dal tabellone non si usa per gli orari.
+export const FIDUCIA = { copertura: 0.9, concordanza: 0.95, mancanti: 0.1, minTreni: 10 };
+// "Previsto, non in elenco": treni nel GTFS che mancano dal tabellone per due aggiornamenti di fila.
+export const FANTASMI = { finestraMin: 60, giriDiFila: 2, datiFrescoMs: 3 * 60 * 1000 };

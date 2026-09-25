@@ -1,8 +1,9 @@
 // Tabellone EAV: interfaccia. La logica pura sta in logic.js, la configurazione in config.js.
 // Regola di sicurezza: i dati del Worker entrano nella pagina SOLO come testo (textContent), mai come HTML.
 
-import { API, SERVIZI, LINEA_SERVIZIO, CFG, RIGHE_INIZIALI, INATTIVITA_MS, UI_LISTA } from './config.js';
+import { API, SERVIZI, LINEA_SERVIZIO, CFG, RIGHE_INIZIALI, INATTIVITA_MS, UI_LISTA, USA_ORARI, ORARI_URL, FIDUCIA, FANTASMI } from './config.js';
 import * as L from './logic.js';
+import * as O from './orari.js';
 import { $, el, safeStore } from './dom.js';
 
 const state = {
@@ -13,6 +14,9 @@ const state = {
   paused: false, lastActivity: Date.now(), kiosk: false,
   timer: null, ctrl: null, renderedKey: '', open: new Set(), intervalMs: null,
   ui: 'classico', view: null, // aspetto grafico attivo e suo modulo (views/<id>.js)
+  // orari programmati (GTFS): null finche' non sono caricati o se non servono; vedi orari.js e notes/gtfs-piano.md
+  orari: null, orariParam: new URLSearchParams(location.search).get('orari'),
+  fiducia: null, fiduciaGlobale: null, gtfsOk: false, assenti: new Map(), fantasmi: [],
 };
 
 // ---------- avvio ----------
@@ -47,6 +51,26 @@ async function init() {
   setInterval(tickClock, 1000);
   if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => state.view && state.view.after && state.view.after($('#view')));
   route();
+  caricaOrari(); // dopo il primo disegno: senza orari l'app funziona comunque
+}
+
+// Gli orari programmati sono un di piu': se il file manca, e' scaduto o non e' valido non cambia nulla.
+// ?orari=0 li spegne, ?orari=1 li accende anche se USA_ORARI e' false.
+async function caricaOrari() {
+  if (state.orariParam === '0' || (state.orariParam !== '1' && !USA_ORARI)) return;
+  try {
+    const res = await fetch(ORARI_URL, { signal: AbortSignal.timeout(10000) });
+    if (!res.ok) return;
+    const orari = O.creaOrari(await res.json());
+    if (!orari) return;
+    state.orari = orari;
+    state.idx.setNonServite(orari.nonServite);
+    if (state.station) {
+      if (state.board) { buildRows(false); annotate(); state.version++; }
+      else state.gtfsOk = true;
+      renderHeader(); renderRows(true);
+    }
+  } catch (e) { /* senza orari programmati l'app funziona come prima */ }
 }
 
 // ---------- tema ----------
@@ -92,6 +116,7 @@ function syncUrl() {
   if (state.vai) p.set('vai', state.vai);
   if (state.ui !== 'classico') p.set('ui', state.ui);
   if (state.kiosk) p.set('kiosk', '1');
+  if (state.orariParam === '0' || state.orariParam === '1') p.set('orari', state.orariParam);
   history.replaceState(null, '', '?' + p);
 }
 
@@ -186,7 +211,7 @@ function setupBoardControls() {
 function setTipo(t) {
   if (state.tipo === t) return;
   state.tipo = t;
-  state.board = null; state.rows = []; state.filtro = null; state.showAll = false;
+  state.board = null; state.rows = []; state.fantasmi = []; state.assenti = new Map(); state.filtro = null; state.showAll = false;
   syncUrl(); renderHeader(); renderRows(true); refresh();
 }
 
@@ -200,7 +225,7 @@ function setVai(id) {
 
 function showBoard(id, tipo, vai) {
   stopUpdates();
-  Object.assign(state, { station: id, tipo, board: null, rows: [], filtro: null, showAll: false,
+  Object.assign(state, { station: id, tipo, board: null, rows: [], fantasmi: [], assenti: new Map(), fiducia: null, filtro: null, showAll: false,
     error: null, backoff: 0, paused: false, fetchedAt: null, renderedKey: '', open: new Set(), lastActivity: Date.now() });
   state.vai = vai && state.idx.byId.has(vai) && vai !== id ? vai : null;
   state.solo = false; $('#solo').checked = false;
@@ -231,7 +256,7 @@ async function refresh() {
     if (!board) throw new Error('Risposta non valida');
     if (ctrl !== state.ctrl || key !== state.station + '|' + state.tipo) return; // sostituita da una richiesta piu' recente
     state.board = board; state.error = null; state.backoff = 0; state.fetchedAt = Date.now(); state.version++;
-    state.rows = board.trains.map((t) => ({ t, inf: L.inferService(t, state.station, state.idx, CFG), match: null }));
+    buildRows(true);
     annotate();
   } catch (e) {
     if (ctrl !== state.ctrl || key !== state.station + '|' + state.tipo) return; // annullata di proposito
@@ -243,9 +268,70 @@ async function refresh() {
   renderHeader(); renderRows(true); schedule();
 }
 
+// Le righe del tabellone: linea inferita dai dati e, se gli orari programmati sono affidabili, corretta con quelli.
+// `nuovoGiro`: i dati sono appena arrivati da EAV (serve a contare quante volte di fila un treno manca).
+function buildRows(nuovoGiro) {
+  const { board, idx } = state;
+  const now = L.romeNow().min;
+  let usa = false, fantasmiOk = false;
+  state.fiducia = null;
+  if (state.orari) {
+    const v = state.orari.valuta(board.trains, state.station, state.tipo, now, FIDUCIA);
+    const verdetto = v.fiducia.verdetto;
+    state.fiducia = v.fiducia;
+    // con pochi treni non si puo' giudicare: vale l'ultimo verdetto, e ogni treno deve comunque coincidere (inferGtfs)
+    if (verdetto !== 'non valutabile') state.fiduciaGlobale = verdetto;
+    usa = verdetto === 'affidabile' || (verdetto === 'non valutabile' && state.fiduciaGlobale !== 'non usare');
+    fantasmiOk = verdetto === 'affidabile' && !board.stale;
+  }
+  state.gtfsOk = usa;
+  state.rows = board.trains.map((t) => {
+    // negli arrivi `dest` e' la provenienza: la regola "la destinazione fa da servizio" (Napoli, Torre A.ta) non vale
+    let inf = L.inferService(t, state.station, idx, state.tipo === 'A' ? { ...CFG, DESTINAZIONE_SERVIZIO: {} } : CFG);
+    const g = usa ? O.inferGtfs(state.orari, t, state.station, state.tipo, idx, CFG) : null;
+    if (g) inf = { ...inf, service: g.service || inf.service, lineService: g.lineService || inf.lineService, fermate: g.fermate };
+    return { t, inf, match: null };
+  });
+
+  // treni programmati che il tabellone non mostra: solo se assenti per piu' aggiornamenti di fila
+  const visti = new Map();
+  if (fantasmiOk) {
+    for (const a of O.trovaAssenti(state.orari, board.trains, state.station, state.tipo, now, FANTASMI.finestraMin)) {
+      const k = a.num + '|' + a.min;
+      visti.set(k, { a, giri: (state.assenti.get(k)?.giri || 0) + (nuovoGiro ? 1 : 0) });
+    }
+  }
+  if (nuovoGiro || !fantasmiOk) state.assenti = visti;
+  state.fantasmi = [];
+  for (const { a, giri } of state.assenti.values()) {
+    if (giri < FANTASMI.giriDiFila || !fantasmiOk) continue;
+    const capo = state.tipo === 'P' ? a.g.f.at(-1)[0] : a.g.f[0][0];
+    const s = idx.byId.get(capo);
+    const t = { num: a.num, cat: '', dest: s ? s.nome : a.g.c, time: O.hm(a.min), day: 0, platform: null, delay: 0, cancelled: false, stops: [], fantasma: true };
+    const lineService = state.orari.servizioDi(a.g);
+    state.fantasmi.push({ t, match: null, inf: { service: (state.tipo === 'P' && CFG.DESTINAZIONE_SERVIZIO[a.g.f.at(-1)[0]]) || lineService, lineService, lines: [],
+      fermate: state.orari.fermateDa(a.g, state.station, state.tipo) } });
+  }
+}
+
+// Righe da disegnare: quelle del tabellone e, per le viste che le vogliono, quelle "previste, non in elenco" al loro orario.
+function withGhosts(rows) {
+  if (!state.fantasmi.length || !state.view || !state.view.meta.fantasmi) return rows;
+  const out = [...rows], adesso = L.romeNow().min;
+  for (const g of state.fantasmi) {
+    if (L.schedMin(g.t) < adesso - 1) continue; // gia' partito: non e' piu' una segnalazione utile
+    const i = out.findIndex((r) => !r.t.fantasma && (r.t.day > 0 || L.schedMin(r.t) > L.schedMin(g.t)));
+    out.splice(i < 0 ? out.length : i, 0, g);
+  }
+  return out;
+}
+
 function annotate() {
-  for (const r of state.rows) {
-    r.match = state.vai && state.tipo === 'P' ? L.goesTo(r.t, state.station, state.vai, state.idx, r.inf.lines) : null;
+  for (const r of [...state.rows, ...state.fantasmi]) {
+    // partenze: "vai a"; arrivi: "da" (solo se gli orari programmati dicono da dove viene il treno)
+    r.match = !state.vai ? null
+      : r.inf.fermate ? L.goesTo(r.t, state.station, state.vai, state.idx, r.inf.lines, r.inf.fermate)
+      : state.tipo === 'P' ? L.goesTo(r.t, state.station, state.vai, state.idx, r.inf.lines) : null;
   }
 }
 
@@ -298,8 +384,9 @@ function renderHeader() {
   document.title = name + ' · ' + (state.tipo === 'P' ? 'Partenze' : 'Arrivi') + ' · EAV ogliaEAspettà';
   $('#tipo-P').setAttribute('aria-pressed', String(state.tipo === 'P'));
   $('#tipo-A').setAttribute('aria-pressed', String(state.tipo === 'A'));
-  const vaiOk = state.tipo === 'P';
+  const vaiOk = state.tipo === 'P' || state.gtfsOk; // negli arrivi serve sapere da dove viene il treno: solo dagli orari
   $('#vai').disabled = !vaiOk;
+  $('#vai').placeholder = state.tipo === 'P' ? 'Vai a… (evidenzia i treni)' : 'Da… (evidenzia i treni)';
   $('#vai').title = vaiOk ? '' : 'Disponibile solo per le partenze';
   $('#vai-clear').hidden = !state.vai;
   $('#solo-wrap').hidden = !state.vai || !vaiOk;
@@ -310,7 +397,7 @@ function renderRows(force) {
   if (!state.view) return; // la vista si sta ancora caricando: loadUi() ridisegna appena pronta
   const now = L.romeNow();
   const key = [state.ui, state.version, state.tipo, state.filtro, state.vai, state.solo, state.showAll, state.error ? 1 : 0,
-    state.open.size, Math.floor(now.min)].join('|');
+    state.open.size, state.fantasmi.length, Math.floor(now.min)].join('|');
   if (!force && key === state.renderedKey) return;
   state.renderedKey = key;
 
@@ -326,7 +413,7 @@ function renderRows(force) {
       onclick: () => { state.filtro = state.filtro === k ? null : k; renderRows(true); } });
   }) : []));
 
-  let rows = state.rows.filter((r) => !state.filtro || r.inf.service === state.filtro);
+  let rows = withGhosts(state.rows).filter((r) => !state.filtro || r.inf.service === state.filtro);
   if (state.vai && state.solo) rows = rows.filter((r) => r.match !== 'no');
   // le viste a righe usano il limite; quelle che raggruppano (meta.paginate === false) ricevono tutto
   const shown = state.view.meta.paginate === false || state.showAll || state.vai ? rows : rows.slice(0, RIGHE_INIZIALI);
@@ -400,6 +487,9 @@ function renderStatus() {
   if (state.fetchedAt) {
     const t = L.romeNow(new Date(state.fetchedAt));
     parts.push(el('span', { text: 'Aggiornato alle ' + L.pad2(t.h) + ':' + L.pad2(t.m) + ':' + L.pad2(t.s) }));
+  }
+  if (state.orari && state.fiducia && state.fiducia.verdetto === 'non usare') {
+    parts.push(el('span', { class: 'warn', text: 'Orari programmati non usati: differiscono troppo dal tabellone.' }));
   }
   if (state.board && state.board.stale) parts.push(el('span', { class: 'warn', text: 'EAV non risponde: dati non aggiornati' }));
   if (state.error) {

@@ -41,12 +41,17 @@ export function buildIndex(catalogo) {
   // Tutti i nomi (normalizzati) con cui una stazione compare: catalogo, intestazione del tabellone, alias.
   // EAV a volte da' lo stesso nome a due stazioni (es. "Pollena Trocchia" per la 9 e la 95): vanno abbinate entrambe.
   const names = new Map(catalogo.stazioni.map((s) => [s.id, new Set([s.nome, s.nomeEav, ...(s.alias || [])].filter(Boolean).map(norm))]));
+  const nonServite = new Set(); // stazioni che nessun treno serve (dagli orari programmati); vuoto se gli orari non ci sono
   const idx = {
     catalogo, byId, byName, lines,
     resolve: (name) => byName.get(norm(name)) ?? null,
     sameStation: (name, id) => !!names.get(id) && names.get(id).has(norm(name)),
     // stazioni che EAV non mostra nei tabelloni: non compaiono nemmeno negli elenchi "Ferma a:"
     unmonitored: (id) => !!byId.get(id) && byId.get(id).dati === false,
+    // stazioni che nessun treno serve: lo dicono solo gli orari programmati (EAV non mostra treni neanche per le
+    // stazioni "non monitorate", ma da sola questa non e' una prova). Vedi orari.js.
+    nonServita: (id) => nonServite.has(id),
+    setNonServite: (ids) => { nonServite.clear(); for (const id of ids || []) nonServite.add(String(id)); },
     linesOf: (id) => new Set([...lines.values()].filter((l) => l.pos.has(id)).map((l) => l.nome)),
     isTerminus: (line, id) => {
       const l = lines.get(line);
@@ -136,11 +141,14 @@ export function inferService(train, stationId, idx, cfg) {
   return { service, lineService, lines };
 }
 
-// Il treno arriva alla stazione `target`? 'si' | 'no' | 'forse'.
-// Con l'elenco "Ferma a:" si usa quello (e' esatto); altrimenti l'ordine delle stazioni sulla linea e la
-// destinazione, che dicono solo dove il treno passa.
-export function goesTo(train, stationId, target, idx, candidateLines) {
+// Il treno tocca la stazione `target`? 'si' | 'no' | 'forse'.
+// Con le fermate esatte dagli orari programmati (`fermate`: id nel verso del treno, dopo la stazione per le partenze e
+// prima per gli arrivi) si risponde con certezza. Con l'elenco "Ferma a:" si usa quello (e' esatto); altrimenti
+// l'ordine delle stazioni sulla linea e la destinazione, che dicono solo dove il treno passa.
+export function goesTo(train, stationId, target, idx, candidateLines, fermate) {
   if (!target || target === stationId) return 'no';
+  if (idx.nonServita(target)) return 'no'; // nessun treno la serve
+  if (Array.isArray(fermate)) return fermate.includes(target) ? 'si' : 'no';
   const destId = idx.resolve(train.dest);
   if (destId === target || idx.sameStation(train.dest, target)) return 'si';
   if (train.stops && train.stops.length) {
@@ -186,7 +194,11 @@ export const fmtHM = (min) => pad2(Math.floor((min % 1440) / 60)) + ':' + pad2(M
 export const schedMin = (t) => (toMin(t.time) ?? 0) + t.day * 1440;
 export const expMin = (t) => schedMin(t) + (t.delay || 0);
 
+// Testo dello stato di un treno "programmato ma non in elenco" (mai "soppresso": lo dice solo EAV).
+export const TESTO_FANTASMA = 'Previsto, non in elenco';
+
 export function statusOf(t, nowMin) {
+  if (t.fantasma) return { cls: 'ghost', main: TESTO_FANTASMA, sub: 'Not listed' };
   if (t.cancelled) return { cls: 'cancel', main: 'SOPPRESSO', sub: 'Cancelled' };
   const diff = expMin(t) - nowMin;
   // "oggi" per il servizio: un treno delle 00:10 visto alle 23:50 e' di "domani" sul calendario ma parte tra 20 minuti
@@ -204,7 +216,7 @@ export function statusOf(t, nowMin) {
 
 // Minuti alla partenza (non soppresso, entro un'ora, anche a cavallo della mezzanotte); altrimenti null.
 export function etaMin(t, nowMin) {
-  if (t.cancelled) return null;
+  if (t.cancelled || t.fantasma) return null;
   const diff = expMin(t) - nowMin;
   return diff <= 60 ? Math.max(0, Math.ceil(diff)) : null;
 }

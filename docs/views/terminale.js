@@ -4,7 +4,7 @@ import { el } from '../dom.js';
 import * as L from '../logic.js';
 import { model, wire } from './_lib.js';
 
-export const meta = { id: 'terminale', paginate: true };
+export const meta = { id: 'terminale', paginate: true, fantasmi: true };
 
 const CODICE = { sorrento: 'SOR', torre: 'TOR', poggiomarino: 'POG', sarno: 'SAR', baiano: 'BAI', pomigliano: 'POM',
   cumana: 'CUM', circumflegrea: 'CIR', l7: 'L7', napoli: 'NAP' };
@@ -12,6 +12,7 @@ const W = 50; // colonne
 const up = (s, n) => String(s || '').toUpperCase().slice(0, n).padEnd(n, ' ');
 
 function statusText(m) {
+  if (m.t.fantasma) return 'PREVISTO';
   if (m.t.cancelled) return 'SOPPRESSO';
   if (m.st.cls === 'go') return 'IN PARTENZA';
   if (m.t.delay === null) return 'IN RITARDO';
@@ -46,6 +47,7 @@ function rowEl(r, ctx) {
   const { t } = m;
   const text = m.time + ' ' + up(t.cat, 3) + ' ' + up(CODICE[r.inf.service] || '---', 3) + ' ' + up(t.dest, 15) + ' ' + up(t.platform || '-', 3) + ' ' + statusText(m);
   const box = el('div', { class: 'tm-row ' + m.cls, 'data-num': t.num }, el('div', { class: 'tm-l', text: text.replace(/\s+$/, '') }));
+  if (t.fantasma) box.append(el('div', { class: 'tm-l tm-note', text: '    PREVISTO, NON IN ELENCO' }));
   if (m.targetText) box.append(el('div', { class: 'tm-l tm-note', text: '    ' + m.targetText.toUpperCase() }));
   if (wire(box, t, ctx)) box.append(el('div', { class: 'tm-l tm-note tm-wrap', text: '    FERMA A: ' + m.stopsFull.toUpperCase() }));
   return box;

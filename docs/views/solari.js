@@ -5,7 +5,7 @@ import { el } from '../dom.js';
 import * as L from '../logic.js';
 import { SERVIZI } from '../config.js';
 
-export const meta = { id: 'solari', paginate: true };
+export const meta = { id: 'solari', paginate: true, fantasmi: true };
 
 let ns = '';              // stazione+tipo: se cambia si riparte da zero e girano tutte le tessere
 const shown = new Map();  // campo -> testo mostrato l'ultima volta (per far girare solo cio' che cambia)
@@ -26,6 +26,7 @@ function tiles(key, text, len, cls) {
 }
 
 function statusText(t, st) {
+  if (t.fantasma) return 'PREVISTO';
   if (t.cancelled) return 'SOPPRESSO';
   if (st.cls === 'go') return 'IN PARTENZA';
   if (t.delay === null) return 'IN RITARDO';
@@ -60,7 +61,7 @@ function rowEl(r, ctx) {
   const target = ctx.vai && match !== 'no' && match !== null ? ctx.vai : null;
   const targetStop = target ? t.stops.find((s) => ctx.idx.resolve(s.name) === target) : null;
   const cls = ['sl-row', 's-' + (svc ? svc.css : 'neu'), svc && svc.strisce && 'strisce', svc && svc.arcobaleno && 'arcobaleno',
-    t.cancelled && 'cancel', match === 'si' && 'hit', match === 'no' && 'dim', 'st-' + st.cls].filter(Boolean).join(' ');
+    t.cancelled && 'cancel', t.fantasma && 'ghost', match === 'si' && 'hit', match === 'no' && 'dim', 'st-' + st.cls].filter(Boolean).join(' ');
 
   const li = el('li', { class: cls, 'data-num': t.num, tabindex: t.stops.length ? '0' : null },
     el('span', { class: 'sl-bar', 'aria-hidden': 'true' }),
@@ -70,8 +71,9 @@ function rowEl(r, ctx) {
     tiles(k('p'), t.platform, 2, 'sl-plat'),
     tiles(k('s'), statusText(t, st), 11, 'sl-st'));
 
+  if (t.fantasma) li.append(el('p', { class: 'sl-note', text: 'Previsto, non in elenco' }));
   if (target) {
-    li.append(el('p', { class: 'sl-note', text: '→ ' + L.titleCase(ctx.idx.byId.get(target).nome)
+    li.append(el('p', { class: 'sl-note', text: (ctx.tipo === 'A' ? '← ' : '→ ') + L.titleCase(ctx.idx.byId.get(target).nome)
       + (targetStop ? ' ' + targetStop.time : match === 'forse' ? ' (probabile)' : '') }));
   }
   if (t.stops.length) {

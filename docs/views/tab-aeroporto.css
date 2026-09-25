@@ -1,0 +1,22 @@
+.tb-tab-aeroporto{--tb-bg:#04122e;--tb-fg:#f4f7ff;--tb-accent:#ffd23f;--tb-font:"Barlow Condensed","Roboto Condensed","Arial Narrow",Arial,sans-serif;
+  --cols:11cqw minmax(0,1fr) 20cqw 6cqw 20cqw;--cols-narrow:15cqw minmax(0,1fr) 9cqw 28cqw;--gap:1.4cqw;
+  --r-sor:#5cb0ff;--r-sar:#ff6b5d;--r-bai:#ffd23f;--r-tor:#3ddc97;--r-pog:#3ddc97;--r-neu:#9db4e0;--r-lil:#c9a7ff;--r-pas:#a9e5b8;--r-ora:#ffa53d;--r-pom:#ffd23f;}
+.tb-tab-aeroporto .tb-head{border-bottom:.5vh solid #ffd23f;}
+.tb-tab-aeroporto .tb-title h2{color:#ffd23f;text-transform:uppercase;letter-spacing:.05em;font-weight:600;}
+.tb-tab-aeroporto .tb-clock{color:#ffd23f;}
+.tb-tab-aeroporto .tb-colswrap{background:#ffd23f;color:#04122e;opacity:1;margin-top:.6vh;padding:0 1cqw;}
+.tb-tab-aeroporto .tb-cols{opacity:1;padding:.3cqh 0;font-weight:700;letter-spacing:.1em;}
+.tb-tab-aeroporto .tb-rows{background:#071a40;}
+.tb-tab-aeroporto .tb-row{padding:0 1cqw;}
+.tb-tab-aeroporto .tb-row:nth-child(even){background:#0a2150;}
+.tb-tab-aeroporto .c-time{color:#ffd23f;font-weight:700;font-variant-numeric:tabular-nums;}
+.tb-tab-aeroporto .c-dest{font-weight:600;letter-spacing:.03em;}
+.tb-tab-aeroporto .c-line{display:flex;align-items:center;gap:.5em;font-size:min(40cqh,2.4cqw);}
+.tb-tab-aeroporto .c-line i{flex:none;width:.9em;height:.9em;border-radius:.15em;}
+.tb-tab-aeroporto .c-plat{text-align:center;}
+.tb-tab-aeroporto .c-plat b{display:inline-block;min-width:1.4em;background:#f4f7ff;color:#04122e;border-radius:.2em;font-weight:700;}
+.tb-tab-aeroporto .c-st{font-weight:700;letter-spacing:.04em;}
+.tb-tab-aeroporto .st-ok{color:#7df0a8;} .tb-tab-aeroporto .st-d1{color:#ffd23f;} .tb-tab-aeroporto .st-d2{color:#ffa53d;} .tb-tab-aeroporto .st-d3,.tb-tab-aeroporto .st-cancel{color:#ff6b5d;}
+.tb-tab-aeroporto .st-go{color:#ffd23f;animation:ta-blink 1.1s steps(2,jump-none) infinite;} .tb-tab-aeroporto .st-gone{color:#9db4e0;}
+.tb-tab-aeroporto .tb-row.hit{background:#10306b;}
+@keyframes ta-blink{50%{opacity:.25;}}

@@ -1,5 +1,5 @@
 .tb-tab-aeroporto{--tb-bg:#04122e;--tb-fg:#f4f7ff;--tb-accent:#ffd23f;--tb-font:"Barlow Condensed","Roboto Condensed","Arial Narrow",Arial,sans-serif;
-  --cols:11cqw minmax(0,1fr) 20cqw 6cqw 20cqw;--cols-narrow:15cqw minmax(0,1fr) 9cqw 30cqw;--gap:1.4cqw;
+  --cols:11cqw minmax(0,1fr) 20cqw 6cqw 20cqw;--cols-narrow:15cqw minmax(0,1fr) 9cqw 28cqw;--gap:1.4cqw;
   --r-sor:#5cb0ff;--r-sar:#ff6b5d;--r-bai:#ffd23f;--r-tor:#3ddc97;--r-pog:#3ddc97;--r-neu:#9db4e0;--r-lil:#c9a7ff;--r-pas:#a9e5b8;--r-ora:#ffa53d;--r-pom:#ffd23f;}
 .tb-tab-aeroporto .tb-head{border-bottom:.5vh solid #ffd23f;}
 .tb-tab-aeroporto .tb-title h2{color:#ffd23f;text-transform:uppercase;letter-spacing:.05em;font-weight:600;}

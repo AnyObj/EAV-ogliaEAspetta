@@ -21,4 +21,5 @@ const cfg = {
     cell(cols[4], el('span', { class: 'st-' + m.st.cls, text: statoBreve(m) })),
   ],
 };
+export const colonne = cols; // per i test
 export const render = (ctx) => renderTabellone(ctx, cfg);

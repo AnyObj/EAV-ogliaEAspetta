@@ -1,5 +1,5 @@
 .tb-tab-classico{--tb-bg:#08171e;--tb-fg:#eef5f3;--tb-accent:#ffb84a;--tb-font:"Barlow Condensed","Roboto Condensed","Arial Narrow",Arial,sans-serif;
-  --cols:1.1cqw 11cqw minmax(0,1fr) 8cqw 20cqw;--cols-narrow:1.6cqw 17cqw minmax(0,1fr) 34cqw;
+  --cols:1.1cqw 11cqw minmax(0,1fr) 8cqw 20cqw;--cols-narrow:1.6cqw 16cqw minmax(0,1fr) 9cqw 27cqw;
   --r-sor:#4aa8ff;--r-sar:#ff5d4d;--r-bai:#ffd43b;--r-tor:#37c78a;--r-pog:#37c78a;--r-neu:#7d939b;--r-lil:#c9a7ff;--r-pas:#a9e5b8;--r-ora:#ff9a3d;--r-pom:#ffd43b;}
 .tb-tab-classico .tb-head{border-bottom:.35vh solid #1c3945;}
 .tb-tab-classico .tb-clock{color:#ffb84a;}
@@ -21,3 +21,6 @@
 .tb-tab-classico .arcobaleno .c-bar i{background:linear-gradient(to bottom,var(--r-sor) 0 25%,var(--r-sar) 25% 50%,var(--r-bai) 50% 75%,var(--r-pog) 75% 100%);}
 .tb-tab-classico .tb-row.hit{background:#14303c;}
 @keyframes tc-blink{50%{opacity:.25;}}
+
+/* schermi stretti: la categoria (DD, A...) lascia spazio a destinazione e binario */
+@container (max-width: 700px){.tb-tab-classico .c-cat{display:none;}}

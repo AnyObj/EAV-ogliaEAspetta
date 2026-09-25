@@ -8,7 +8,7 @@ const cols = [
   { cls: 'c-bar', label: '' },
   { cls: 'c-time', label: 'ORA' },
   { cls: 'c-dest', label: 'DESTINAZIONE' },
-  { cls: 'c-plat hn', label: 'BIN.', hn: true },
+  { cls: 'c-plat', label: 'BIN.' },
   { cls: 'c-st', label: 'STATO' },
 ];
 const cfg = {
@@ -21,4 +21,5 @@ const cfg = {
     cell(cols[4], el('span', { class: 'st-' + m.st.cls, text: statoBreve(m) })),
   ],
 };
+export const colonne = cols; // per i test
 export const render = (ctx) => renderTabellone(ctx, cfg);

@@ -1,6 +1,6 @@
 @import url('https://fonts.googleapis.com/css2?family=DotGothic16&display=swap');
 .tb-tab-led{--tb-bg:#000;--tb-fg:#ffb000;--tb-accent:#ffd060;--tb-font:"DotGothic16","Courier New",ui-monospace,monospace;
-  --cols:1.2cqw 11cqw minmax(0,1fr) 6cqw 21cqw;--cols-narrow:1.8cqw 17cqw minmax(0,1fr) 34cqw;--gap:1.6cqw;
+  --cols:1.2cqw 11cqw minmax(0,1fr) 6cqw 21cqw;--cols-narrow:1.8cqw 16cqw minmax(0,1fr) 8cqw 28cqw;--gap:1.6cqw;
   --r-sor:#4aa8ff;--r-sar:#ff5d4d;--r-bai:#ffd43b;--r-tor:#37c78a;--r-pog:#37c78a;--r-neu:#8a5f00;--r-lil:#c9a7ff;--r-pas:#a9e5b8;--r-ora:#ff9a3d;--r-pom:#ffd43b;}
 .tb-tab-led .tb-head,.tb-tab-led .tb-clock,.tb-tab-led .tb-title h2{text-shadow:0 0 .4em rgba(255,176,0,.75);}
 .tb-tab-led .tb-title h2{font-weight:400;text-transform:uppercase;letter-spacing:.06em;}

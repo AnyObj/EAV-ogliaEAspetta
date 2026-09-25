@@ -451,3 +451,19 @@ test('tabelloni: statoBreve', () => {
   assert.equal(statoBreve(m({ time: '22:00' })), 'IN PARTENZA');
   assert.equal(statoBreve(m({ time: '05:19', day: 1 })), '');
 });
+
+test('tabelloni: le tracce della griglia coincidono con le colonne, e il binario resta visibile anche sugli schermi stretti', async () => {
+  const tracce = (css, nome) => {
+    const m = new RegExp('--' + nome + ':([^;]+);').exec(css);
+    return m ? m[1].trim().split(/\s+/).length : null;
+  };
+  for (const id of UI_LISTA.map((u) => u.id).filter((i) => i.startsWith('tab-'))) {
+    const mod = await import('../../docs/views/' + id + '.js');
+    const css = readFileSync(new URL('../../docs/views/' + id + '.css', import.meta.url), 'utf8');
+    const cols = mod.colonne;
+    assert.equal(tracce(css, 'cols'), cols.length, id + ': --cols non ha una traccia per colonna');
+    assert.equal(tracce(css, 'cols-narrow'), cols.filter((c) => !c.hn).length, id + ': --cols-narrow non coincide con le colonne visibili');
+    const plat = cols.find((c) => /c-plat/.test(c.cls));
+    assert.ok(plat && !plat.hn, id + ': il binario non deve sparire sugli schermi stretti');
+  }
+});

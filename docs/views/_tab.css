@@ -35,7 +35,7 @@ body:not(:has(.tb)) > .tb-ctl{display:none;}
 @container (max-width: 700px){
   .tb-cols,.tb-in{grid-template-columns:var(--cols-narrow,var(--cols));}
   .hn{display:none;}
-  .tb-in > *{font-size:min(54cqh,7cqw);}
+  .tb-in > *{font-size:min(54cqh,5.4cqw);}
 }
 
 /* comandi flottanti */

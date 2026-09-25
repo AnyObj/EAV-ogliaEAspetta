@@ -5,7 +5,7 @@ import { el } from '../dom.js';
 import * as L from '../logic.js';
 import { model, wire, withDays } from './_lib.js';
 
-export const meta = { id: 'golfo', paginate: true, tabellone: true };
+export const meta = { id: 'golfo', paginate: true };
 
 const seg = (t, b) => ({ t, b: !!b });
 const minuti = (n) => n + (n === 1 ? ' minuto' : ' minuti');

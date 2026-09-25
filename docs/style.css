@@ -208,20 +208,3 @@ ol{list-style:none;margin:0;padding:0;background:var(--panel);border:1px solid v
   h1{font-size:1.7rem;} .clock{font-size:2rem;}
   .theme{margin-left:0;}
 }
-
-/* ---------- modalita' tabellone: il contenitore .stage viene scalato da app.js per stare nello schermo ---------- */
-html.tabellone,html.tabellone body{height:100%;overflow:hidden;}
-html.tabellone .board{padding:0;max-width:none;}
-html.tabellone #board{position:fixed;inset:0;overflow:hidden;background:var(--bg);}
-html.tabellone .stage{position:absolute;left:0;top:0;transform-origin:0 0;container-type:inline-size;padding:.8rem 1.2rem 1rem;}
-html.tabellone .bar,html.tabellone .routes,html.tabellone .more,html.tabellone .status,html.tabellone .note,html.tabellone .back{display:none !important;}
-html.tabellone .top{padding-bottom:.4rem;}
-html.tabellone.idle,html.tabellone.idle *{cursor:none;}
-
-.tab-menu{position:fixed;right:.6rem;bottom:.6rem;z-index:30;display:flex;flex-direction:column;align-items:flex-end;gap:.4rem;opacity:.22;transition:opacity .2s;}
-.tab-menu:hover,.tab-menu:focus-within{opacity:1;}
-html.tabellone.idle .tab-menu:not(:focus-within){opacity:0;}
-.tab-gear{appearance:none;width:2.4rem;height:2.4rem;border-radius:50%;border:1px solid var(--line);background:var(--panel);color:var(--text);font-size:1.2rem;cursor:pointer;}
-.tab-panel{display:grid;gap:.5rem;padding:.8rem;background:var(--panel);border:1px solid var(--line);border-radius:.6rem;box-shadow:0 .5rem 1.5rem rgba(0,0,0,.4);min-width:13rem;}
-.tab-panel label{display:flex;justify-content:space-between;align-items:center;gap:.6rem;color:var(--dim);font-size:.9rem;}
-.tab-panel select{font:500 .9rem var(--body);color:var(--text);background:var(--bg);border:1px solid var(--line);border-radius:.3rem;padding:.2rem .4rem;}

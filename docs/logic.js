@@ -246,31 +246,3 @@ export function sanitizeBoard(raw) {
     trains,
   };
 }
-
-// ---------- modalita' tabellone: far stare il contenuto nello schermo ----------
-
-// Calcola come scalare il contenuto per riempire lo schermo senza scorrere.
-//  measure(W) -> { h, rows }: altezza naturale del contenuto se largo W pixel, e quante righe ha.
-//  Contenuto "flessibile" (le colonne si allargano): si sceglie la larghezza W in modo che, scalato, riempia
-//  sia l'altezza sia la larghezza dello schermo.
-//  aspect = true: contenuto a proporzioni fisse (testo a colonne fisse): si scala per farlo entrare intero e
-//  lo si centra.
-// Con poche righe (meno di minRows) si scala come se ce ne fossero minRows, per non ingrandire a dismisura.
-export function planFit({ vw, vh, measure, minRows = 12, aspect = false, minW = 320, maxW = 6000 }) {
-  const heff = (m) => m.h * Math.max(1, minRows / Math.max(m.rows, 1));
-  let W = aspect ? 1280 : vw;
-  if (!aspect) {
-    for (let i = 0; i < 4; i++) {
-      const mm = measure(W);
-      if (!(mm.h > 0)) break;
-      const s = vh / heff(mm);
-      const next = Math.min(Math.max(vw / s, minW), maxW);
-      if (Math.abs(next - W) < 2) break;
-      W = next;
-    }
-  }
-  const m = measure(W);
-  if (!(m.h > 0)) return { width: vw, scale: 1, x: 0, y: 0 }; // niente da misurare (contenuto nascosto): non scalare
-  const scale = Math.min(vw / W, vh / heff(m));
-  return { width: W, scale, x: (vw - W * scale) / 2, y: aspect ? Math.max(0, (vh - m.h * scale) / 2) : 0 };
-}

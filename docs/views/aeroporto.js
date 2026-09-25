@@ -3,7 +3,7 @@
 import { el } from '../dom.js';
 import { model, wire, withDays } from './_lib.js';
 
-export const meta = { id: 'aeroporto', paginate: true, tabellone: true };
+export const meta = { id: 'aeroporto', paginate: true };
 
 function statusText(m) {
   if (m.t.cancelled) return 'SOPPRESSO';

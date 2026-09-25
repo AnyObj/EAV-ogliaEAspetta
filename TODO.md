@@ -22,16 +22,15 @@ Raccolti durante le prove. Molti sono stati corretti senza poterli vedere, quind
 - [ ] Contrasto dei colori nuovi (lilla, verde pastello, arancione) nel tema chiaro.
 - [ ] Idea: test visivi automatici (screenshot con un browser headless) per non dipendere solo dall'occhio.
 
-## 3. Modalità "tabellone": tutto sullo schermo, senza scorrere
-Fatto (da provare dal vivo su schermi veri): `?tabellone=1` oppure il pulsante **Tabellone**.
-- [x] Schermo intero con i primi 18 treni (15, 18, 20 o 25 dal menu, oppure `&righe=N`), sempre in ordine di orario, **senza scroll e senza cambio pagina**.
-- [x] Il contenuto viene scalato per riempire lo schermo a qualunque dimensione e proporzione (`planFit` in `logic.js`, con test). Gli aspetti a colonne fisse (Solari, Terminale) si scalano interi e si centrano.
-- [x] Interfaccia ridotta a intestazione, orologio e righe. Menu ⚙ in basso a destra (quasi invisibile), cursore che sparisce, `Screen Wake Lock`, pulsante schermo intero.
-- [x] Aspetti disponibili: Classico, Golfo, Aeroporto, Banchina, Metropolitana, Svizzero, Carta, Solari, Terminale, LED. Gli altri (Per direzione, Percorso, Orologio) ripiegano su Classico.
-- [ ] Provarlo su: telefono verticale e orizzontale, tablet, monitor 16:9, TV 4K, formato verticale da insegna. La misura reale dello schermo non è verificabile dai test automatici.
-- [ ] Con pochi treni (di sera) le righe restano piccole perché si scala come per 12 righe: decidere se è quello che si vuole.
-- [ ] Spostamento leggero del contenuto contro il burn-in delle TV.
-- [ ] Decidere se "Vai a" nel tabellone debba far salire in cima i treni che ci arrivano (oggi si evidenziano nei primi N).
+## 3. Tabelloni a schermo intero (stili dedicati)
+Indicazione: **non modificare gli stili esistenti**. Servono stili *nuovi*, pensati fin dall'inizio per stare in una schermata senza scorrere, con 15–20 treni (i primi in ordine di orario, **nessun cambio pagina automatico**).
+Un primo tentativo come "modalità" applicata agli stili esistenti (contenitore scalato da JavaScript, regole aggiunte in ogni foglio) è stato **annullato**, perché rompeva la pagina anche a modalità spenta.
+- [ ] Decidere quanti tabelloni e con che carattere (partenze da: Aeroporto, Banchina, Solari, LED, Terminale sono buoni punti di partenza).
+- [ ] Ognuno autonomo: un solo foglio di stile con griglia a righe uguali (`repeat(N, 1fr)` su `100dvh`) e dimensioni dei caratteri in unità del contenitore, senza scalare da JavaScript e senza toccare gli altri stili.
+- [ ] Solo i primi N treni, senza pagine: se sono meno, righe vuote per tenere l'impaginazione fissa.
+- [ ] Verificare su: telefono verticale e orizzontale, tablet, monitor 16:9, TV 4K, formato verticale da insegna.
+- [ ] Accesso: un aspetto in più nel menu (o `?ui=...`), più un modo per nascondere i comandi.
+- [ ] Facoltativo: schermo che non si spegne (`Screen Wake Lock`) e spostamento leggero del contenuto contro il burn-in delle TV.
 
 ## 4. Dati e logica
 - [ ] Scoprire come EAV segnala le **soppressioni**: finora nessun caso reale, il riconoscimento cerca "Soppr."/"soppresso"/"cancelled"/"annullato" in tutta la riga. Appena ne capita una, salvare la risposta come fixture.
@@ -54,6 +53,6 @@ Fatto (da provare dal vivo su schermi veri): `?tabellone=1` oppure il pulsante *
 
 ## Fatto
 - Aspetto **Golfo**: blu mare e limone, la frase in cima ("Il prossimo treno per Sorrento parte tra 3 minuti, dal binario 4"), biglietti perforati.
-- Worker su Cloudflare con origine obbligatoria e cache a 10 s; catalogo di 123 stazioni; 60 test automatici.
+- Worker su Cloudflare con origine obbligatoria e cache a 10 s; catalogo di 123 stazioni; 55 test automatici.
 - Frontend con elenco stazioni, ricerca "Vai a", refresh adattivo, colori di tutte le linee.
 - Tredici aspetti grafici selezionabili, senza richieste di rete al cambio.

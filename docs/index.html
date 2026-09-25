@@ -39,7 +39,6 @@
 
   <!-- Tabellone -->
   <section id="board" hidden>
-   <div class="stage" id="stage">
     <header class="top">
       <div>
         <a class="back" href="./" id="back">← Stazioni</a>
@@ -64,7 +63,6 @@
       </div>
 
       <label class="check" id="solo-wrap" hidden><input type="checkbox" id="solo"> Solo questi</label>
-      <button class="btn" type="button" id="btn-tab" title="Schermo intero: i primi treni, senza scorrere">Tabellone</button>
       <label class="ui-pick"><span class="sr">Aspetto grafico</span>
         <select data-ui-select aria-label="Aspetto grafico"></select></label>
       <button class="btn theme" type="button" data-theme-toggle aria-label="Cambia tema">Tema</button>
@@ -78,22 +76,9 @@
     <div class="ticker" id="ticker" hidden></div>
     <div class="status" id="status" role="status" aria-live="polite"></div>
     <p class="note">Dati dai teleindicatori EAV, aggiornati in base a quanto sono vicini i treni. I ritardi sono quelli comunicati da EAV. La linea di ogni treno è ricavata dai dati e, dove non è chiara, resta grigia.</p>
-   </div>
   </section>
 
 </main>
-
-<!-- Modalita' tabellone: comandi fuori dall'area scalata, quasi invisibili finche' non ci si passa sopra -->
-<div id="tab-menu" class="tab-menu" hidden>
-  <button type="button" class="tab-gear" id="tab-gear" aria-label="Impostazioni del tabellone" aria-expanded="false" aria-controls="tab-panel">⚙</button>
-  <div class="tab-panel" id="tab-panel" hidden>
-    <label>Aspetto <select id="tab-ui"></select></label>
-    <label>Righe <select id="tab-righe"></select></label>
-    <button type="button" class="btn" data-theme-toggle>Tema</button>
-    <button type="button" class="btn" id="tab-full">Schermo intero</button>
-    <button type="button" class="btn" id="tab-exit">Esci dal tabellone</button>
-  </div>
-</div>
 
 <noscript><p class="msg">Serve JavaScript per mostrare il tabellone.</p></noscript>
 <script type="module" src="app.js"></script>

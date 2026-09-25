@@ -3,7 +3,7 @@
 import { el } from '../dom.js';
 import { model, wire, withDays } from './_lib.js';
 
-export const meta = { id: 'carta', paginate: true, tabellone: true };
+export const meta = { id: 'carta', paginate: true };
 
 export function render(ctx) {
   const rows = withDays(ctx, (r) => rowEl(r, ctx), (t) => el('li', { class: 'ct-sep', text: t }));

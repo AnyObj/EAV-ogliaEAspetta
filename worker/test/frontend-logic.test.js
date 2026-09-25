@@ -339,64 +339,6 @@ test('ogni linea del catalogo ha un servizio, e ogni servizio un colore in tutti
   assert.equal(SERVIZI.torre.strisce, true);
 });
 
-// ---- modalita' tabellone: planFit ----
-
-test('planFit: contenuto flessibile riempie larghezza e altezza a qualunque proporzione', () => {
-  const flex = () => ({ h: 1000, rows: 18 });                 // l'altezza non dipende dalla larghezza
-  for (const [vw, vh] of [[1920, 1080], [390, 800], [800, 390], [3840, 2160], [2160, 3840]]) {
-    const p = L.planFit({ vw, vh, measure: flex });
-    assert.ok(Math.abs(p.width * p.scale - vw) < 1.5, `larghezza ${vw}x${vh}`);
-    assert.ok(Math.abs(1000 * p.scale - vh) < 1.5, `altezza ${vw}x${vh}`);
-    assert.ok(Math.abs(p.x) < 1);
-  }
-});
-
-test('planFit: contenuto a proporzioni fisse entra intero e viene centrato', () => {
-  const fixed = (W) => ({ h: W * 0.5, rows: 18 });            // alto la meta' della larghezza
-  const wide = L.planFit({ vw: 1920, vh: 1080, measure: fixed, aspect: true });
-  assert.ok(wide.width * wide.scale <= 1920 + 1 && 640 * wide.scale <= 1080 + 1);
-  assert.ok(Math.abs(wide.x) < 1);                             // 16:9 con contenuto 2:1: riempie la larghezza
-  assert.ok(wide.y > 0);                                       // e resta spazio sopra/sotto: centrato in verticale
-  const tall = L.planFit({ vw: 800, vh: 1600, measure: (W) => ({ h: W * 3, rows: 18 }), aspect: true });
-  assert.ok(tall.x >= 0 && 1280 * 3 * tall.scale <= 1600 + 1);
-  assert.ok(tall.x > 0);                                       // contenuto molto alto: spazio ai lati
-});
-
-test('planFit: con poche righe non ingrandisce a dismisura', () => {
-  const few = L.planFit({ vw: 1920, vh: 1080, measure: () => ({ h: 300, rows: 3 }), minRows: 12 });
-  const full = L.planFit({ vw: 1920, vh: 1080, measure: () => ({ h: 1200, rows: 12 }), minRows: 12 });
-  assert.ok(Math.abs(few.scale - full.scale) < 0.01, 'stessa scala di 12 righe piene');
-});
-
-test('planFit: limiti di larghezza', () => {
-  const p = L.planFit({ vw: 100, vh: 5000, measure: () => ({ h: 100, rows: 20 }), minW: 320 });
-  assert.ok(p.width >= 320);
-});
-
-test('planFit: contenuto non misurabile -> nessuna scala', () => {
-  const p = L.planFit({ vw: 1000, vh: 800, measure: () => ({ h: 0, rows: 0 }) });
-  assert.deepEqual([p.width, p.scale, p.x, p.y], [1000, 1, 0, 0]);
-});
-
-// ---- ogni aspetto dell'elenco ha il suo modulo e i suoi flag coerenti ----
-import { UI_LISTA } from '../../docs/config.js';
-
-test('UI_LISTA: ogni aspetto ha modulo e CSS, e il flag "tabellone" coincide con quello della vista', async () => {
-  const ids = UI_LISTA.map((u) => u.id);
-  assert.equal(new Set(ids).size, ids.length, 'id duplicati');
-  for (const u of UI_LISTA) {
-    const mod = await import('../../docs/views/' + u.id + '.js');
-    assert.equal(mod.meta.id, u.id);
-    assert.equal(typeof mod.render, 'function');
-    assert.equal(!!mod.meta.tabellone, !!u.tabellone, u.id + ': flag tabellone diverso tra config e vista');
-    if (u.id !== 'classico') readFileSync(new URL('../../docs/views/' + u.id + '.css', import.meta.url), 'utf8');
-  }
-  // i file delle viste non elencati sono solo quelli di supporto
-  const stray = readdirSync(new URL('../../docs/views/', import.meta.url)).filter((f) => f.endsWith('.js') && !f.startsWith('_') && !ids.includes(f.slice(0, -3)));
-  assert.deepEqual(stray, [], 'viste non elencate in UI_LISTA');
-  assert.ok(UI_LISTA.filter((u) => u.tabellone).length >= 6);
-});
-
 // ---- aspetto "Golfo": la frase in cima ----
 import { frase, statoParole } from '../../docs/views/golfo.js';
 
@@ -461,4 +403,20 @@ test('golfo: stato in parole', () => {
   assert.equal(statoParole(m({ time: '22:30', delay: null })), 'In ritardo');
   assert.equal(statoParole(m({ time: '22:30', cancelled: true })), 'Soppresso');
   assert.equal(statoParole(m({ time: '22:00' })), 'Sta partendo');
+});
+
+// ---- ogni aspetto dell'elenco ha il suo modulo e il suo CSS, e nessuna vista e' rimasta fuori ----
+import { UI_LISTA } from '../../docs/config.js';
+
+test('UI_LISTA: ogni aspetto ha modulo e CSS coerenti, nessuna vista non elencata', async () => {
+  const ids = UI_LISTA.map((u) => u.id);
+  assert.equal(new Set(ids).size, ids.length, 'id duplicati');
+  for (const u of UI_LISTA) {
+    const mod = await import('../../docs/views/' + u.id + '.js');
+    assert.equal(mod.meta.id, u.id);
+    assert.equal(typeof mod.render, 'function');
+    if (u.id !== 'classico') readFileSync(new URL('../../docs/views/' + u.id + '.css', import.meta.url), 'utf8');
+  }
+  const stray = readdirSync(new URL('../../docs/views/', import.meta.url)).filter((f) => f.endsWith('.js') && !f.startsWith('_') && !ids.includes(f.slice(0, -3)));
+  assert.deepEqual(stray, [], 'viste non elencate in UI_LISTA');
 });

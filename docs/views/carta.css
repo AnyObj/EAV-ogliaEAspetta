@@ -60,5 +60,3 @@
   .ct-full{grid-column:1 / -1;}
   .ct-stamp{right:.4rem;top:.5rem;font-size:.75rem;}
 }
-
-html.tabellone .ct{max-width:none;}

@@ -4,7 +4,7 @@ import { el } from '../dom.js';
 import * as L from '../logic.js';
 import { model, wire, withDays } from './_lib.js';
 
-export const meta = { id: 'banchina', paginate: true, tabellone: true };
+export const meta = { id: 'banchina', paginate: true };
 
 export function render(ctx) {
   if (!ctx.rows.length) return el('div', { class: 'bc' }, el('p', { class: 'bc-empty', text: ctx.empty }));

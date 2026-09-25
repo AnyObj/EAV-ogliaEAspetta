@@ -5,6 +5,9 @@
   "scripts": {
     "test": "npm --prefix worker test",
     "build:stazioni": "node scripts/build-stazioni.mjs",
-    "serve": "python3 -m http.server 8000 --directory docs"
+    "serve": "python3 -m http.server 8000 --directory docs",
+    "build:orari": "node scripts/build-orari.mjs",
+    "orari:check": "node scripts/build-orari.mjs --check",
+    "orari:valida": "node scripts/build-orari.mjs --valida docs/orari.json"
   }
 }

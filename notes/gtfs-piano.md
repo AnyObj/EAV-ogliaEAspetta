@@ -1,6 +1,8 @@
 # Piano: usare il GTFS di EAV nell'app
 
-**Stato: fatte le fasi 1 e 4** (lo script che costruisce `orari.json` e lo script che analizza i dati del monitor, entrambi con test e provati sui dati veri). Nulla è collegato all'app. Le scoperte su cui si basa il piano sono in [`gtfs-scoperte.md`](gtfs-scoperte.md); il riassunto per chi ha fretta è in [`gtfs-riassunto.md`](gtfs-riassunto.md).
+> **Stato 25/09/2026**: implementate le fasi 0, 2, 3a, 3b, 3c (vedi `docs/orari.js`, `worker/test/orari-app.test.js`). Restano 3d (domani / da A a B), 3e (stazione vicina) e l'aggiornamento automatico mensile.
+
+Fatte le fasi 1 e 4 (lo script che costruisce `orari.json` e lo script che analizza i dati del monitor, entrambi con test e provati sui dati veri); in seguito collegato all'app come da nota qui sopra. Le scoperte su cui si basa il piano sono in [`gtfs-scoperte.md`](gtfs-scoperte.md); il riassunto per chi ha fretta è in [`gtfs-riassunto.md`](gtfs-riassunto.md).
 
 ## Regole di lavoro (decise con il proprietario del progetto)
 

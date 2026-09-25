@@ -9,4 +9,7 @@ Se qualcuno creasse un endpoint migliore, se arrivassero due spicci per aumentar
 
 Si ringrazia Claudio de' Codici per aver permesso la rapida prototipazione.
 
+## Orari programmati
+Oltre al tabellone dal vivo, l'app usa gli orari programmati pubblicati da EAV (formato GTFS, aggiornati ogni mese) per riconoscere la linea esatta di ogni treno, sapere in quali stazioni ferma, segnalare i treni "previsti ma non in elenco" e abilitare "Da…" negli arrivi. Il file compatto `docs/orari.json` si rigenera con `npm run build:orari`; se manca, è scaduto o differisce troppo dal tabellone (soglie in `docs/config.js`) l'app lo ignora e funziona come prima. `?orari=0` lo spegne. I dettagli sono in `notes/`.
 
+Dati: «Dati del servizio EAV ferro e gomma», EAV srl, rielaborati, licenza [IODL 2.0](https://www.dati.gov.it/iodl/2.0/).

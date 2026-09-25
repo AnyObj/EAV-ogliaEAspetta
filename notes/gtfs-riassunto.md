@@ -1,5 +1,7 @@
 # GTFS di EAV: il riassunto
 
+> **Aggiornamento 25/09/2026**: le fasi 0, 2, 3a, 3b e 3c sono integrate nell'app (nucleo + "Previsto, non in elenco"), attive di default con `?orari=0` per spegnerle. Il testo qui sotto è la fotografia di quando era tutto parcheggiato. Decisioni prese: Volla = stile Pomigliano, percorso `5` = Circumflegrea, linee `2` e `7` fuori dall'app. Logica in `docs/orari.js`, dati in `docs/orari.json`.
+
 **In una frase**: EAV pubblica gratis gli orari programmati di tutti i treni, e dai dati veri di oggi risulta che combaciano al minuto con quelli del tabellone. Possiamo usarli per migliorare l'app, ma **per ora è tutto parcheggiato**: è pronto solo lo script che li scarica e li prepara.
 
 Dettagli: [`gtfs-scoperte.md`](gtfs-scoperte.md). Piano completo: [`gtfs-piano.md`](gtfs-piano.md).

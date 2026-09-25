@@ -80,3 +80,24 @@ export const UI_LISTA = [
   { id: 'terminale', gruppo: 'Altri formati', nome: 'Terminale',     desc: 'Monitor a fosfori verdi, solo testo' },
   { id: 'led',       gruppo: 'Altri formati', nome: 'LED',           desc: 'Insegna a matrice di punti con i treni che scorrono' },
 ];
+
+// ---------- Orari programmati (GTFS di EAV) ----------
+// Interruttore: ?orari=0 nell'indirizzo lo spegne, ?orari=1 lo accende. Se il file manca, e' scaduto o non e'
+// affidabile, l'app si comporta come senza (vedi docs/orari.js e notes/gtfs-piano.md).
+export const USA_ORARI = true;
+export const ORARI_URL = 'orari.json';
+
+// route_id del GTFS -> servizio (stile) dell'app. Solo i percorsi che hanno treni; gli altri (linee 2 e 7 fuori catalogo,
+// varianti senza treni) restano senza servizio e si ricade sull'euristica.
+export const ROTTA_SERVIZIO = {
+  '1': 'sorrento', '1.': 'torre', '4': 'poggiomarino', '6': 'sarno', '8': 'baiano',
+  '5': 'circumflegrea', '5.': 'l7', '9': 'cumana', '9.': 'cumana',
+};
+// I treni del percorso 8 che partono da o arrivano a Volla (id 70) usano lo stile Pomigliano: nel GTFS nessun treno ha
+// capolinea Pomigliano, quindi altrimenti quello stile non uscirebbe mai.
+export const STAZIONE_VOLLA = '70';
+
+// Regola di fiducia: se il GTFS differisce troppo dal tabellone non si usa per gli orari.
+export const FIDUCIA = { copertura: 0.9, concordanza: 0.95, mancanti: 0.1, minTreni: 10 };
+// "Previsto, non in elenco": treni nel GTFS che mancano dal tabellone per due aggiornamenti di fila.
+export const FANTASMI = { finestraMin: 60, giriDiFila: 2, datiFrescoMs: 3 * 60 * 1000 };

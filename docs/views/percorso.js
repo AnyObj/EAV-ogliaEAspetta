@@ -6,7 +6,7 @@ import { el } from '../dom.js';
 import * as L from '../logic.js';
 import { SERVIZI } from '../config.js';
 
-export const meta = { id: 'percorso', paginate: true };
+export const meta = { id: 'percorso', paginate: true, fantasmi: true };
 
 export function render(ctx) {
   const rows = [];
@@ -18,7 +18,7 @@ export function render(ctx) {
   if (!rows.length) rows.push(el('li', { class: 'pc-empty', text: ctx.empty }));
   return el('div', { class: 'pc' },
     el('p', { class: 'pc-legend', 'aria-hidden': 'true' },
-      el('span', { class: 'lg stop' }), ' ferma  ', el('span', { class: 'lg skip' }), ' salta  ', el('span', { class: 'lg unknown' }), ' non noto'),
+      el('span', { class: 'lg stop' }), ' ferma  ', el('span', { class: 'lg skip' }), ' salta  ', el('span', { class: 'lg unknown' }), ' non noto  ', el('span', { class: 'lg nonservita' }), ' non servita'),
     el('ul', { class: 'pc-list' }, rows));
 }
 
@@ -30,6 +30,7 @@ export function routeOf(r, ctx) {
   const haveList = t.stops.length > 0;
   const listed = (id) => t.stops.find((s) => idx.sameStation(s.name, id));
   const allStops = /^A(\s|$)/i.test(t.cat || ''); // un accelerato ferma ovunque
+  const exact = Array.isArray(inf.fermate) ? new Set(inf.fermate) : null;
 
   // linea su cui si muove: tra le possibili, quella che contiene sia questa stazione sia la destinazione
   let lineName = null;
@@ -45,6 +46,8 @@ export function routeOf(r, ctx) {
   // puo' dirlo (un accelerato ci ferma comunque): "non noto", non "salta".
   const kind = (id) => {
     if (id === destId) return 'stop';
+    if (idx.nonServita(id)) return 'nonservita'; // nessun treno la serve (dagli orari programmati)
+    if (exact) return exact.has(id) ? 'stop' : 'skip'; // fermate esatte dagli orari programmati
     if (haveList) return listed(id) ? 'stop' : idx.unmonitored(id) ? 'unknown' : 'skip';
     return allStops ? 'stop' : 'unknown';
   };
@@ -55,7 +58,7 @@ export function routeOf(r, ctx) {
     for (let k = i + step; k !== j + step; k += step) ids.push(l.stazioni[k]);
   } else {
     // linea non determinabile: si disegnano solo le fermate note
-    ids = t.stops.map((s) => idx.resolve(s.name)).filter(Boolean);
+    ids = (exact ? inf.fermate : t.stops.map((s) => idx.resolve(s.name))).filter((id) => id && idx.byId.has(id));
     if (destId && !ids.includes(destId)) ids.push(destId);
   }
   return {
@@ -74,21 +77,22 @@ function rowEl(r, ctx) {
   const isOpen = ctx.open.has(t.num);
   const route = routeOf(r, ctx);
   const cls = ['pc-row', 's-' + (svc ? svc.css : 'neu'), svc && svc.strisce && 'strisce', svc && svc.arcobaleno && 'arcobaleno',
-    t.cancelled && 'cancel', match === 'si' && 'hit', match === 'no' && 'dim'].filter(Boolean).join(' ');
+    t.cancelled && 'cancel', t.fantasma && 'ghost', match === 'si' && 'hit', match === 'no' && 'dim'].filter(Boolean).join(' ');
 
   const origin = L.titleCase(ctx.idx.byId.get(ctx.station).nome);
+  const skipNS = route.nodes.filter((n) => n.kind === 'nonservita').length;
   const stopsN = route.nodes.filter((n) => n.kind === 'stop').length;
   const skipN = route.nodes.filter((n) => n.kind === 'skip').length;
   const caption = route.nodes.length
     ? stopsN + (stopsN === 1 ? ' fermata' : ' fermate') + (skipN ? ' · salta ' + skipN : '')
-      + (route.nodes.some((n) => n.kind === 'unknown') ? ' · fermate non note' : '')
+      + (route.nodes.some((n) => n.kind === 'unknown') ? ' · fermate non note' : '') + (skipNS ? ' · ' + skipNS + ' non servit' + (skipNS === 1 ? 'a' : 'e') : '')
     : 'percorso non disponibile';
 
   const strip = el('div', { class: 'pc-strip', role: 'img',
     'aria-label': 'Da ' + origin + ' a ' + L.titleCase(t.dest) + ': ' + caption },
   el('span', { class: 'pc-node origin' }, el('i'), el('b', { text: origin })),
   route.nodes.map((n) => el('span', { class: 'pc-node ' + n.kind + (n.target ? ' target' : '') + (n.dest ? ' dest' : ''),
-    title: L.titleCase(n.name) + (n.time ? ' ' + n.time : '') + (n.kind === 'skip' ? ' (salta)' : '') },
+    title: L.titleCase(n.name) + (n.time ? ' ' + n.time : '') + (n.kind === 'skip' ? ' (salta)' : n.kind === 'nonservita' ? ' (non servita)' : '') },
   el('i'), n.target || n.dest ? el('b', { text: L.titleCase(n.name) }) : null)));
 
   const li = el('li', { class: cls, 'data-num': t.num, tabindex: '0', title: 'Tocca per vedere tutte le stazioni' },
@@ -108,7 +112,7 @@ function rowEl(r, ctx) {
   if (isOpen) {
     li.append(el('ol', { class: 'pc-all' }, route.nodes.map((n) => el('li', { class: n.kind + (n.target ? ' target' : '') },
       el('i'), L.titleCase(n.name), n.time ? el('small', { text: ' ' + n.time }) : null,
-      n.kind === 'skip' ? el('small', { text: ' · salta' }) : null))));
+      n.kind === 'skip' ? el('small', { text: ' · salta' }) : n.kind === 'nonservita' ? el('small', { text: ' · non servita' }) : null))));
   }
   const toggle = () => ctx.toggle(t.num);
   li.addEventListener('click', toggle);

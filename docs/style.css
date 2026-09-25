@@ -157,6 +157,9 @@ ol{list-style:none;margin:0;padding:0;background:var(--panel);border:1px solid v
 
 /* ricerca "Vai a": chi ci arriva si illumina, gli altri si spengono */
 .row.dim{opacity:.3;filter:grayscale(1);}
+.row.ghost{opacity:.6;filter:grayscale(1);}
+.row.ghost .time,.row.ghost .dest{text-decoration:line-through;text-decoration-thickness:.1rem;}
+.st.ghost{color:var(--dim);font-style:italic;}
 .row.hit{box-shadow:inset 0 0 0 2px var(--led);}
 .sep{padding:.55rem 1rem;background:var(--bg);color:var(--dim);font:600 1.1rem var(--display);
   letter-spacing:.06em;text-align:center;border-top:2px solid var(--line);border-bottom:1px solid var(--line);}

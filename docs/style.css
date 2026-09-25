@@ -218,6 +218,14 @@ ol{list-style:none;margin:0;padding:0;background:var(--panel);border:1px solid v
 .disclaimer p{margin:0;max-width:60rem;}
 @media (max-width:640px){.disclaimer{padding:0 1rem 2rem;}}
 
-/* Elenco stazioni: se titolo e comandi (aspetto + Tema) non ci stanno, i comandi vanno a capo, allineati a sinistra */
-#home .top{flex-wrap:wrap;row-gap:.6rem;}
-#home .home-tools{flex-wrap:wrap;justify-content:flex-start;}
+/* Tasto tema con sole/luna, in alto a destra (mostra l'icona del tema a cui si passa) */
+main.board{position:relative;}
+.theme-icon{position:absolute;top:1rem;right:1.5rem;z-index:5;width:2.2rem;height:2.2rem;padding:0;display:flex;align-items:center;justify-content:center;border-radius:.5rem;}
+.theme-icon svg{display:none;}
+.theme-icon .i-sun{display:block;}
+@media (prefers-color-scheme:light){:root:not([data-theme]) .theme-icon .i-sun{display:none;} :root:not([data-theme]) .theme-icon .i-moon{display:block;}}
+:root[data-theme="light"] .theme-icon .i-sun{display:none;}
+:root[data-theme="light"] .theme-icon .i-moon{display:block;}
+#home .home-tools{margin-top:2.6rem;}    /* il menu dell'aspetto sta sotto al tasto tema */
+#board .top .clock{margin-top:2.4rem;}    /* l'orologio non finisce sotto al tasto tema */
+@media (max-width:820px){.theme-icon{right:1rem;}}

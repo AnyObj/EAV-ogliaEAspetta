@@ -1,6 +1,6 @@
 {
-  "name": "EAV ogliaEAspettà",
-  "short_name": "EAV",
+  "name": "Orari EAV",
+  "short_name": "Orari EAV",
   "description": "Teleindicatori EAV più leggibili: partenze e arrivi di ogni stazione.",
   "lang": "it",
   "start_url": "./",

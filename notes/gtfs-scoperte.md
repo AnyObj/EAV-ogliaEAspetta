@@ -10,11 +10,11 @@ Pagina: <https://www.eavsrl.it/open-data/>. Licenza dichiarata su tutte le risor
 |---|---|---|
 | **GTFS "Dati del servizio EAV ferro e gomma"** | zip di file TXT/CSV | aggiornato ogni mese; **è quello che ci interessa** |
 | Catalogo dati AGID | documento | non guardato |
-| Elenco delle linee ferroviarie EAV | file da scaricare | non guardato |
-| Elenco del materiale rotabile per bacino | file da scaricare | non guardato |
+| Elenco delle linee ferroviarie EAV | CSV, 16 righe | letto: vedi §8 |
+| Elenco del materiale rotabile per bacino | CSV, 147 unità | letto: vedi §8 (non collega treni e materiale) |
 | Calendario della validità delle corse | file da scaricare | non guardato (il GTFS contiene già il calendario) |
-| Elenco delle corse dell'orario generale | file da scaricare | non guardato (il GTFS contiene già le corse) |
-| Elenco delle stazioni sulle linee vesuviane e flegree | file da scaricare | non guardato (il GTFS contiene già le fermate) |
+| Elenco delle corse dell'orario generale | CSV, 2.185 righe | letto: vedi §8 (contiene i treni `FAC EX` che il GTFS non ha) |
+| Elenco delle stazioni sulle linee vesuviane e flegree | CSV, 176 righe | letto: vedi §8 (indicatori di stazione dismessa) |
 
 **Non esiste nessun dato in tempo reale**: niente GTFS-Realtime, ritardi, soppressioni. Il GTFS dice cosa è *programmato*, non cosa sta succedendo.
 
@@ -71,7 +71,7 @@ Confronto tra il GTFS e i tabelloni dal vivo di 11 stazioni (Garibaldi, Porta No
 2. **Gli orari coincidono**: 364 confronti su 364, nessuna differenza tra l'orario del tabellone e quello del GTFS.
 3. **La linea che ricava l'app dai dati concorda con il GTFS**: 0 disaccordi. Il GTFS conosce però anche i treni che l'app lascia grigi (Porta Nolana nei tratti in comune) e distingue le varianti (Torre A.ta = `1.`).
 4. **Treni programmati ma assenti dal tabellone**: 0, nella finestra tra "adesso" e l'ultimo treno mostrato.
-5. **Treni sul tabellone ma non programmati oggi**: 7 su 371. Sono `10821` (08:26 a Garibaldi, 08:22 a Porta Nolana), `11121` (11:22) e la serie `11018`, `11318`, `11618`, `11918` a Sorrento alle :20. Corse extra oppure buchi del GTFS: è un punto da capire.
+5. **Treni sul tabellone ma non programmati oggi**: 7 apparizioni su 371 (6 treni distinti). Sono `10821` (08:26 a Garibaldi, 08:22 a Porta Nolana), `11121` (11:22) e la serie `11018`, `11318`, `11618`, `11918` a Sorrento alle :20. **Spiegato in §8: sono treni `FAC EX` (servizio facoltativo, probabilmente turistico), che il GTFS non contiene.**
 6. **Le fermate**: l'elenco "Ferma a:" di EAV non contiene mai fermate che il GTFS non ha. Le differenze sono la destinazione finale (a volte assente dall'elenco EAV) e il nome doppio di "Pollena Trocchia" (stazioni 9 e 95).
 
 ### Scoperta: le 19 stazioni "non monitorate" non sono servite da nessun treno
@@ -114,7 +114,7 @@ Provato come lo userebbe l'app, contro i tabelloni dal vivo di 12 stazioni: 394 
 ## 6. Limiti
 
 - **Statico**: non sa nulla di ritardi e soppressioni di oggi.
-- **Aggiornamento mensile**: le variazioni temporanee possono non esserci (vedi i 7 treni).
+- **Aggiornamento mensile**: le variazioni temporanee possono non esserci. Il GTFS **non contiene i treni `FAC EX`** (vedi §8): vanno esclusi dai confronti programmato/tabellone.
 - **Host di terzi** (`wimob.it`): meglio non collegarsi al file dal vivo, ma elaborarlo e tenere una copia compatta nella repo.
 - **Attribuzione** richiesta dalla licenza: una nota nel sito e nel README.
 - I dati ferroviari compattati pesano ~234 KB in JSON non ottimizzato (~50 KB compressi).
@@ -151,7 +151,7 @@ Bacini: 1 = linee vesuviane, 2 = flegree, 3 = suburbane, 4 = metropolitane.
 ### Le stazioni "non servite" e i loro indicatori
 Il file delle stazioni ha 19 stazioni `Dismessa = 1` e 1 `Disabilitata_Temporaneamente = 1`. Delle 20 non servite dal GTFS, solo 4 sono segnate così (Castellammare Terme, Bivio Botteghelle e Bivio Madonnelle dismesse, Scrajo temporaneamente disabilitata). Le altre non hanno nessun indicatore: non sono chiuse per il file, semplicemente **nessun treno dell'orario attuale ci ferma** (i servizi via Centro Direzionale, e alcune fermate della linea di Sorrento come Cavalli di Bronzo, Via dei Monaci, Via Viuli, Moregine, Pozzano). Il termine giusto è "non servita" (non "chiusa").
 
-### I 7 treni "extra" del 25/09: sono `FAC EX`
+### I treni "extra" del 25/09 (6 treni, 7 apparizioni): sono `FAC EX`
 I sei treni sul tabellone ma non nel GTFS (10821, 11121, 11018, 11318, 11618, 11918) sono nel file delle corse con categoria **`FAC EX`**, Napoli Porta Nolana - Sorrento (e ritorno). Sul tabellone dal vivo hanno categoria `EXP`. È un servizio facoltativo (probabilmente il "Campania Express" turistico: la pagina di EAV ha un download "Orari e tariffe Campania Express") che **il GTFS non contiene**. Quindi i "programmati ma assenti" e "presenti ma non programmati" vanno letti tenendo conto che il GTFS **non copre** i `FAC EX`.
 
 ### File delle corse

@@ -15,8 +15,10 @@ Dettagli: [`gtfs-scoperte.md`](gtfs-scoperte.md). Piano completo: [`gtfs-piano.m
 5. **20 stazioni del catalogo non hanno nessun treno** (Cavalli di Bronzo, Poggioreale, Centro Direzionale…). Non sono "non monitorate": nessuno le serve. Una mia interpretazione precedente era sbagliata, ed è corretta nei documenti.
 6. **Non c'è nulla in tempo reale**: niente ritardi né soppressioni. Il file dice cosa è *programmato*, non cosa sta succedendo.
 7. **I tracciati delle linee non ci sono** per i treni (`shapes.txt` esiste solo per autobus e traghetti).
-8. **Sette treni sul tabellone non risultano programmati oggi** (per esempio 10821 alle 08:26): corse extra o buchi del file, da capire.
+8. **Sei treni sul tabellone non erano nel GTFS** (per esempio 10821): sono tutti di categoria `FAC EX` (sul tabellone `EXP`), un servizio facoltativo probabilmente turistico. Il GTFS non li contiene: nei confronti vanno esclusi.
 9. **Il file contiene anche altre linee EAV** (Piscinola-Aversa, Napoli-Caserta-Piedimonte Matese) che non sono nel nostro catalogo.
+10. **Il tipo di convoglio non si può ricavare dal numero di treno**: il file del materiale rotabile elenca 147 unità (FE220, MTS, T21, T21R, ET 100/400R/500…) ma nessun dato le lega ai treni, e non dice l'età né l'aria condizionata. Si può fare qualcosa di statistico o a mano (vedi il piano, "Idee future").
+11. **Le varianti `1..` e `8.` sono i servizi "via Centro Direzionale"**, per questo non hanno treni: le stazioni di quel tratto sono le "non servite".
 
 ## Cosa potremmo costruire
 
@@ -63,4 +65,5 @@ Le modifiche all'app potrebbero romperla, quindi **il lavoro vive sul branch loc
 
 - **Attribuzione**: la licenza chiede di citare la fonte ("Dati del servizio EAV ferro e gomma, EAV srl", IODL 2.0). Va messa nel sito e nel README, e il testo della licenza va letto prima.
 - Il file sta su un host di terzi (`wimob.it`): l'app non deve dipenderne, usa la copia compatta nella repo.
-- Il GTFS è statico e mensile: variazioni temporanee possono non esserci (vedi i sette treni). Mai dichiarare "soppresso" solo da qui.
+- Il GTFS è statico e mensile: variazioni temporanee possono non esserci, e i treni `FAC EX`/`EXP` non ci sono proprio. Mai dichiarare "soppresso" solo da qui.
+- Gli altri CSV open data sono aggiornati al 28/11/2024 (più vecchi del GTFS); i loro link hanno un parametro temporaneo, non sono indirizzi fissi.

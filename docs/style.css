@@ -104,6 +104,7 @@ input::placeholder{color:var(--dim);}
 .chip.arcobaleno::before{background:linear-gradient(135deg,var(--r-sor) 0 25%,var(--r-sar) 25% 50%,var(--r-bai) 50% 75%,var(--r-pog) 75% 100%);}
 .chip.arcobaleno[aria-pressed="true"]::before{background:var(--bg);}
 .svc.plain{color:var(--text);}
+.svc .lc{color:var(--c);} /* nome della linea vera nei treni "Verso Napoli" */
 
 /* tabella */
 .head,.row{display:grid;align-items:center;column-gap:1rem;

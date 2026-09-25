@@ -62,8 +62,8 @@ function rowEl(r, ctx) {
     el('div', { class: 'meta' },
       el('span', { class: 'tag', text: t.cat || '–' }),
       el('span', { text: 'Treno ' + t.num }),
-      svc ? el('span', { class: 'svc' + (svc.arcobaleno ? ' plain' : ''),
-        text: svc.nome + (svc.arcobaleno && lineSvc ? ' · ' + lineSvc.nome : '') }) : null,
+      svc ? el('span', { class: 'svc' + (svc.arcobaleno ? ' plain' : '') }, svc.nome,
+        svc.arcobaleno && lineSvc ? [' · ', el('span', { class: 'lc s-' + lineSvc.css, text: lineSvc.nome })] : null) : null,
       target ? el('span', { class: 'arrivo', text: (ctx.tipo === 'A' ? '← ' : '→ ') + L.titleCase(idx.byId.get(target).nome)
         + (targetStop ? ' ' + targetStop.time : match === 'forse' ? ' (probabile)' : '') }) : null,
       stopsText ? el('span', { class: 'stops' }, el('span', { class: 'stops-in', text: 'Ferma a: ' + stopsText })) : null),

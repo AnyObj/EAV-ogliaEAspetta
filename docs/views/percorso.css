@@ -60,3 +60,5 @@
 .lg.nonservita,.pc-node.nonservita i,.pc-all .nonservita i{width:.5rem;height:.5rem;border-radius:50%;background:transparent;border:1px dotted var(--dim);opacity:.7;}
 .pc-row.ghost{opacity:.6;filter:grayscale(1);}
 .pc-row.ghost .pc-time,.pc-row.ghost .pc-dest{text-decoration:line-through;text-decoration-thickness:.1rem;}
+
+.pc-svc .lc{color:var(--c);}

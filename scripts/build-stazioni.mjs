@@ -80,11 +80,15 @@ for (const s of byId.values()) {
 }
 if (errors >= 3) console.error('Giro interrotto dopo 3 errori di fila: i dati delle stazioni non sondate restano quelli vecchi.');
 
+// Abbreviazioni usate nei tabelloni che il sondaggio non ricava da solo (id stazione -> nomi).
+const ALIAS_FISSI = { '1': ['NAPOLI P.N.'] };
+
 // Alias: nomi con cui EAV scrive la stessa stazione nei tabelloni (fermate/destinazioni).
 // Un alias conteso da piu' stazioni va a quella con id piu' basso.
 const claimed = new Map();
 for (const s of [...stazioni].sort((a, b) => +a.id - +b.id)) {
   s.alias = [];
+  for (const n of ALIAS_FISSI[s.id] || []) if (!claimed.has(norm(n))) { s.alias.push(n); claimed.set(norm(n), s.id); }
   if (s.nomeEav && norm(s.nomeEav) !== norm(s.nome) && !claimed.has(norm(s.nomeEav))) {
     s.alias.push(s.nomeEav);
     claimed.set(norm(s.nomeEav), s.id);

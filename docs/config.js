@@ -63,6 +63,7 @@ export const INATTIVITA_MS = 5 * 60 * 1000; // dopo tanto senza interazione l'ag
 // `gruppo` serve solo a raggrupparli nel menu.
 export const UI_LISTA = [
   { id: 'classico',  gruppo: 'Tabellone',  nome: 'Classico',        desc: 'Tabellone da stazione' },
+  { id: 'giorno',    gruppo: 'Tabellone',  nome: 'Giorno',          desc: 'Per ogni giorno da telefono: orario e minuti in grande, stato scritto, righe comode da toccare' },
   { id: 'golfo',     gruppo: 'Tabellone',  nome: 'Golfo',           desc: 'Il tabellone che parla: una frase semplice, il disco giallo con i minuti, biglietti perforati' },
   { id: 'metro',     gruppo: 'Tabellone',  nome: 'Metropolitana',   desc: 'Segnaletica da metro: cerchi di linea, minuti in grande' },
   { id: 'svizzero',  gruppo: 'Tabellone',  nome: 'Svizzero',        desc: 'Tipografia da manifesto: orari enormi, filetti, poco colore' },

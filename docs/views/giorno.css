@@ -1,0 +1,45 @@
+/* Aspetto "Giorno": colori e tema chiaro/scuro vengono da style.css; qui solo forma e dimensioni.
+   Font di sistema (niente da scaricare) e testo base di almeno 16 px. */
+:root[data-ui="giorno"]{
+  --display:system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+  --body:system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+  font-size:clamp(16px,.75vw + 13px,34px);
+}
+.gi{max-width:42rem;margin:0 auto;}
+.gi-list{list-style:none;margin:0;padding:0;}
+
+.gi-row{position:relative;display:grid;grid-template-columns:4.4rem minmax(0,1fr) auto;column-gap:.8rem;align-items:start;
+  padding:.8rem .8rem .8rem 1.2rem;min-height:4.5rem;border-top:1px solid var(--line);}
+.gi-row[tabindex]{cursor:pointer;}
+.gi-row:focus-visible{outline:3px solid var(--text);outline-offset:-3px;}
+.gi-bar{position:absolute;left:0;top:0;bottom:0;width:.5rem;}
+.gi-next{background:var(--alt);}
+.gi-next .gi-bar{width:.8rem;}
+
+.gi-when{line-height:1.1;}
+.gi-t{display:block;font:700 1.6rem/1.1 var(--display);font-variant-numeric:tabular-nums;}
+.gi-when small{display:block;margin-top:.2rem;color:var(--dim);font-size:.9rem;font-variant-numeric:tabular-nums;}
+
+.gi-main{display:flex;flex-direction:column;gap:.15rem;min-width:0;}
+.gi-d{font:700 1.3rem/1.2 var(--display);overflow-wrap:anywhere;}
+.gi-sub{color:var(--dim);font-size:.95rem;line-height:1.25;}
+.gi-st{font:700 1rem/1.25 var(--body);}
+.gi-st.cancel{font-size:1.05rem;}
+.gi-target{font-weight:700;font-size:.95rem;}
+.gi-more{color:var(--dim);font-size:.85rem;}
+
+.gi-side{text-align:right;min-width:3.6rem;}
+.gi-eta{display:block;font:800 2rem/1 var(--display);font-variant-numeric:tabular-nums;}
+.gi-next .gi-eta{font-size:2.6rem;}
+.gi-eta small{font:600 .9rem var(--body);color:var(--dim);}
+.gi-plat{display:block;margin-top:.3rem;color:var(--dim);font-size:.95rem;white-space:nowrap;}
+
+.gi-full{grid-column:2 / -1;margin:.5rem 0 0;font-size:1rem;line-height:1.55;}
+.gi-sep{padding:.9rem 1.2rem .4rem;border-top:2px solid var(--text);font:700 1.1rem var(--display);}
+.gi-empty{padding:2rem 1rem;text-align:center;color:var(--dim);font-size:1.1rem;line-height:1.4;}
+.gi-row.hit{box-shadow:inset 0 0 0 2px var(--text);}
+
+@media (max-width:360px){
+  .gi-row{grid-template-columns:3.8rem minmax(0,1fr) auto;column-gap:.6rem;padding-left:1rem;}
+  .gi-t{font-size:1.45rem;}
+}

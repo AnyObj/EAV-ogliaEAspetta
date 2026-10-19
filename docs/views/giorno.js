@@ -34,7 +34,7 @@ function rowEl(r, ctx, first) {
       m.targetText ? el('span', { class: 'gi-target', text: m.targetText }) : null),
     el('div', { class: 'gi-side' },
       m.eta !== null ? el('b', { class: 'gi-eta' }, String(m.eta), el('small', { text: ' min' })) : null,
-      t.platform ? el('span', { class: 'gi-plat', text: 'bin. ' + t.platform }) : null));
+      t.platform ? el('span', { class: 'gi-plat', text: 'Bin. ' + t.platform }) : null));
   // fermate: quelle di EAV se ci sono, altrimenti quelle degli orari programmati (con l'orario previsto)
   const daGtfs = !t.stops.length && m.gStops.length > 0;
   const stops = daGtfs ? m.gStops : t.stops;

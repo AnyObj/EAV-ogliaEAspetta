@@ -32,7 +32,7 @@
 .gi-eta{display:block;font:800 2rem/1 var(--display);font-variant-numeric:tabular-nums;}
 .gi-next .gi-eta{font-size:2.6rem;}
 .gi-eta small{font:600 .9rem var(--body);color:var(--dim);}
-.gi-plat{display:block;margin-top:.3rem;color:var(--dim);font-size:.95rem;white-space:nowrap;}
+.gi-plat{display:inline-block;margin-top:.4rem;padding:.1rem .55rem;border-radius:.35rem;background:var(--badge-bg);color:var(--badge-tx);font:700 1.1rem/1.4 var(--body);white-space:nowrap;}
 
 .gi-full{grid-column:2 / -1;margin:.5rem 0 0;font-size:1rem;line-height:1.55;}
 .gi-sep{padding:.9rem 1.2rem .4rem;border-top:2px solid var(--text);font:700 1.1rem var(--display);}

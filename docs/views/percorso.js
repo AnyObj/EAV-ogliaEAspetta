@@ -31,6 +31,8 @@ export function routeOf(r, ctx) {
   const listed = (id) => t.stops.find((s) => idx.sameStation(s.name, id));
   const allStops = /^A(\s|$)/i.test(t.cat || ''); // un accelerato ferma ovunque
   const exact = Array.isArray(inf.fermate) ? new Set(inf.fermate) : null;
+  // orario previsto di passaggio dagli orari programmati, quando EAV non manda l'elenco
+  const gtfsTime = (id) => { const x = inf.gtfs && inf.gtfs.f.find((y) => y[0] === id); return x ? L.fmtHM(ctx.tipo === 'A' ? (x[2] ?? x[1]) : x[1]) : null; };
 
   // linea su cui si muove: tra le possibili, quella che contiene sia questa stazione sia la destinazione
   let lineName = null;
@@ -63,7 +65,7 @@ export function routeOf(r, ctx) {
   }
   return {
     nodes: ids.map((id) => ({ id, name: idx.byId.get(id).nome, kind: kind(id),
-      time: (listed(id) || {}).time || null, target: id === ctx.vai, dest: id === destId })),
+      time: (listed(id) || {}).time || gtfsTime(id), target: id === ctx.vai, dest: id === destId })),
     approx: !lineName, destId,
   };
 }

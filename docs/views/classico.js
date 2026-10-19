@@ -3,6 +3,7 @@
 import { el } from '../dom.js';
 import * as L from '../logic.js';
 import { SERVIZI } from '../config.js';
+import { model } from './_lib.js';
 
 export const meta = { id: 'classico', paginate: true, fantasmi: true };
 
@@ -48,13 +49,17 @@ function rowEl(r, ctx) {
   const cls = ['row', 's-' + (svc ? svc.css : 'neu'), svc && svc.strisce && 'strisce', svc && svc.arcobaleno && 'arcobaleno', t.cancelled && 'cancel', t.fantasma && 'ghost',
     match === 'si' && 'hit', match === 'no' && 'dim', st.cls === 'go' && 'soon'].filter(Boolean).join(' ');
 
-  const stopsText = t.stops.map((s) => L.titleCase(s.name)).join(', ');
+  // fermate: quelle di EAV se ci sono, altrimenti quelle degli orari programmati (con l'orario previsto)
+  const daGtfs = !t.stops.length;
+  const lista = daGtfs ? model(r, ctx).gStops : t.stops.map((s) => ({ nome: L.titleCase(s.name), time: s.time }));
+  const etichetta = daGtfs ? 'Fermate previste: ' : 'Ferma a: ';
+  const stopsText = lista.map((s) => s.nome).join(', ');
   const target = ctx.vai && match !== 'no' && match !== null ? ctx.vai : null;
   const targetStop = target ? t.stops.find((s) => idx.resolve(s.name) === target) : null;
   const inline = st.main ? st.main + (eta !== null && st.cls !== 'go' && !t.cancelled ? ' · tra ' + eta + ' min' : '') : '';
 
-  const li = el('li', { class: cls, 'data-num': t.num, tabindex: t.stops.length ? '0' : null,
-    title: t.stops.length ? 'Tocca per vedere tutte le fermate' : null },
+  const li = el('li', { class: cls, 'data-num': t.num, tabindex: lista.length ? '0' : null,
+    title: lista.length ? 'Tocca per vedere tutte le fermate' : null },
   el('div', { class: 'time' }, L.fmtHM(L.schedMin(t)),
     t.delay > 0 && !t.cancelled ? el('small', { text: 'prev. ' + L.fmtHM(L.expMin(t)) }) : null),
   el('div', {},
@@ -66,14 +71,14 @@ function rowEl(r, ctx) {
         svc.arcobaleno && lineSvc ? [' · ', el('span', { class: 'lc s-' + lineSvc.css, text: lineSvc.nome })] : null) : null,
       target ? el('span', { class: 'arrivo', text: (ctx.tipo === 'A' ? '← ' : '→ ') + L.titleCase(idx.byId.get(target).nome)
         + (targetStop ? ' ' + targetStop.time : match === 'forse' ? ' (probabile)' : '') }) : null,
-      stopsText ? el('span', { class: 'stops' }, el('span', { class: 'stops-in', text: 'Ferma a: ' + stopsText })) : null),
+      stopsText ? el('span', { class: 'stops' }, el('span', { class: 'stops-in', text: etichetta + stopsText })) : null),
     inline ? el('div', { class: 'st-inline st ' + st.cls, text: inline }) : null),
   el('div', { class: 'plat' + (t.platform ? '' : ' none'), 'aria-label': 'Binario', text: t.platform || '–' }),
   el('div', { class: 'col-st st ' + st.cls }, st.main, st.sub ? el('small', { text: st.sub }) : null),
   el('div', { class: 'col-eta eta' }, eta !== null && !t.cancelled ? [String(eta), el('small', { text: 'min' })] : null));
 
-  if (t.stops.length) {
-    if (isOpen) li.append(el('p', { class: 'stops-full', text: 'Ferma a: ' + t.stops.map((s) => L.titleCase(s.name) + ' ' + s.time).join(' · ') }));
+  if (lista.length) {
+    if (isOpen) li.append(el('p', { class: 'stops-full', text: etichetta + lista.map((s) => s.nome + ' ' + s.time).join(' · ') }));
     const toggle = () => ctx.toggle(t.num);
     li.addEventListener('click', toggle);
     li.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggle(); } });

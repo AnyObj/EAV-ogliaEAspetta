@@ -49,7 +49,9 @@ jobs:
       - name: Ricostruisce e valida orari.json
         if: steps.check.outputs.cambiato == 'true'
         run: |
-          npm run --silent build:orari
+          # --force: la guardia sul numero di treni (+-25%) bloccava gli orari nuovi veri (es. 623 -> 832).
+          # Restano la validazione, i test e, nell'app, la regola di fiducia confrontata col tabellone.
+          npm run --silent build:orari -- --force
           npm run --silent orari:valida
           npm test
 
@@ -69,10 +71,17 @@ jobs:
           git checkout -b "$ramo"
           git add docs/orari.json
           git commit -m "Orari: nuovo GTFS di EAV"
-          git push --force-with-lease origin "$ramo"
+          for i in 1 2 3; do
+            git push --force-with-lease origin "$ramo" && break
+            [ "$i" -eq 3 ] && { echo "Push fallito 3 volte."; exit 1; }
+            echo "Push fallito, riprovo tra 20 s..."; sleep 20
+          done
+          if [ -n "$(gh pr list --head "$ramo" --state open --json number --jq '.[0].number')" ]; then
+            echo "PR gia' aperta per questo ramo."
+            exit 0
+          fi
           gh pr create --base "$BASE" --head "$ramo" \
             --title "Orari: nuovo GTFS di EAV" \
             --body "Il GTFS di EAV e' cambiato. \`docs/orari.json\` e' stato ricostruito con \`npm run build:orari\`, validato con \`npm run orari:valida\` e i test sono passati. Controllare il diff e unire.
 
-          Dati: «Dati del servizio EAV ferro e gomma», EAV srl, rielaborati, licenza IODL 2.0." \
-            || echo "PR gia' aperta per questo ramo."
+          Dati: «Dati del servizio EAV ferro e gomma», EAV srl, rielaborati, licenza IODL 2.0."

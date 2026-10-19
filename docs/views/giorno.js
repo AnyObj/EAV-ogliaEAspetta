@@ -35,7 +35,10 @@ function rowEl(r, ctx, first) {
     el('div', { class: 'gi-side' },
       m.eta !== null ? el('b', { class: 'gi-eta' }, String(m.eta), el('small', { text: ' min' })) : null,
       t.platform ? el('span', { class: 'gi-plat', text: 'bin. ' + t.platform }) : null));
-  if (wire(li, t, ctx)) li.append(el('p', { class: 'gi-full', text: 'Ferma a: ' + m.stopsFull }));
-  else if (t.stops.length) li.querySelector('.gi-main').append(el('span', { class: 'gi-more', 'aria-hidden': 'true', text: 'Mostra le fermate' }));
+  // fermate: quelle di EAV se ci sono, altrimenti quelle degli orari programmati (con l'orario previsto)
+  const daGtfs = !t.stops.length && m.gStops.length > 0;
+  const stops = daGtfs ? m.gStops : t.stops;
+  if (wire(li, { num: t.num, stops }, ctx)) li.append(el('p', { class: 'gi-full', text: (daGtfs ? 'Fermate previste: ' + m.gStopsFull : 'Ferma a: ' + m.stopsFull) }));
+  else if (stops.length) li.querySelector('.gi-main').append(el('span', { class: 'gi-more', 'aria-hidden': 'true', text: 'Mostra le fermate' }));
   return li;
 }

@@ -289,7 +289,7 @@ function buildRows(nuovoGiro) {
     // negli arrivi `dest` e' la provenienza: la regola "la destinazione fa da servizio" (Napoli, Torre A.ta) non vale
     let inf = L.inferService(t, state.station, idx, state.tipo === 'A' ? { ...CFG, DESTINAZIONE_SERVIZIO: {} } : CFG);
     const g = usa ? O.inferGtfs(state.orari, t, state.station, state.tipo, idx, CFG) : null;
-    if (g) inf = { ...inf, service: g.service || inf.service, lineService: g.lineService || inf.lineService, fermate: g.fermate };
+    if (g) inf = { ...inf, service: g.service || inf.service, lineService: g.lineService || inf.lineService, fermate: g.fermate, gtfs: g.gtfs };
     return { t, inf, match: null };
   });
 

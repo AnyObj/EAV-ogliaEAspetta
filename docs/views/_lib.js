@@ -14,7 +14,13 @@ export function model(r, ctx) {
   const target = ctx.vai && match !== 'no' && match !== null ? ctx.vai : null;
   const targetStop = target ? t.stops.find((s) => idx.sameStation(s.name, target)) : null;
   const line = inf.lines.length === 1 ? idx.lines.get(inf.lines[0]) : null;
+  // Fermate dagli orari programmati (GTFS), con l'orario previsto di passaggio: servono quando il tabellone non manda "Ferma a:".
+  const gStops = inf.gtfs && inf.fermate ? inf.fermate.map((id) => {
+    const x = inf.gtfs.f.find((y) => y[0] === id), s = idx.byId.get(id);
+    return { nome: s ? L.titleCase(s.nome) : id, time: x ? L.fmtHM(ctx.tipo === 'A' ? (x[2] ?? x[1]) : x[1]) : '' };
+  }) : [];
   return {
+    gStops, gStopsFull: gStops.map((s) => s.nome + ' ' + s.time).join(' · '),
     t, inf, match, svc, lineSvc, st, eta,
     lineId: line ? line.id : null,                                   // "L1", "L4", ... come li chiama EAV
     time: L.fmtHM(L.schedMin(t)),

@@ -229,3 +229,7 @@ main.board{position:relative;}
 #home .home-tools{margin-top:2.6rem;}    /* il menu dell'aspetto sta sotto al tasto tema */
 #board .top .clock{margin-top:2.4rem;}    /* l'orologio non finisce sotto al tasto tema */
 @media (max-width:820px){.theme-icon{right:1rem;}}
+
+/* Accessibilita': "In orario" non in verde, che si confonde col verde di Torre A.ta, Poggiomarino e Cumana. Colore del testo
+   (bianco di notte, scuro di giorno): lo stato resta scritto e i ritardi restano in ambra/arancio/rosso. Solo Classico e Giorno. */
+:root[data-ui="classico"] .st.ok,:root[data-ui="giorno"] .st.ok{color:var(--text);}
